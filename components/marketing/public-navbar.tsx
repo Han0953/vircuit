@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, CircuitBoard, Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -16,10 +16,16 @@ import {
 } from "@/components/ui/sheet";
 import { ComingSoonAction } from "./coming-soon-action";
 
-const navigation = ["Fitur", "Belajar", "Jelajahi", "Harga"] as const;
+const navigation = [
+  { label: "Fitur", href: "#fitur" },
+  { label: "Belajar", href: "#belajar" },
+  { label: "Jelajahi", href: "#jelajahi" },
+  { label: "Harga", href: "#harga" },
+] as const;
 
 export function PublicNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const sectionDestination = useRef<string | null>(null);
 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 1024px)");
@@ -52,10 +58,10 @@ export function PublicNavbar() {
           <Button asChild variant="ghost" className="text-primary">
             <Link href="/" aria-current="page">Beranda</Link>
           </Button>
-          {navigation.map((label) => (
-            <ComingSoonAction key={label} destination={label}>
-              <Button variant="ghost" className="text-text-secondary">{label}</Button>
-            </ComingSoonAction>
+          {navigation.map(({ label, href }) => (
+            <Button key={href} asChild variant="ghost" className="text-text-secondary">
+              <a href={href}>{label}</a>
+            </Button>
           ))}
         </nav>
 
@@ -79,7 +85,16 @@ export function PublicNavbar() {
                 <Menu aria-hidden="true" className="size-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent className="w-full max-w-sm overflow-y-auto">
+            <SheetContent
+              className="w-full max-w-sm overflow-y-auto"
+              onCloseAutoFocus={(event) => {
+                if (!sectionDestination.current) return;
+                // Keep anchor navigation from jumping back to the menu trigger.
+                event.preventDefault();
+                document.getElementById(sectionDestination.current)?.focus({ preventScroll: true });
+                sectionDestination.current = null;
+              }}
+            >
               <SheetHeader className="border-b p-6 pr-16 text-left">
                 <SheetTitle className="text-xl">Vircuit</SheetTitle>
                 <SheetDescription>Belajar IoT lewat praktik.</SheetDescription>
@@ -90,10 +105,12 @@ export function PublicNavbar() {
                     <Link href="/" aria-current="page">Beranda</Link>
                   </Button>
                 </SheetClose>
-                {navigation.map((label) => (
-                  <ComingSoonAction key={label} destination={label}>
-                    <Button variant="ghost" className="justify-start">{label}</Button>
-                  </ComingSoonAction>
+                {navigation.map(({ label, href }) => (
+                  <SheetClose key={href} asChild>
+                    <Button asChild variant="ghost" className="justify-start">
+                      <a href={href} onClick={() => { sectionDestination.current = href.slice(1); }}>{label}</a>
+                    </Button>
+                  </SheetClose>
                 ))}
               </nav>
               <div className="mx-4 flex flex-col gap-3 border-t pt-4">
