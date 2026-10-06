@@ -1,0 +1,323 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import {
+  AlertTriangle,
+  BookOpen,
+  Bug,
+  CheckCircle2,
+  CircuitBoard,
+  Code2,
+  Compass,
+  Cpu,
+  Layers,
+  Play,
+  TrendingUp,
+  Workflow,
+} from "lucide-react";
+import { CtaSection, SimulatorCtaButton } from "@/components/marketing/final-cta-section";
+import { marketingRoutes } from "@/components/marketing/marketing-routes";
+import { PageHero } from "@/components/marketing/page-hero";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "Fitur",
+  description:
+    "Fitur lengkap Vircuit: Virtual Laboratory, Circuit Builder, Interactive Wiring, Code Editor, Simulasi Real-time, AI Tutor, dan pelacakan progress.",
+};
+
+/**
+ * Structured breakdown of the 10 core Vircuit features required by PRD.md:
+ *
+ * Group 1: Lingkungan Eksperimen & Perancangan
+ *   1. Virtual Laboratory (PRD 6.2 - LAB-1..8)
+ *   2. Circuit Builder (PRD 6.3 - COMP-1..6)
+ *   3. Interactive Wiring (PRD 6.4 - WIRE-1..7)
+ *
+ * Group 2: Pemrograman & Simulasi Reaktif
+ *   4. Code Editor (PRD 6.5 - SIM-1)
+ *   5. Real-time Simulation (PRD 6.5 - SIM-2..8)
+ *   6. Problems / Debugging (PRD 6.5 - SIM-6)
+ *
+ * Group 3: Asistensi Pembelajaran AI
+ *   7. AI Tutor (PRD 6.12 - AI-2)
+ *   8. AI Debugger (PRD 6.12 - AI-3)
+ *   9. Project Assistant (PRD 6.12 - AI-4)
+ *
+ * Group 4: Kurikulum & Perkembangan
+ *   10. Learning Progress (PRD 6.11 - PROG-1..2)
+ */
+const featureGroups = [
+  {
+    category: "Lingkungan Eksperimen & Perancangan",
+    eyebrow: "01 / Workspace & Rangkaian",
+    items: [
+      {
+        id: "virtual-laboratory",
+        icon: CircuitBoard,
+        title: "Virtual Laboratory",
+        badge: "Core Experience",
+        description:
+          "Satu lingkungan terpadu yang menyatukan kanvas rangkaian, editor kode, monitor serial, dan simulasi tanpa memerlukan instalasi software rumit atau hardware fisik di tahap awal.",
+        highlights: [
+          "Akses fleksibel dari desktop maupun perangkat mobile",
+          "Mode tamu langsung pakai tanpa wajib login",
+          "Workspace terstruktur dengan kanvas bebas dan panel adaptif",
+        ],
+      },
+      {
+        id: "circuit-builder",
+        icon: Cpu,
+        title: "Circuit Builder",
+        badge: "Visual Workspace",
+        description:
+          "Penyusunan komponen bebas dengan mekanisme drag-and-drop, rotasi, seleksi, serta penataan papan microcontroller, breadboard, sensor, aktuator, dan komponen pasif.",
+        highlights: [
+          "Dukungan board utama: Arduino Uno, Arduino Nano, dan ESP32",
+          "Pilihan breadboard mini, half-size, hingga full-size",
+          "Komponen pasif dan interaktif: LED, resistor, buzzer, button, potentiometer",
+        ],
+      },
+      {
+        id: "interactive-wiring",
+        icon: Workflow,
+        title: "Interactive Wiring",
+        badge: "Smart Connectivity",
+        description:
+          "Penghubungan pin-ke-pin interaktif dengan preview kabel dinamis, pemetaan node elektrik internal breadboard, serta identitas logis pin yang tetap terikat saat komponen dipindahkan.",
+        highlights: [
+          "Identitas pin berbasis logika kelistrikan (componentId.pinId)",
+          "Penataan warna kabel kustom untuk kerapian skema",
+          "Konektivitas internal lajur daya dan terminal hole breadboard",
+        ],
+      },
+    ],
+  },
+  {
+    category: "Pemrograman & Simulasi Reaktif",
+    eyebrow: "02 / Runtime & Pengujian",
+    items: [
+      {
+        id: "code-editor",
+        icon: Code2,
+        title: "Code Editor",
+        badge: "Integrated IDE",
+        description:
+          "Editor kode terintegrasi dengan penomoran baris, pewarnaan sintaksis, serta struktur bahasa Arduino C/C++ standar untuk mengendalikan perilaku rangkaian secara langsung.",
+        highlights: [
+          "Dukungan fungsi inti: setup(), loop(), pinMode(), digital & analog I/O",
+          "Pemisahan workspace kode dan kanvas dengan mode fokus",
+          "Validasi sintaksis sebelum eksekusi simulasi",
+        ],
+      },
+      {
+        id: "realtime-simulation",
+        icon: Play,
+        title: "Real-time Simulation",
+        badge: "Simulation Engine",
+        description:
+          "Mesin simulasi yang membaca status sirkuit, instruksi kode, serta manipulasi komponen input secara real-time untuk menghasilkan respons komponen output yang akurat.",
+        highlights: [
+          "Eksperimen sebab-akibat: ubah input dan amati langsung respons output",
+          "Arsitektur terisolasi ramah performa tanpa mengunci antarmuka browser",
+          "Serial Monitor virtual untuk pemantauan data telemetri dan serial print",
+        ],
+      },
+      {
+        id: "problems-debugging",
+        icon: AlertTriangle,
+        title: "Problems / Debugging",
+        badge: "Deterministic Inspection",
+        description:
+          "Pemeriksaan deterministik terhadap kesalahan umum seperti koneksi pin terbalik, pin menggantung, polaritas salah, hingga kesalahan logika pemrograman.",
+        highlights: [
+          "Panel Problems dengan penunjuk lokasi error yang spesifik",
+          "Pembedaan jelas antara peringatan logika vs kesalahan elektrik fatal",
+          "Prinsip belajar dari kesalahan sebagai bagian penting penguasaan materi",
+        ],
+      },
+    ],
+  },
+  {
+    category: "Kecerdasan Buatan Pendamping",
+    eyebrow: "03 / Asisten AI Edukatif",
+    items: [
+      {
+        id: "ai-tutor",
+        icon: BookOpen,
+        title: "AI Tutor",
+        badge: "Pedagogical Guide",
+        description:
+          "Tutor virtual yang siap menerangkan konsep elektronika dasar, arsitektur microcontroller, dan cara kerja sensor dengan bahasa Indonesia yang natural, semi-formal, dan ramah pemula.",
+        highlights: [
+          "Gaya percakapan suportif berorientasi pemahaman konsep mandiri",
+          "Penjelasan kontekstual sesuai tingkat kesulitan materi",
+          "Hanya aktif untuk pengguna terdaftar dengan batas kuota proporsional",
+        ],
+      },
+      {
+        id: "ai-debugger",
+        icon: Bug,
+        title: "AI Debugger",
+        badge: "Context-Aware Help",
+        description:
+          "Asisten pemecahan masalah yang membaca ringkasan skema rangkaian, kode, dan log error untuk membimbing langkah perbaikan tanpa langsung membocorkan jawaban utuh.",
+        highlights: [
+          "Analisis berbasis konteks terstruktur dari panel Problems",
+          "Pendekatan bertingkat: petunjuk awal → arahan bertahap",
+          "Mengisolasi error tanpa risiko membahayakan komponen fisik nyata",
+        ],
+      },
+      {
+        id: "project-assistant",
+        icon: Compass,
+        title: "Project Assistant",
+        badge: "Ideation & Blueprint",
+        description:
+          "Membantu menerjemahkan ide proyek IoT kamu menjadi cetak biru teknis, daftar kebutuhan komponen, dan rencana implementasi langkah demi langkah.",
+        highlights: [
+          "Dekomposisi ide menjadi modul input, processing, dan output",
+          "Rekomendasi pemilihan sensor dan aktuator yang tepat",
+          "Penyusunan target capaian belajar sebelum memulai perakitan",
+        ],
+      },
+    ],
+  },
+  {
+    category: "Kurikulum & Perkembangan",
+    eyebrow: "04 / Alur Kemampuan",
+    items: [
+      {
+        id: "learning-progress",
+        icon: TrendingUp,
+        title: "Learning Progress",
+        badge: "Skill Tracking",
+        description:
+          "Pemantauan kemajuan kompetensi modular yang memetakan pemahaman elektronika dasar, wiring, pemrograman microcrontroller, sensor, hingga pengembangan proyek terpadu.",
+        highlights: [
+          "Matriks skill mencakup Digital I/O, Analog, PWM, dan Komunikasi Serial",
+          "Riwayat penyelesaian challenge dan proyek capstone",
+          "Jembatan konseptual teruji sebelum beralih ke perangkat fisik nyata",
+        ],
+      },
+    ],
+  },
+];
+/**
+ * Public Feature Showcase Page (Route: `/fitur`).
+ *
+ * Detailed specification page detailing Vircuit's 10 major technical capabilities:
+ * Virtual Lab, Circuit Builder, Interactive Wiring, Code Editor, Real-time Simulation,
+ * Problems / Debugging, AI Tutor, AI Debugger, Project Assistant, and Learning Progress.
+ */
+export function FiturPage() {
+  return (
+    <>
+      <PageHero
+        id="fitur-hero-heading"
+        eyebrow="Fitur Vircuit"
+        title={
+          <>
+            Dirancang untuk memahami <span className="text-primary">aliran listrik, kode, dan logika.</span>
+          </>
+        }
+        description="Jelajahi 10 fitur utama Vircuit yang memadukan kebebasan merangkai di laboratorium virtual, simulasi interaktif, debugging terarah, dan kecerdasan buatan sebagai pendamping belajar."
+        actions={
+          <>
+            <SimulatorCtaButton />
+            <Button asChild variant="outline" className="h-12 px-6">
+              <Link href={marketingRoutes.learn}>
+                <BookOpen aria-hidden="true" />
+                Lihat Alur Belajar
+              </Link>
+            </Button>
+          </>
+        }
+        note="Semua fitur dirancang mengikuti spesifikasi teknis PRD Vircuit."
+      />
+
+      {/* Feature groups */}
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8 sm:py-16">
+        <div className="space-y-16 lg:space-y-24">
+          {featureGroups.map((group) => (
+            <section key={group.category} aria-labelledby={`group-${group.eyebrow}`}>
+              <div className="border-b pb-4">
+                <p className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
+                  {group.eyebrow}
+                </p>
+                <h2 id={`group-${group.eyebrow}`} className="mt-2 text-h2 font-semibold tracking-tight">
+                  {group.category}
+                </h2>
+              </div>
+
+              <div className="mt-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <article
+                      key={item.id}
+                      id={item.id}
+                      className="flex flex-col justify-between rounded-lg border bg-surface p-6 sm:p-8 transition-colors hover:border-border-strong"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="flex size-11 items-center justify-center rounded-md border bg-background text-primary">
+                            <Icon className="size-5" aria-hidden="true" />
+                          </span>
+                          <Badge variant="outline" className="font-mono text-[11px]">
+                            {item.badge}
+                          </Badge>
+                        </div>
+
+                        <h3 className="mt-6 text-xl font-semibold tracking-tight">{item.title}</h3>
+                        <p className="mt-3 text-sm leading-relaxed text-text-secondary">{item.description}</p>
+                      </div>
+
+                      <div className="mt-6 border-t pt-5">
+                        <p className="text-xs font-semibold tracking-wider text-text-secondary uppercase">
+                          Kemampuan Utama
+                        </p>
+                        <ul className="mt-3 space-y-2 text-xs leading-relaxed text-text-secondary">
+                          {item.highlights.map((highlight) => (
+                            <li key={highlight} className="flex items-start gap-2">
+                              <CheckCircle2
+                                className="size-3.5 shrink-0 text-primary mt-0.5"
+                                aria-hidden="true"
+                              />
+                              <span>{highlight}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
+
+      <CtaSection
+        id="fitur-cta-heading"
+        eyebrow="Uji Coba Langsung"
+        title="Ingin merasakan langsung kanvas Virtual Lab?"
+        description="Mulai dari papan microcontroller, hubungkan kabel pertamamu, dan jalankan kode simulasi tanpa perlu membuat akun terlebih dahulu."
+        actions={
+          <>
+            <SimulatorCtaButton label="Buka Simulator Sekarang" />
+            <Button asChild variant="outline" className="h-12 px-6">
+              <Link href={marketingRoutes.explore}>
+                <Layers aria-hidden="true" />
+                Lihat Contoh Proyek
+              </Link>
+            </Button>
+          </>
+        }
+        note="Simulator inti dapat diakses langsung oleh mode tamu."
+      />
+    </>
+  );
+}
+
+export default FiturPage;

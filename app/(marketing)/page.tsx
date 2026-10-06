@@ -1,5 +1,4 @@
 import { LandingHero } from "@/components/marketing/landing-hero";
-import { PublicNavbar } from "@/components/marketing/public-navbar";
 import { ProblemSection } from "@/components/marketing/problem-section";
 import { VirtualLabSection } from "@/components/marketing/virtual-lab-section";
 import { InputOutputSection } from "@/components/marketing/input-output-section";
@@ -8,24 +7,35 @@ import { LearningJourneySection } from "@/components/marketing/learning-journey-
 import { ProjectShowcaseSection } from "@/components/marketing/project-showcase-section";
 import { PricingSection } from "@/components/marketing/pricing-section";
 import { FinalCtaSection } from "@/components/marketing/final-cta-section";
-import { PublicFooter } from "@/components/marketing/public-footer";
 
+/**
+ * Public Homepage for Vircuit (Route: `/`).
+ *
+ * Implements PRD.md Section 6.1 (WEB-1) & DESIGN.md Section 19:
+ * Acts as the high-level overview of the entire Vircuit ecosystem.
+ * Rather than holding monolithic content, each section provides a focused preview
+ * with low-emphasis preview links (`SectionLink`) directing users to the respective
+ * in-depth pages:
+ * - Virtual Lab preview -> `/fitur`
+ * - Learning Journey preview -> `/belajar`
+ * - Project Showcase preview -> `/jelajahi`
+ * - Pricing overview -> `/harga`
+ *
+ * The shared `PublicNavbar` and `PublicFooter` are provided automatically
+ * by the parent `(marketing)/layout.tsx`.
+ */
 export default function HomePage() {
   return (
     <>
-      <PublicNavbar />
-      <main id="main-content" tabIndex={-1}>
-        <LandingHero />
-        <ProblemSection />
-        <VirtualLabSection />
-        <InputOutputSection />
-        <AiLearningSection />
-        <LearningJourneySection />
-        <ProjectShowcaseSection />
-        <PricingSection />
-        <FinalCtaSection />
-      </main>
-      <PublicFooter />
+      <LandingHero />
+      <ProblemSection />
+      <VirtualLabSection />
+      <InputOutputSection />
+      <AiLearningSection />
+      <LearningJourneySection />
+      <ProjectShowcaseSection />
+      <PricingSection />
+      <FinalCtaSection />
     </>
   );
 }

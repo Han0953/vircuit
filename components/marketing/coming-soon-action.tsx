@@ -14,11 +14,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+/**
+ * Accessible modal dialog explaining that a feature or section is currently under development.
+ *
+ * Utilized across marketing areas where interactive controls trigger informative
+ * "under construction" feedback rather than dead links or silent failures.
+ */
 export function ComingSoonAction({
   children,
   destination,
 }: {
+  /** Trigger element wrapped inside DialogTrigger */
   children: ReactNode;
+  /** Name of the target feature or page being prepared */
   destination: string;
 }) {
   return (
