@@ -22,13 +22,6 @@ export const metadata: Metadata = {
     "Entry point Virtual Lab Vircuit: ruang eksperimen rangkaian, wiring interaktif, dan simulasi kode IoT.",
 };
 
-/**
- * Architectural roadmap alignment for workspace components:
- * - Milestone 2: Workspace shell & parts catalog (VIR-040..043)
- * - Milestone 3: Interactive pin-to-pin wiring (VIR-060..065)
- * - Milestone 4: Monaco code editor & serial telemetry (VIR-080..085)
- * - Milestone 5: Web Worker isolated simulation runtime (VIR-100..105)
- */
 const workspaceModules = [
   {
     icon: Boxes,
@@ -62,15 +55,6 @@ const workspaceModules = [
   },
 ];
 
-/**
- * Public Simulator Entry Point (Route: `/simulator`).
- *
- * Architecture note (AGENT.md #63 & #73):
- * To prevent bundle bloat on public marketing routes, heavy simulation dependencies
- * (React Flow, Monaco Editor, Web Worker runtime) must NOT be loaded on marketing pages.
- * This placeholder serves as the active destination route while the full workspace canvas
- * is being engineered under VIR-040.
- */
 export function SimulatorPage() {
   return (
     <>

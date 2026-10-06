@@ -5,26 +5,19 @@ import { Button } from "@/components/ui/button";
 import { marketingRoutes } from "./marketing-routes";
 import styles from "./landing-sections.module.css";
 
-/**
- * Reusable CTA banner placed at the bottom of marketing pages.
- *
- * Implements DESIGN.md Section 8 & 19.9:
- * - Employs a subtle PCB grid backdrop (.circuitBackground) with linear opacity mask
- * - Provides structured slots for eyebrow, H2 heading, descriptive body, and primary/secondary action buttons
- * - Includes an optional fine-print note for disclaimers or status indicators
- */
-export function CtaSection({ id, eyebrow, title, description, actions, note }: {
-  /** Heading identifier used for aria-labelledby attribute */
+export function CtaSection({
+  id,
+  eyebrow,
+  title,
+  description,
+  actions,
+  note,
+}: {
   id: string;
-  /** Numerical step or category eyebrow tag */
   eyebrow: string;
-  /** Primary invitation headline */
   title: string;
-  /** Body text offering concise next-step guidance */
   description: string;
-  /** Interactive button elements (primary CTA + optional secondary links) */
   actions: ReactNode;
-  /** Optional secondary footnote */
   note?: string;
 }) {
   return (
@@ -54,10 +47,6 @@ export function CtaSection({ id, eyebrow, title, description, actions, note }: {
   );
 }
 
-/**
- * Reusable primary CTA button for entering the Virtual Lab workspace without full-page reloads.
- * Adheres to AGENT.md #16 & DESIGN.md #11: uses Lucide ArrowUpRight icon without emojis.
- */
 export function SimulatorCtaButton({ label = "Coba Simulator" }: { label?: string }) {
   return (
     <Button asChild className="h-12 px-6">
@@ -69,11 +58,6 @@ export function SimulatorCtaButton({ label = "Coba Simulator" }: { label?: strin
   );
 }
 
-/**
- * Standard final call-to-action preset for the homepage.
- * Directs visitors to either the guest simulator entry point (/simulator)
- * or the learning curriculum overview (/belajar).
- */
 export function FinalCtaSection() {
   return (
     <CtaSection

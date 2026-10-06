@@ -3,14 +3,6 @@ import { marketingRoutes } from "./marketing-routes";
 import { SectionHeading } from "./section-heading";
 import { SectionLink } from "./section-link";
 
-/**
- * Pricing / Freemium preview section on the homepage (PRD Section 6.14 & AGENT.md #54).
- *
- * Core principles enforced here:
- * 1. The core simulator remains fully accessible on Free without paywalls.
- * 2. Premium expands AI request quotas and provides access to complex advanced capstone materials.
- * 3. Never display fictitious pricing numbers; clearly state "Harga belum ditentukan" until finalized.
- */
 export function PricingSection() {
   return (
     <section aria-labelledby="pricing-heading" className="border-t">
@@ -22,7 +14,6 @@ export function PricingSection() {
           description="Core simulator tetap Free. Premium direncanakan untuk memperluas kapasitas AI dan akses ke sebagian konten lanjutan."
         />
         <div className="mt-10 grid gap-6 md:grid-cols-2">
-          {/* Free Tier Card: core features accessible to all learners */}
           <article className="rounded-lg border border-primary bg-surface p-6 sm:p-8">
             <p className="mb-5 font-mono text-xs text-text-secondary">AKSES INTI</p>
             <h3 className="text-h3 font-semibold">Free</h3>
@@ -42,7 +33,6 @@ export function PricingSection() {
             </ul>
           </article>
 
-          {/* Premium Tier Card: quota expansions and advanced project templates */}
           <article className="rounded-lg border bg-surface p-6 sm:p-8">
             <p className="mb-5 font-mono text-xs text-text-secondary">PERLUASAN AKSES</p>
             <h3 className="text-h3 font-semibold">Premium</h3>
@@ -70,7 +60,6 @@ export function PricingSection() {
           Gambaran paket masih konseptual; belum tersedia pembelian. Harga, jumlah kuota AI, batas penyimpanan project, dan daftar konten Premium akan ditentukan kemudian.
         </p>
 
-        {/* Navigation to dedicated pricing & comparison matrix page */}
         <SectionLink href={marketingRoutes.pricing} className="mt-6">
           Lihat Paket
         </SectionLink>

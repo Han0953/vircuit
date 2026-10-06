@@ -26,27 +26,6 @@ export const metadata: Metadata = {
     "Fitur lengkap Vircuit: Virtual Laboratory, Circuit Builder, Interactive Wiring, Code Editor, Simulasi Real-time, AI Tutor, dan pelacakan progress.",
 };
 
-/**
- * Structured breakdown of the 10 core Vircuit features required by PRD.md:
- *
- * Group 1: Lingkungan Eksperimen & Perancangan
- *   1. Virtual Laboratory (PRD 6.2 - LAB-1..8)
- *   2. Circuit Builder (PRD 6.3 - COMP-1..6)
- *   3. Interactive Wiring (PRD 6.4 - WIRE-1..7)
- *
- * Group 2: Pemrograman & Simulasi Reaktif
- *   4. Code Editor (PRD 6.5 - SIM-1)
- *   5. Real-time Simulation (PRD 6.5 - SIM-2..8)
- *   6. Problems / Debugging (PRD 6.5 - SIM-6)
- *
- * Group 3: Asistensi Pembelajaran AI
- *   7. AI Tutor (PRD 6.12 - AI-2)
- *   8. AI Debugger (PRD 6.12 - AI-3)
- *   9. Project Assistant (PRD 6.12 - AI-4)
- *
- * Group 4: Kurikulum & Perkembangan
- *   10. Learning Progress (PRD 6.11 - PROG-1..2)
- */
 const featureGroups = [
   {
     category: "Lingkungan Eksperimen & Perancangan",
@@ -203,13 +182,6 @@ const featureGroups = [
     ],
   },
 ];
-/**
- * Public Feature Showcase Page (Route: `/fitur`).
- *
- * Detailed specification page detailing Vircuit's 10 major technical capabilities:
- * Virtual Lab, Circuit Builder, Interactive Wiring, Code Editor, Real-time Simulation,
- * Problems / Debugging, AI Tutor, AI Debugger, Project Assistant, and Learning Progress.
- */
 export function FiturPage() {
   return (
     <>

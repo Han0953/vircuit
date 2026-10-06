@@ -1,10 +1,6 @@
 import { Boxes, Cable, Clock3, Wallet } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 
-/**
- * Key learning barriers identified in PRD.md (Section 1: Ringkasan Produk) and DESIGN.md (19.2).
- * Articulates why a browser-based virtual lab is essential before touching physical hardware.
- */
 const problems = [
   {
     icon: Wallet,
@@ -28,10 +24,6 @@ const problems = [
   },
 ];
 
-/**
- * Problem section highlighting the four friction points of physical IoT learning:
- * equipment cost, limited lab hours, troubleshooting difficulty, and fragmented tools.
- */
 export function ProblemSection() {
   return (
     <section aria-labelledby="problem-heading" className="border-t">

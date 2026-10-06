@@ -4,13 +4,6 @@ import { marketingRoutes } from "./marketing-routes";
 import { SectionHeading } from "./section-heading";
 import { SectionLink } from "./section-link";
 
-/**
- * Four fundamental pillars of the Virtual Lab workspace (PRD Section 4.1 & DESIGN.md 19.3):
- * 1. Board: Placement of microcontroller & breadboard
- * 2. Wiring: Interactive pin-to-pin connections
- * 3. Code: Integrated editor with standard Arduino syntax
- * 4. Simulation: Real-time circuit and code execution
- */
 const steps = [
   { icon: CircuitBoard, name: "Board", text: "Susun board, breadboard, dan komponen." },
   { icon: Workflow, name: "Wiring", text: "Hubungkan pin untuk membentuk rangkaian." },
@@ -18,11 +11,6 @@ const steps = [
   { icon: Play, name: "Simulation", text: "Amati respons rangkaian terhadap kode." },
 ];
 
-/**
- * Virtual Lab showcase section on the homepage.
- * Combines an SVG vector schematic, an authentic Arduino C/C++ blink code snippet,
- * and a sequential summary of the workflow, with a link to the dedicated `/fitur` page.
- */
 export function VirtualLabSection() {
   return (
     <section aria-labelledby="lab-heading" className="border-t bg-surface">
@@ -34,7 +22,6 @@ export function VirtualLabSection() {
           description="Dari menyusun komponen hingga membaca hasil: Virtual Lab dirancang untuk menghubungkan rangkaian, wiring, kode, dan simulasi dalam satu alur praktik."
         />
 
-        {/* 2D Vector Schematic and Synchronized Code Preview */}
         <figure className="mt-10 overflow-hidden rounded-lg border bg-background">
           <figcaption className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 text-xs text-text-secondary">
             <span className="font-mono">VIRCUIT / VIRTUAL LAB</span>
@@ -59,7 +46,6 @@ export function VirtualLabSection() {
           </div>
         </figure>
 
-        {/* 4-step workflow cards */}
         <ol className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map(({ icon: Icon, name, text }, index) => (
             <li key={name} className="border-t pt-5">
@@ -75,7 +61,6 @@ export function VirtualLabSection() {
           ))}
         </ol>
 
-        {/* Navigation to full feature specification page */}
         <SectionLink href={marketingRoutes.features} className="mt-8">
           Pelajari Fitur
         </SectionLink>

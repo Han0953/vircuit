@@ -1,12 +1,6 @@
 import { BookOpen, Bug, Compass, Sparkles } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 
-/**
- * Three primary AI assistance modalities defined in PRD.md (6.12) & AGENT.md (#47):
- * - AI Tutor: Explains electronics concepts & theory
- * - AI Debugger: Analyzes circuit context & error traces
- * - AI Project Assistant: Structures rough ideas into actionable project blueprints
- */
 const roles = [
   {
     icon: BookOpen,
@@ -25,11 +19,6 @@ const roles = [
   },
 ];
 
-/**
- * AI Learning Section illustrating Vircuit's pedagogical AI philosophy:
- * AI acts as a patient assistant that guides user reasoning, not an autopilot
- * that completes the challenge for them (PRD Section 14, Principle 5).
- */
 export function AiLearningSection() {
   return (
     <section aria-labelledby="ai-heading" className="border-t bg-surface">
@@ -59,7 +48,6 @@ export function AiLearningSection() {
           </p>
         </div>
 
-        {/* Conceptual mockup of the 3-step error analysis dialog */}
         <figure className="self-center rounded-lg border bg-background p-5 sm:p-8">
           <figcaption className="mb-6 flex items-center gap-3 border-b pb-5 text-xs text-text-secondary">
             <Sparkles className="size-5 text-ai" aria-hidden="true" />

@@ -1,13 +1,6 @@
 import { ArrowDown, ArrowRight, Cpu, Fan, Thermometer } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 
-/**
- * Stages representing the foundational IoT computing paradigm:
- * Sensing (Input) -> Computation (Processing) -> Action (Output).
- *
- * Referenced in PRD.md (Section 2, SIM-4) and DESIGN.md (Section 19.4)
- * to help beginners understand cause-and-effect before diving into code.
- */
 const stages = [
   {
     name: "Input",
@@ -32,11 +25,6 @@ const stages = [
   },
 ];
 
-/**
- * Educational section explaining the reactive cause-and-effect loop in IoT systems.
- * Uses a temperature-controlled fan scenario to illustrate how virtual sensors,
- * microcontroller logic, and actuators correlate.
- */
 export function InputOutputSection() {
   return (
     <section aria-labelledby="flow-heading" className="border-t">
@@ -61,7 +49,6 @@ export function InputOutputSection() {
               <p className="mt-3 mb-8 text-sm leading-relaxed text-text-secondary">{detail}</p>
               <p className="mt-auto border-t pt-4 font-mono text-sm">{example}</p>
 
-              {/* Responsive connector: vertical arrow on mobile stacked cards, horizontal arrow on desktop grid */}
               {index < stages.length - 1 && (
                 <>
                   <ArrowDown

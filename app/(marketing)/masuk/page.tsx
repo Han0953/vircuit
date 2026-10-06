@@ -11,19 +11,6 @@ export const metadata: Metadata = {
     "Masuk ke akun Vircuit untuk menyimpan proyek, memantau kemajuan belajar, dan mengakses asistensi AI.",
 };
 
-/**
- * Public Authentication Entry Point (Route: `/masuk`).
- *
- * Scope note (AGENT.md #41 & TODO.md VIR-210..212):
- * Full Supabase Authentication (Email/Password, Google OAuth, and Session Management)
- * is scheduled for Milestone 12.
- *
- * In this marketing routing phase:
- * - Provides a visually consistent, accessible sign-in form mockup
- * - Clearly informs the user that authentication is currently in preparation
- * - Provides a prominent "Masuk sebagai Tamu" bypass directly into `/simulator`
- *   to ensure guest access (PRD Section 6.7 AUTH-5, PRD Section 7.1) is never blocked.
- */
 export function MasukPage() {
   return (
     <div className="mx-auto flex min-h-[calc(100svh-12rem)] max-w-md flex-col justify-center px-4 py-16 sm:px-6">

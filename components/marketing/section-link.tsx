@@ -4,20 +4,13 @@ import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MarketingRoute } from "./marketing-routes";
 
-/**
- * Reusable preview-to-detail navigation link used across homepage sections.
- *
- * Implements accessible interactive states:
- * - Minimum touch target height (min-h-11) for mobile compliance
- * - Micro-animation on hover moving the arrow icon rightward
- * - Visible focus ring utilizing `--ring` design token
- */
-export function SectionLink({ href, children, className }: {
-  /** Target marketing route, type-checked against marketingRoutes registry */
+export function SectionLink({
+  href,
+  children,
+  className,
+}: {
   href: MarketingRoute;
-  /** Label content */
   children: ReactNode;
-  /** Optional additional styling classes */
   className?: string;
 }) {
   return (

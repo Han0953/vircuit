@@ -3,14 +3,6 @@ import { marketingRoutes } from "./marketing-routes";
 import { SectionHeading } from "./section-heading";
 import { SectionLink } from "./section-link";
 
-/**
- * The canonical 8-step iterative learning loop defined in PRD.md (Section 1 & 6.9):
- * Learn -> Build -> Wire -> Code -> Simulate -> Debug -> Challenge -> Evaluate.
- *
- * This workflow distinguishes Vircuit from standalone circuit simulators:
- * it treats circuit errors and runtime bugs as valuable pedagogical events
- * that guide the learner toward structured evaluation.
- */
 const journey = [
   ["Learn", "Pahami konsep", "Kenali komponen dan tujuan praktik."],
   ["Build", "Susun rangkaian", "Pilih board dan komponen yang diperlukan."],
@@ -22,11 +14,6 @@ const journey = [
   ["Evaluate", "Tinjau hasil", "Kenali kemajuan dan hal yang perlu dilatih."],
 ] as const;
 
-/**
- * Homepage preview of the learning journey.
- * Presents a summary of the 8 steps and provides a direct link to the comprehensive
- * `/belajar` overview page for full curriculum details.
- */
 export function LearningJourneySection() {
   return (
     <section aria-labelledby="journey-heading" className="border-t">

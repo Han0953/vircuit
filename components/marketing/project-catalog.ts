@@ -11,40 +11,19 @@ import {
   Wind,
 } from "lucide-react";
 
-/** Difficulty tier for progressive learning curricula */
 export type ProjectLevel = "Beginner" | "Intermediate" | "Advanced";
 
-/**
- * Metadata definition for marketing project cards.
- * Used across the homepage showcase and the full `/jelajahi` project directory.
- */
 export type ProjectPreview = {
-  /** Unique URL-friendly slug */
   slug: string;
-  /** Human-readable title */
   name: string;
-  /** Curriculum difficulty level */
   level: ProjectLevel;
-  /** Lucide icon representing the project subject */
   icon: LucideIcon;
-  /** Short topic label (e.g., "Urutan & waktu") */
   topic: string;
-  /** Concise project summary */
   text: string;
-  /** Core IoT/electronics concepts practiced in this project */
   concepts: readonly string[];
 };
 
-/**
- * Curated catalog of educational projects based on PRD.md (LEARN-4, LEARN-5) and DESIGN.md (19.7).
- *
- * Note on Architecture:
- * This static dataset serves purely as a marketing preview for Milestone 1.
- * When backend project persistence (VIR-120+) is implemented, template definitions
- * will be fetched via server-side API while maintaining this UI contract.
- */
 export const projectCatalog: readonly ProjectPreview[] = [
-  // Beginner Tier: Focuses on single actuators, basic digital/analog I/O, and simple delay logic
   {
     slug: "traffic-light",
     name: "Traffic Light",
@@ -72,8 +51,6 @@ export const projectCatalog: readonly ProjectPreview[] = [
     text: "Baca data suhu dan pahami cara menampilkannya pada monitor.",
     concepts: ["Sensor suhu", "Display", "Serial Monitor"],
   },
-
-  // Intermediate Tier: Combines multiple sensors with actuators and state logic
   {
     slug: "smart-plant-monitoring",
     name: "Smart Plant Monitoring",
@@ -101,8 +78,6 @@ export const projectCatalog: readonly ProjectPreview[] = [
     text: "Kenali pembacaan suhu dan kelembapan dalam satu sistem terpadu.",
     concepts: ["Suhu & kelembapan", "Display I2C", "Interval baca"],
   },
-
-  // Advanced Tier: Multi-component automation, feedback control loops, and capstones
   {
     slug: "smart-home",
     name: "Smart Home",
@@ -132,9 +107,6 @@ export const projectCatalog: readonly ProjectPreview[] = [
   },
 ];
 
-/**
- * Metadata and descriptions for the three curriculum difficulty tiers.
- */
 export const projectLevels: ReadonlyArray<{
   level: ProjectLevel;
   label: string;

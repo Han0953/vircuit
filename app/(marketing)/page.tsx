@@ -8,22 +8,6 @@ import { ProjectShowcaseSection } from "@/components/marketing/project-showcase-
 import { PricingSection } from "@/components/marketing/pricing-section";
 import { FinalCtaSection } from "@/components/marketing/final-cta-section";
 
-/**
- * Public Homepage for Vircuit (Route: `/`).
- *
- * Implements PRD.md Section 6.1 (WEB-1) & DESIGN.md Section 19:
- * Acts as the high-level overview of the entire Vircuit ecosystem.
- * Rather than holding monolithic content, each section provides a focused preview
- * with low-emphasis preview links (`SectionLink`) directing users to the respective
- * in-depth pages:
- * - Virtual Lab preview -> `/fitur`
- * - Learning Journey preview -> `/belajar`
- * - Project Showcase preview -> `/jelajahi`
- * - Pricing overview -> `/harga`
- *
- * The shared `PublicNavbar` and `PublicFooter` are provided automatically
- * by the parent `(marketing)/layout.tsx`.
- */
 export default function HomePage() {
   return (
     <>

@@ -25,12 +25,6 @@ export const metadata: Metadata = {
     "Ikhtisar sistem pembelajaran Vircuit: siklus 8 langkah Learn, Build, Wire, Code, Simulate, Debug, Challenge, Evaluate untuk menguasai IoT secara bertahap.",
 };
 
-/**
- * The 8-phase experiential learning loop (PRD Section 1 & 6.9; AGENT.md #1).
- * Unlike passive video courses, each phase actively exercises a distinct engineering muscle:
- * theoretical grounding, spatial arrangement, schematic wiring, algorithmic thinking,
- * observation, root-cause diagnosis, independent challenge, and skill benchmarking.
- */
 const learningCycle = [
   {
     step: "01",
@@ -162,13 +156,6 @@ const skillCompetencies = [
   },
 ];
 
-/**
- * Public Learning Overview Page (Route: `/belajar`).
- *
- * Distinct from the authenticated dashboard: this is an open, unauthenticated curriculum
- * overview that educates prospective learners, educators, and evaluators on how Vircuit
- * bridges virtual simulation to physical microcontroller mastery.
- */
 export function BelajarPage() {
   return (
     <>

@@ -24,12 +24,6 @@ export const metadata: Metadata = {
     "Jelajahi katalog proyek IoT, template sirkuit, dan challenge di Vircuit: dari Traffic Light, Smart Lamp, hingga proyek capstone IoT Egg Incubator.",
 };
 
-/**
- * Three core exploration concepts planned for Vircuit (PRD Section 6.6 & 6.10):
- * - Project Library: Ready-to-study modular schematics
- * - Starter Templates: Pre-wired base circuits to jumpstart experimentation
- * - Interactive Challenges: Problem-based circuit & code tasks
- */
 const conceptFeatures = [
   {
     icon: FolderKanban,
@@ -51,13 +45,6 @@ const conceptFeatures = [
   },
 ];
 
-/**
- * Public Explore Page (Route: `/jelajahi`).
- *
- * Showcases educational circuit templates and challenges across Beginner, Intermediate,
- * and Advanced tiers, highlighted by the flagship IoT Egg Incubator capstone project.
- * Implemented strictly as presentation-layer preview cards without premature backend coupling.
- */
 export function JelajahiPage() {
   return (
     <>

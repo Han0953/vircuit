@@ -4,18 +4,9 @@ import { projectCatalog } from "./project-catalog";
 import { SectionHeading } from "./section-heading";
 import { SectionLink } from "./section-link";
 
-/**
- * Filtered subset of projects displayed on the landing page preview.
- * Full list across Beginner, Intermediate, and Advanced tiers is housed at `/jelajahi`.
- */
 const featuredSlugs = ["traffic-light", "smart-lamp", "digital-thermometer", "weather-station", "smart-home"];
 const projects = projectCatalog.filter(({ slug }) => featuredSlugs.includes(slug));
 
-/**
- * Project showcase section on the homepage (PRD Section 4.1 & DESIGN.md 19.7).
- * Displays sample projects spanning foundational concepts to the flagship
- * IoT Egg Incubator capstone project, linking to `/jelajahi` for the full catalog.
- */
 export function ProjectShowcaseSection() {
   return (
     <section aria-labelledby="projects-heading" className="border-t bg-surface">
@@ -27,7 +18,6 @@ export function ProjectShowcaseSection() {
           description="Pilihan project yang direncanakan untuk menjembatani latihan dasar dan sistem IoT yang lebih kompleks. Katalog ini merupakan pratinjau, belum dapat dibuka sebagai project."
         />
         <div className="mt-10 grid gap-8 lg:grid-cols-3">
-          {/* List of beginner and intermediate highlighted projects */}
           <ul className="divide-y border-y lg:col-span-2">
             {projects.map(({ icon: Icon, name, topic, text }) => (
               <li key={name} className="flex items-start gap-4 py-6 sm:gap-6">
@@ -45,7 +35,6 @@ export function ProjectShowcaseSection() {
             ))}
           </ul>
 
-          {/* Featured Capstone Callout (IoT Egg Incubator, PRD Section 7.5) */}
           <article className="flex flex-col rounded-lg border bg-background p-6 sm:p-8">
             <p className="font-mono text-xs tracking-widest text-text-secondary uppercase">
               Project akhir / Lanjutan
@@ -63,7 +52,6 @@ export function ProjectShowcaseSection() {
           </article>
         </div>
 
-        {/* Navigation to full Explore catalog page */}
         <SectionLink href={marketingRoutes.explore} className="mt-8">
           Jelajahi Project
         </SectionLink>

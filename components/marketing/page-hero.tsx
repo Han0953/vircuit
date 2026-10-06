@@ -2,15 +2,6 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import styles from "./landing-sections.module.css";
 
-/**
- * Standard PageHero component for detail pages (/fitur, /belajar, /jelajahi, /harga, /simulator).
- *
- * Implements DESIGN.md Section 8 & 19:
- * - More concise visual scale than the full-viewport LandingHero on the homepage
- * - Reuses the subtle PCB grid background (.circuitBackground) for consistent identity
- * - Supports an optional side slot (aside) for diagrams, stats, or preview graphics
- * - Fully responsive with stacked layout on mobile expanding to 2 columns on lg screens
- */
 export function PageHero({
   id,
   eyebrow,
@@ -21,21 +12,13 @@ export function PageHero({
   note,
   className,
 }: {
-  /** Heading identifier used for aria-labelledby associations */
   id: string;
-  /** Numerical step or topic category tag */
   eyebrow: string;
-  /** Primary headline element */
   title: ReactNode;
-  /** Detailed paragraph describing the page scope */
   description: string;
-  /** Optional interactive CTA buttons */
   actions?: ReactNode;
-  /** Optional side visual element (illustrations or stats) */
   aside?: ReactNode;
-  /** Optional fine-print footnote */
   note?: string;
-  /** Additional container classes */
   className?: string;
 }) {
   return (

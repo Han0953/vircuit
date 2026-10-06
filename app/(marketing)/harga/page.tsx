@@ -13,10 +13,6 @@ export const metadata: Metadata = {
     "Skema paket dan akses Vircuit: Simulator inti tetap gratis untuk semua pengguna, dengan opsi Premium untuk kapasitas AI lebih besar.",
 };
 
-/**
- * Free tier deliverables (PRD Section 6.14 - PLAN-1, PLAN-2):
- * All foundational simulator and learning features remain free with no time limits.
- */
 const freeFeatures = [
   "Core Virtual Lab tanpa batas waktu penggunaan",
   "Akses mode tamu langsung pakai tanpa login",
@@ -28,11 +24,6 @@ const freeFeatures = [
   "Asistensi AI Tutor & AI Debugger dengan kuota terbatas",
 ];
 
-/**
- * Premium tier expansions (PRD Section 6.14 - PLAN-3, PLAN-4):
- * Focuses on scaling AI token allowances and unlocking advanced capstones.
- * In accordance with competition rules (AGENT.md #76), no fabricated pricing numbers are used.
- */
 const premiumFeatures = [
   "Seluruh fitur dan akses paket Free",
   "Kuota interaksi AI Tutor & Debugger lebih besar",
@@ -73,13 +64,6 @@ const faqs = [
   },
 ];
 
-/**
- * Public Pricing & Plans Overview Page (Route: `/harga`).
- *
- * Implements PRD Section 6.14 (PLAN-1..5):
- * Outlines Free and Premium entitlements transparently. Adheres strictly to the rule against
- * fabricating subscription fees while payment gateways remain in Phase 2 / deferred status.
- */
 export function HargaPage() {
   return (
     <>
