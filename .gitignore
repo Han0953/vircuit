@@ -12,6 +12,12 @@ vendor/
 dist/
 build/
 out/
+.next/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+.pnpm-store/
 
 # IDE & Editor files
 .vscode/
