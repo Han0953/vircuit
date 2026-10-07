@@ -19,3 +19,7 @@
     scroll-behavior: auto !important;
   }
 }
+
+.workspace-divider { background: var(--border); touch-action: none; }
+.workspace-divider:hover, .workspace-divider:focus-visible { background: var(--primary); outline: 2px solid var(--ring); }
+.workspace-divider[data-separator='active'] { background: var(--primary); }
