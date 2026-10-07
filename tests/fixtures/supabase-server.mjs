@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
+import { initializeProgressDatabase, resetProgressDatabase, readProgressDatabase, writeLearningEvent, writeChallengeAttempt } from "./progress-db.mjs";
 
 export const owner = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const user = { id: owner, email: "dashboard@example.test", aud: "authenticated", role: "authenticated", app_metadata: {}, user_metadata: {}, created_at: "2026-01-01T00:00:00Z" };
@@ -22,6 +23,7 @@ function reset(count = 28) {
 }
 reset();
 export async function startSupabaseFixture() {
+  await initializeProgressDatabase(owner);
   const server = createServer(async (request, response) => {
     const url = new URL(request.url, "http://127.0.0.1:3031");
     const send = (data, status = 200) => { response.writeHead(status, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3002", "Access-Control-Allow-Headers": "*" }); response.end(JSON.stringify(data)); };
@@ -29,16 +31,24 @@ export async function startSupabaseFixture() {
     const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString()) : {};
     const equal = (key) => url.searchParams.get(key)?.replace(/^eq\./, "");
     if (request.method === "OPTIONS") return send({});
-    if (url.pathname === "/__fixture/reset") { reset(body.count); failure = !!body.failure; return send({ ok: true }); }
+    if (url.pathname === "/__fixture/reset") { reset(body.count); await resetProgressDatabase(); failure = !!body.failure; return send({ ok: true }); }
     if (url.pathname === "/__fixture/state") return send({ saves, count: rows.length, rows: rows.map(({ id, title, revision }) => ({ id, title, revision })) });
     if (url.pathname === "/__fixture/conflict") { conflict = !!body.enabled; return send({ ok: true }); }
     if (url.pathname === "/auth/v1/token") { active = true; return send({ access_token: token, refresh_token: "fixture-refresh", token_type: "bearer", expires_in: 3600, expires_at: 2000000000, user }); }
     const authenticated = active && request.headers.authorization === `Bearer ${token}`;
     if (url.pathname === "/auth/v1/user") return authenticated ? send(user) : send({ message: "Invalid session" }, 401);
     if (url.pathname === "/auth/v1/logout") { active = false; return send({}); }
+    if (url.pathname === "/rest/v1/rpc/record_learning_event" || url.pathname === "/rest/v1/rpc/record_challenge_attempt") {
+      // This marker is accepted only by this loopback fixture, never a cloud credential.
+      if (request.headers.apikey !== "sb_secret_local_playwright_fixture" || !active) return send({ code: "42501" }, 403);
+      if (failure) return send({ code: "503", message: "Fixture unavailable" }, 503);
+      try { return send(await (url.pathname.endsWith("record_learning_event") ? writeLearningEvent(body) : writeChallengeAttempt(body))); }
+      catch (error) { return send({ code: error.code ?? "503", message: "Local progress DB rejected input" }, 400); }
+    }
     if (!authenticated) return send({ code: "42501", message: "Access denied" }, 403);
     if (url.pathname === "/rest/v1/profiles") return send(request.headers.accept?.includes("object") ? { display_name: "Astra" } : [{ display_name: "Astra" }]);
     if (failure) return send({ code: "503", message: "Fixture unavailable" }, 503);
+    if (url.pathname === "/rest/v1/learning_progress") return send(await readProgressDatabase(owner));
     if (url.pathname === "/rest/v1/projects") {
       let selected = rows.filter((item) => (!equal("user_id") || equal("user_id") === item.user_id) && (!equal("id") || equal("id") === item.id));
       const pattern = url.searchParams.get("title");

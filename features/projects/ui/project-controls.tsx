@@ -13,7 +13,6 @@ import { logout } from "../session";
 import { titleSchema } from "../contracts";
 import { archivedDrafts, type Draft } from "../local/drafts";
 import { replaceDraft } from "../local/controller";
-import { isLocalDemo } from "@/features/auth/demo";
 
 function exportBackup() {
   const url = URL.createObjectURL(new Blob([serializeProject(useProject.getState().project)], { type: "application/json" }));
@@ -47,13 +46,12 @@ export function ProjectControls() {
       if (userId) setProjects(await listCloudProjects());
     });
   }
-  const statusLabel = { unsaved: isLocalDemo() ? "Draft lokal" : "Belum tersimpan di akun", saving: "Menyimpan…", saved: isLocalDemo() ? "Tersimpan lokal" : "Tersimpan di akun", failed: "Simpan gagal" }[status];
+  const statusLabel = { unsaved: "Belum tersimpan di akun", saving: "Menyimpan…", saved: "Tersimpan di akun", failed: "Simpan gagal" }[status];
   return <>
     <span role="status" className="max-w-36 truncate text-xs text-text-secondary" title={statusLabel}>{statusLabel}</span>
     <Button disabled={busy || loading} variant="ghost" aria-label={status === "failed" ? "Coba simpan lagi" : "Simpan proyek"} onClick={() => void action(async () => { const next = await requestSave(); if (next) router.push(next); })} className="px-3"><Save aria-hidden /><span className="hidden sm:inline">Simpan</span></Button>
     <Button disabled={busy || loading} variant="ghost" size="icon" aria-label="Buka menu proyek" onClick={() => void showProjects()}><FolderOpen aria-hidden /></Button>
     {userId && <Button disabled={busy || loading} variant="ghost" size="icon" aria-label="Keluar akun" onClick={() => void action(async () => {
-      if (isLocalDemo()) { await logout(); return; }
       const draft = usePersistence.getState().draft;
       if (draft && (await archivedDrafts(draft.scope)).length && !window.confirm("Ada arsip draft lokal akun. Ekspor arsip yang diperlukan melalui menu Proyek sebelum keluar. Lanjut keluar dan hapus cache akun termasuk arsip?")) return;
       if (draft && draft.savedLocalRevision !== draft.localRevision) {
@@ -72,7 +70,7 @@ export function ProjectControls() {
           if (!parsed.success) { setMessage("Judul harus berisi 1–200 karakter."); return; }
           void action(async () => {
             useProject.getState().edit((p) => ({ ...p, metadata: { name: parsed.data } }));
-            if (usePersistence.getState().draft?.cloud || isLocalDemo()) { await saveToCloud(); if (usePersistence.getState().status === "unsaved") await saveToCloud(); }
+            if (usePersistence.getState().draft?.cloud) { await saveToCloud(); if (usePersistence.getState().status === "unsaved") await saveToCloud(); }
             setOpen(false);
           });
         }}>

@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { usePersistence } from "../store";
 import { requestSave, saveToCloud } from "../cloud/client";
-import { isLocalDemo } from "@/features/auth/demo";
 export function Autosave() {
   const router = useRouter();
   const draft = usePersistence((s) => s.draft);
@@ -12,7 +11,7 @@ export function Autosave() {
   const handoffBusy = usePersistence((s) => s.handoffBusy);
   const error = usePersistence((s) => s.error);
   useEffect(() => {
-    if (!draft || (!draft.cloud && !isLocalDemo()) || !userId || busy || handoffBusy || error || draft.savedLocalRevision === draft.localRevision) return;
+    if (!draft || !draft.cloud || !userId || busy || handoffBusy || error || draft.savedLocalRevision === draft.localRevision) return;
     const timer = setTimeout(() => { void saveToCloud().catch(() => {}); }, 1800);
     return () => clearTimeout(timer);
   }, [draft, userId, busy, handoffBusy, error]);

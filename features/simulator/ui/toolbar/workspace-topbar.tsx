@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { ProjectControls } from "@/features/projects/ui/project-controls";
 import { usePersistence } from "@/features/projects/store";
 import { useProject } from "../../stores/project-store";
-import { isLocalDemo } from "@/features/auth/demo";
 
 export function WorkspaceTopbar({ onOpenAI }: { onOpenAI: (trigger: HTMLButtonElement) => void }) {
   const router = useRouter();
@@ -20,7 +19,7 @@ export function WorkspaceTopbar({ onOpenAI }: { onOpenAI: (trigger: HTMLButtonEl
     <header className="shrink-0 border-b bg-surface">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 lg:flex-nowrap lg:px-4">
         <Button variant="ghost" size="icon" aria-label={userId ? "Kembali ke dashboard" : "Kembali ke beranda"} onClick={() => {
-          void flushDraft().then(() => router.push(isLocalDemo() ? "/demo" : userId ? "/dashboard" : "/")).catch((cause: unknown) => usePersistence.setState({ error: cause instanceof Error ? cause.message : "Draft belum tersimpan." }));
+          void flushDraft().then(() => router.push(userId ? "/dashboard" : "/")).catch((cause: unknown) => usePersistence.setState({ error: cause instanceof Error ? cause.message : "Draft belum tersimpan." }));
         }}><ArrowLeft aria-hidden="true" /></Button>
         <div className="min-w-0 flex-1">
           <p className="text-xs text-text-secondary">Virtual Lab</p>
@@ -37,7 +36,7 @@ export function WorkspaceTopbar({ onOpenAI }: { onOpenAI: (trigger: HTMLButtonEl
         </div>
         <div className="flex w-full flex-wrap items-center gap-2 border-t pt-1 lg:w-auto lg:border-0 lg:pt-0">
           <span className="mr-auto inline-flex items-center gap-2 text-xs text-text-secondary lg:mr-2">
-            <UserRound aria-hidden="true" className="size-4" />{userId ? isLocalDemo() ? "Demo lokal" : "Akun" : "Tamu"}
+            <UserRound aria-hidden="true" className="size-4" />{userId ? "Akun" : "Tamu"}
           </span>
           <ProjectControls key={userId ?? "guest"} />
           <Button variant="ghost" onClick={(event) => onOpenAI(event.currentTarget)} aria-label="Buka panel AI" className="px-3">

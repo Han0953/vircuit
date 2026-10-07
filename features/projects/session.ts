@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { DEMO_OWNER, isLocalDemo, exitLocalDemo } from "@/features/auth/demo";
 import { browserClient } from "@/lib/supabase/browser";
 import { useCanvas } from "../simulator/stores/canvas-store";
 import { resetSimulation } from "../simulator/worker/bridge";
@@ -17,7 +16,7 @@ export function initializeWorkspace() {
   return initialization;
 }
 async function initialize() {
-  const { user } = isLocalDemo() ? { user: { id: DEMO_OWNER } } : sessionSchema.parse(await cloudRequest("/api/auth/session"));
+  const { user } = sessionSchema.parse(await cloudRequest("/api/auth/session"));
   const previous = usePersistence.getState();
   if (previous.ready && previous.userId === (user?.id ?? null)) return;
   if (previous.ready) {
@@ -26,7 +25,7 @@ async function initialize() {
   const query = new URLSearchParams(window.location.search);
   const intendedDraft = query.get("draft");
   let migrate = false;
-  if (!isLocalDemo() && user && query.get("save") === "1" && z.uuid().safeParse(intendedDraft).success) migrate = await adoptGuest(user.id, intendedDraft!);
+  if (user && query.get("save") === "1" && z.uuid().safeParse(intendedDraft).success) migrate = await adoptGuest(user.id, intendedDraft!);
   usePersistence.setState({ userId: user?.id ?? null, error: null, status: "unsaved" });
   resetSimulation(); useCanvas.getState().select([]);
   await recoverDraft(user ? `user:${user.id}` : "guest");
@@ -35,7 +34,6 @@ async function initialize() {
   }
 }
 export function watchAuth() {
-  if (isLocalDemo()) return () => {};
   const channel = new BroadcastChannel("vircuit-auth");
   channel.onmessage = () => { void initializeWorkspace().catch(() => {}); };
   const projects = new BroadcastChannel("vircuit-projects");
@@ -57,9 +55,6 @@ export function watchAuth() {
   return () => { channel.close(); projects.close(); unsubscribe?.(); window.removeEventListener("focus", focus); };
 }
 export async function logout() {
-  if (isLocalDemo()) {
-    await flushDraft(); exitLocalDemo(); window.location.replace("/masuk"); return;
-  }
   const state = usePersistence.getState();
   if (!state.userId || state.busy) return;
   try {

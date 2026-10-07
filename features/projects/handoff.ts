@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { isLocalDemo } from "@/features/auth/demo";
 import { emptyProject } from "../simulator/stores/project-store";
 import { resetSimulation } from "../simulator/worker/bridge";
 import { useCanvas } from "../simulator/stores/canvas-store";
@@ -22,7 +21,7 @@ export async function applyProjectCommand(command: ProjectCommand, choice?: "loc
   if (!state.ready || !state.draft || !state.userId) throw new Error("Session dan draft harus siap sebelum membuka proyek.");
   if (state.busy) throw new Error("Tunggu penyimpanan selesai, lalu coba lagi.");
   if (command.kind === "open") {
-    if ((state.draft.cloud?.id === command.id || (isLocalDemo() && state.draft.id === command.id)) && state.draft.localRevision !== state.draft.savedLocalRevision) {
+    if (state.draft.cloud?.id === command.id && state.draft.localRevision !== state.draft.savedLocalRevision) {
       if (!choice) return "conflict";
       if (choice === "local") return "done";
     }

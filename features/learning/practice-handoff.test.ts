@@ -69,6 +69,30 @@ it("uses durable draft identity when sessionStorage is unavailable", async () =>
   expect(usePersistence.getState().draft?.learningContext?.intent).toBe(command.intent);
   expect(await archivedDrafts(usePersistence.getState().draft!.scope)).toHaveLength(1);
 });
+it("upgrades the active practice once without replacing its edited circuit or cloud identity", async () => {
+  const initial = manifest(crypto.randomUUID());
+  expect(await applyPractice(initial, true)).toBe("done");
+  useProject.getState().edit((p) => ({ ...p, code: { ...p.code, source: "void setup(){}void loop(){delay(700);}" } }));
+  const owner = usePersistence.getState().userId!;
+  patchDraft({ cloud: { id: crypto.randomUUID(), revision: 4, owner } });
+  await flushDraft();
+  const original = structuredClone(usePersistence.getState().draft!);
+  const backupCount = (await archivedDrafts(original.scope)).length;
+  const intent = crypto.randomUUID();
+  const context = { ...original.learningContext!, intent, challengeId: "challenge.blink", challengeVersion: 1, phase: "challenge" };
+  vi.stubGlobal("fetch", vi.fn(async () => Response.json({ owner, context, project: practiceProject(findLesson("lesson.blink")!.lesson) })));
+  const command = { lessonId: "lesson.blink", intent, challenge: "1" as const };
+  expect(await applyPractice(command)).toBe("done");
+  expect(await applyPractice(command)).toBe("done");
+  sessionStorage.clear();
+  expect(await applyPractice(command)).toBe("done");
+  const current = usePersistence.getState().draft!;
+  expect(current.id).toBe(original.id);
+  expect(current.project).toEqual(original.project);
+  expect(current.cloud).toEqual(original.cloud);
+  expect(current.learningContext).toEqual(context);
+  expect(await archivedDrafts(original.scope)).toHaveLength(backupCount);
+});
 it("rejects malformed or ambiguous practice intents", () => {
   expect(parsePracticeCommand("new=anything")).toBeNull();
   for (const query of ["lesson=lesson.blink", "lesson=lesson.blink&practice=bad", `lesson=lesson.blink&practice=${crypto.randomUUID()}&new=${crypto.randomUUID()}`, `lesson=lesson.blink&lesson=lesson.button&practice=${crypto.randomUUID()}`]) expect(() => parsePracticeCommand(query)).toThrow();

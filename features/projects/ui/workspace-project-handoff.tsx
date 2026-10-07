@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { usePersistence } from "../store";
 import { applyProjectCommand, parseProjectCommand } from "../handoff";
-import { isLocalDemo } from "@/features/auth/demo";
 
 export function WorkspaceProjectHandoff({ verified }: { verified: boolean }) {
   const query = useSearchParams().toString();
@@ -55,7 +54,7 @@ export function WorkspaceProjectHandoff({ verified }: { verified: boolean }) {
       {state === "loading" && <p role="status" className="text-sm">Memuat proyek…</p>}
       {state === "error" && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <div className="flex flex-wrap gap-2">
-        {state === "conflict" && <><Button onClick={finish}>Lanjutkan draft lokal</Button><Button variant="outline" onClick={() => void run("cloud")}>{isLocalDemo() ? "Buka versi tersimpan" : "Buka versi cloud"}</Button></>}
+        {state === "conflict" && <><Button onClick={finish}>Lanjutkan draft lokal</Button><Button variant="outline" onClick={() => void run("cloud")}>Buka versi cloud</Button></>}
         {state === "error" && <><Button onClick={() => void run()}>Coba lagi</Button><Button variant="outline" onClick={finish}>Kembali ke draft lokal</Button></>}
       </div>
     </DialogContent>

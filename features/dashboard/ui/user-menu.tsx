@@ -10,6 +10,7 @@ import { logoutAccount } from "@/features/auth/logout";
 import { archivedDrafts, readDraft, type Draft } from "@/features/projects/local/drafts";
 import { flushDraft } from "@/features/projects/local/controller";
 import { usePersistence } from "@/features/projects/store";
+import { pendingSubmissions } from "@/features/challenges/pending";
 
 export type DashboardIdentity = { id: string; name: string; email: string };
 export function UserMenu({ user }: { user: DashboardIdentity }) {
@@ -18,6 +19,7 @@ export function UserMenu({ user }: { user: DashboardIdentity }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [drafts, setDrafts] = useState<Draft[]>([]);
+  const [pendingResults, setPendingResults] = useState(0);
   async function prepare() {
     setOpen(true); setPending(true); setError("");
     try {
@@ -26,6 +28,7 @@ export function UserMenu({ user }: { user: DashboardIdentity }) {
       const scope = `user:${user.id}`;
       const draft = await readDraft(scope);
       const archives = await archivedDrafts(scope);
+      setPendingResults((await pendingSubmissions(user.id)).length);
       setDrafts([...(draft && draft.localRevision !== draft.savedLocalRevision ? [draft] : []), ...archives]);
     } catch { setError("Draft lokal belum dapat diperiksa. Coba lagi sebelum keluar."); }
     finally { setPending(false); }
@@ -50,6 +53,7 @@ export function UserMenu({ user }: { user: DashboardIdentity }) {
     </DropdownMenu>
     <Dialog open={open} onOpenChange={(value) => { if (!pending) setOpen(value); }}><DialogContent className="max-h-[90dvh] overflow-y-auto">
       <DialogHeader><DialogTitle>Keluar dari akun?</DialogTitle><DialogDescription>Cache proyek akun di perangkat ini akan dibersihkan. Proyek cloud dan draft tamu tetap tersimpan.</DialogDescription></DialogHeader>
+      {pendingResults > 0 && <p role="status" className="text-sm">{pendingResults} hasil tantangan belum tersinkronisasi. Keluar akan menghapus antrean lokal akun ini. Pilih Batal dan sinkronkan melalui dashboard jika hasilnya masih diperlukan.</p>}
       {drafts.length > 0 && <div className="space-y-2"><p className="text-sm">Unduh cadangan draft dan arsip yang masih diperlukan sebelum keluar.</p>{drafts.map((draft) => <Button key={draft.scope} variant="outline" className="w-full justify-start" onClick={() => download(draft)}><Download aria-hidden /><span className="truncate">{draft.project.metadata.name}</span></Button>)}</div>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <div className="flex flex-wrap gap-2"><Button disabled={pending || !!error} onClick={() => void leave()}>{pending ? "Memproses…" : "Keluar akun"}</Button><Button variant="outline" disabled={pending} onClick={() => setOpen(false)}>Batal</Button>{error && <Button variant="outline" onClick={() => void prepare()}>Coba lagi</Button>}</div>

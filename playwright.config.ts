@@ -8,6 +8,7 @@ export default defineConfig({
     { command: "node tests/fixtures/supabase-server.mjs", url: "http://127.0.0.1:3031/__fixture/state", reuseExistingServer: false },
     {
       command: "node --import ./tests/fixtures/supabase-network.mjs node_modules/next/dist/bin/next start -p 3002",
+      env: { SUPABASE_SECRET_KEY: "sb_secret_local_playwright_fixture" },
       url: "http://localhost:3002",
       reuseExistingServer: false,
       timeout: 60000,

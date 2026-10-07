@@ -43,5 +43,5 @@ export const courseSchema = z.object({
 export type Course = z.infer<typeof courseSchema>;
 export type Lesson = Course["lessons"][number];
 export type ContentBlock = z.infer<typeof blockSchema>;
-export const learningContextSchema = z.object({ lessonId: learningId, practiceId: learningId, templateVersion: z.number().int().positive(), intent: z.uuid() });
+export const learningContextSchema = z.object({ lessonId: learningId, practiceId: learningId, templateVersion: z.number().int().positive(), intent: z.uuid(), challengeId: learningId.optional(), challengeVersion: z.number().int().positive().optional(), phase: z.enum(["practice", "challenge", "evaluation"]).optional() });
 export type LearningContext = z.infer<typeof learningContextSchema>;

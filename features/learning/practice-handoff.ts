@@ -1,7 +1,7 @@
 import { usePersistence } from "@/features/projects/store";
 import { cloudRequest } from "@/features/projects/cloud/request";
 import { newDraft } from "@/features/projects/local/drafts";
-import { replaceDraft } from "@/features/projects/local/controller";
+import { replaceDraft, patchDraft, flushDraft } from "@/features/projects/local/controller";
 import { resetSimulation } from "@/features/simulator/worker/bridge";
 import { useCanvas } from "@/features/simulator/stores/canvas-store";
 import { practiceResultSchema, type PracticeCommand } from "./practice-contract";
@@ -15,7 +15,7 @@ export function applyPractice(command: PracticeCommand, confirmed = false) {
 async function perform(command: PracticeCommand, confirmed: boolean): Promise<"confirm" | "done"> {
   const state = usePersistence.getState();
   if (!state.ready || !state.draft || !state.userId || state.busy) throw new Error("Tunggu session dan draft siap sebelum membuka praktik.");
-  const result = practiceResultSchema.parse(await cloudRequest(`/api/learning/practice?${new URLSearchParams({ lesson: command.lessonId, practice: command.intent })}`));
+  const result = practiceResultSchema.parse(await cloudRequest(`/api/learning/practice?${new URLSearchParams({ lesson: command.lessonId, practice: command.intent, ...(command.challenge ? { challenge: "1" } : {}) })}`));
   const latest = usePersistence.getState();
   if (latest.userId !== state.userId || latest.draft?.id !== state.draft.id || result.owner !== state.userId) throw new Error("Session atau project aktif berubah. Coba lagi.");
   if (result.context.intent !== command.intent || result.context.lessonId !== command.lessonId) throw new Error("Konfirmasi praktik tidak sesuai.");
@@ -23,6 +23,12 @@ async function perform(command: PracticeCommand, confirmed: boolean): Promise<"c
   let acknowledged = false;
   try { acknowledged = sessionStorage.getItem(key) === "done"; } catch { acknowledged = false; }
   if (latest.draft.learningContext?.intent === command.intent || acknowledged) return "done";
+  if (result.context.challengeId && latest.draft.learningContext?.practiceId === result.context.practiceId) {
+    patchDraft({ learningContext: result.context });
+    await flushDraft();
+    try { sessionStorage.setItem(key, "done"); } catch { /* Durable context handles replay for the active practice. */ }
+    return "done";
+  }
   if (!confirmed) return "confirm";
   const draft = { ...newDraft(latest.draft.scope, result.project), id: command.intent, learningContext: result.context };
   await replaceDraft(draft, true);

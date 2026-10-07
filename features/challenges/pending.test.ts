@@ -1,0 +1,43 @@
+import "fake-indexeddb/auto";
+import { describe, expect, it, vi } from "vitest";
+import { queueSubmission, pendingSubmissions, clearPendingAccount } from "./pending";
+import { syncSubmission } from "./sync";
+import { evaluateSubmission } from "./evaluate";
+import { practiceProject } from "@/features/learning/templates";
+import { findLesson } from "@/features/learning/registry";
+import { newDraft, readDraft, writeDraft } from "@/features/projects/local/drafts";
+describe("account-scoped evaluation recovery", () => {
+  it("preserves immutable payload and operation on failure, scopes reads and clears only acknowledged results", async () => {
+    const owner = crypto.randomUUID(); const other = crypto.randomUUID();
+    const submission = { challengeId: "challenge.blink", version: 1, operationId: crypto.randomUUID(), project: practiceProject(findLesson("lesson.blink")!.lesson), bindings: {}, projectId: null };
+    const preview = await evaluateSubmission(submission);
+    const item = await queueSubmission(owner, submission, preview);
+    submission.project.metadata.name = "Modified after capture";
+    expect((await pendingSubmissions(owner))[0].submission.project.metadata.name).not.toBe(submission.project.metadata.name);
+    expect(await pendingSubmissions(other)).toEqual([]);
+    const fetcher = vi.spyOn(globalThis, "fetch").mockRejectedValueOnce(new Error("Offline"));
+    await expect(syncSubmission(item)).rejects.toThrow("Koneksi cloud");
+    expect((await pendingSubmissions(owner))[0].submission.operationId).toBe(item.submission.operationId);
+    fetcher.mockResolvedValueOnce(Response.json({ verified: true, owner: other, operationId: item.submission.operationId, attemptId: crypto.randomUUID(), result: preview }));
+    await expect(syncSubmission(item)).rejects.toThrow("Konfirmasi server tidak sesuai");
+    expect(await pendingSubmissions(owner)).toHaveLength(1);
+    fetcher.mockResolvedValueOnce(Response.json({ verified: true, owner, operationId: item.submission.operationId, attemptId: crypto.randomUUID(), result: preview }));
+    await syncSubmission(item);
+    expect(fetcher).toHaveBeenLastCalledWith("/api/challenges/submit", expect.objectContaining({ headers: expect.objectContaining({ "X-Vircuit-Account": owner }), body: JSON.stringify(item.submission) }));
+    expect(await pendingSubmissions(owner)).toHaveLength(0);
+    fetcher.mockRestore();
+  });
+  it("deduplicates identical snapshots and preserves other accounts/guest draft on logout cleanup", async () => {
+    const owner = crypto.randomUUID(); const other = crypto.randomUUID();
+    const submission = { challengeId: "challenge.blink", version: 1, operationId: crypto.randomUUID(), project: practiceProject(findLesson("lesson.blink")!.lesson), bindings: {}, projectId: null };
+    const preview = await evaluateSubmission(submission);
+    const first = await queueSubmission(owner, submission, preview);
+    const repeat = { ...submission, operationId: crypto.randomUUID() }; const repeatPreview = await evaluateSubmission(repeat);
+    expect((await queueSubmission(owner, repeat, repeatPreview)).key).toBe(first.key);
+    await queueSubmission(other, submission, preview);
+    const guest = newDraft("guest", submission.project); await writeDraft(guest, null);
+    await clearPendingAccount(owner);
+    expect(await pendingSubmissions(owner)).toHaveLength(0); expect(await pendingSubmissions(other)).toHaveLength(1);
+    expect((await readDraft("guest"))?.id).toBe(guest.id);
+  });
+});

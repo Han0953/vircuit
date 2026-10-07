@@ -7,7 +7,7 @@ export function safeDestination(value: unknown): string {
   try {
     const url = new URL(value, "https://vircuit.invalid");
     if (url.origin !== "https://vircuit.invalid") return "/simulator";
-    if (["/dashboard", "/dashboard/projects"].includes(url.pathname)) return url.pathname;
+    if (["/dashboard", "/dashboard/projects", "/dashboard/challenges", "/dashboard/progress"].includes(url.pathname)) return url.pathname;
     if (url.pathname === "/dashboard/learn") return url.pathname;
     const learning = /^\/dashboard\/learn\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?$/.exec(url.pathname);
     if (learning) {
@@ -16,7 +16,7 @@ export function safeDestination(value: unknown): string {
     }
     if (url.pathname !== "/simulator") return "/simulator";
     const practice = parsePracticeCommand(url.search);
-    if (practice) return findLesson(practice.lessonId)?.lesson.practice ? `/simulator?${new URLSearchParams({ lesson: practice.lessonId, practice: practice.intent })}` : "/simulator";
+    if (practice) return findLesson(practice.lessonId)?.lesson.practice ? `/simulator?${new URLSearchParams({ lesson: practice.lessonId, practice: practice.intent, ...(practice.challenge ? { challenge: "1" } : {}) })}` : "/simulator";
     const draft = url.searchParams.get("draft");
     if (url.searchParams.get("save") === "1" && z.uuid().safeParse(draft).success) return `/simulator?save=1&draft=${draft}`;
     const project = url.searchParams.get("project");

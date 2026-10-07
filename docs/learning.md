@@ -1,5 +1,7 @@
 # Learning System Foundation
 
+Dokumen ini mencatat foundation awal. Perluasan challenge, completion terverifikasi, dan progress dijelaskan di [Challenges + Progress](challenges-progress.md).
+
 ## Content dan authoring
 
 Materi MVP menggunakan JSON terstruktur di `features/learning/content/`, dengan types dan validasi Zod di `features/learning/schema.ts`. Pilihan ini mengikuti brief Learning Foundation dan opsi structured lesson JSON di ARCHITECTURE.md: authoring sederhana, tidak memerlukan MDX dependency, CMS, query Supabase, atau migration learning.
@@ -23,7 +25,7 @@ Untuk menambah materi:
 - Practice memiliki ID, template key, version, goal, daftar komponen, instruksi Build/Wire/Code/Simulate/Debug, dan pengamatan yang diharapkan. Template baru memerlukan enum schema dan factory di `templates.ts`; template existing dapat digunakan ulang.
 - Jalankan unit tests untuk memvalidasi catalog, urutan, snapshot, dan dukungan runtime sebelum mempublikasikan materi.
 
-Stable IDs dapat direferensikan Progress dan Challenge pada milestone berikutnya. Tidak ada status completion, skor, attempt, atau AI service pada foundation ini.
+Stable IDs digunakan oleh Progress dan Challenge tanpa mengubah authored content. Foundation awal tidak menyimpan completion atau attempt; perluasan sekarang memakai domain terpisah, dengan batas verifikasi pada `challenges-progress.md`. AI belum diimplementasikan.
 
 ## Routes dan authentication
 
@@ -34,7 +36,7 @@ Stable IDs dapat direferensikan Progress dan Challenge pada milestone berikutnya
 - Module tidak memiliki route tersendiri; grouping dan identitasnya tetap tervalidasi.
 - Unknown course/lesson ditangani not-found. Kesalahan content ditangani learning error boundary dengan retry.
 
-Dashboard layout dan pages memverifikasi user server-side memakai helper existing. Proxy menimpa header tujuan internal sebelum render, dan redirect helper hanya menerima path learning yang dikenal serta command simulator yang tervalidasi. Local demo account bukan Supabase session sehingga tidak membuka learning protected routes.
+Dashboard layout dan pages memverifikasi user server-side memakai helper existing. Proxy menimpa header tujuan internal sebelum render, dan redirect helper hanya menerima path learning yang dikenal serta command simulator yang tervalidasi. Area authenticated memerlukan session Supabase; jalur akun demo lokal sudah dihapus.
 
 ## Practice handoff dan perlindungan draft
 
@@ -50,7 +52,7 @@ Learning context berada di envelope draft lokal yang backward-compatible, bukan 
 
 ## Simulator scope
 
-Enam practice menggunakan Arduino Uno, LED, resistor, push button, potentiometer, dan rangkaian Traffic Light. Blink, button input, dan analog/PWM memiliki starter executable. LED wiring dimulai tanpa wires; debugging memiliki pin mismatch yang disengaja; Traffic Light menyediakan circuit dan skeleton program untuk dilengkapi learner. Tidak ada evaluator otomatis atau simulator rewrite.
+Enam practice menggunakan Arduino Uno, LED, resistor, push button, potentiometer, dan rangkaian Traffic Light. Blink, button input, dan analog/PWM memiliki starter executable. LED wiring dimulai tanpa wires; debugging memiliki pin mismatch yang disengaja; Traffic Light menyediakan circuit dan skeleton program untuk dilengkapi learner. Challenge extension memiliki starter belum selesai dan evaluator terpisah; simulator tidak ditulis ulang.
 
 Materi menjelaskan educational simulation dan Arduino-style subset. PWM menggunakan integer 0–255 secara eksplisit sesuai interpreter existing; library Arduino umum dan full C++ tidak diklaim didukung.
 
@@ -58,4 +60,4 @@ Materi menjelaskan educational simulation dan Arduino-style subset. PWM mengguna
 
 Vitest mencakup validation/ordering, snapshot compatibility, output Blink/button/pot/Traffic Light, confirmation, clean-cloud backup, recovery/replay, storage/network failure, owner mismatch, dan redirect contracts. Playwright menjalankan production build dengan Supabase transport fixture lokal: protected routes, login destination, public marketing, lesson navigation/404, practice Run/Stop, backup restore, failure recovery, mobile Sheet/focus, Light/Dark/System, dan regresi dashboard/persistence/workspace.
 
-Fixture lokal tidak membuktikan remote Supabase Auth atau RLS. Tidak ada perubahan database atau verifikasi remote cloud pada milestone ini.
+Fixture lokal tidak membuktikan remote Supabase Auth atau RLS. Foundation awal tidak mengubah database. Migration dan status verifikasi milestone Challenges + Progress dijelaskan pada dokumen extension tersebut.

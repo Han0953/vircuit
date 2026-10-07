@@ -6,8 +6,6 @@ import { flushDraft, patchDraft, replaceDraft } from "../local/controller";
 import { newDraft, removeMigratedGuest, type Draft } from "../local/drafts";
 import { usePersistence } from "../store";
 import { cloudRequest } from "./request";
-import { isLocalDemo } from "@/features/auth/demo";
-import { saveDemoProject, listDemoProjects, loadDemoProject, deleteDemoProject } from "../local/demo-projects";
 export { cloudRequest } from "./request";
 export function acknowledge(draft: Draft, pending: NonNullable<Draft["pending"]>, result: { id: string; revision: number }): Draft {
   return { ...draft, cloud: { ...result, owner: pending.owner }, savedLocalRevision: pending.localRevision, pending: null, saveIntent: false, guestSource: null, guestSourceRevision: null };
@@ -19,20 +17,6 @@ export function saveToCloud(): Promise<void> {
   return flight;
 }
 async function performSave() {
-  if (isLocalDemo()) {
-    const draft = usePersistence.getState().draft;
-    if (!draft) throw new Error("Draft belum siap.");
-    usePersistence.setState({ busy: true, status: "saving", error: null });
-    try {
-      await flushDraft(); await saveDemoProject(draft.id, draft.project);
-      if (usePersistence.getState().draft?.id !== draft.id) return;
-      patchDraft({ savedLocalRevision: draft.localRevision }); await flushDraft();
-      usePersistence.setState({ status: usePersistence.getState().draft?.localRevision === draft.localRevision ? "saved" : "unsaved" });
-    } catch (error) {
-      usePersistence.setState({ status: "failed", error: error instanceof Error ? error.message : "Simpan lokal gagal." }); throw error;
-    }
-    return;
-  }
   const state = usePersistence.getState();
   const draft = state.draft; const owner = state.userId;
   if (!owner || !draft || draft.scope !== `user:${owner}`) throw new Error("Masuk sebelum menyimpan ke akun.");
@@ -67,20 +51,11 @@ export async function requestSave() {
   return `/masuk?next=${encodeURIComponent(`/simulator?save=1&draft=${draft.id}`)}`;
 }
 export async function listCloudProjects() {
-  if (isLocalDemo()) return (await listDemoProjects()).map((d) => ({ id: d.id, title: d.project.metadata.name, revision: 1, updated_at: new Date(d.updatedAt).toISOString() }));
   const parsed = projectListSchema.safeParse(await cloudRequest("/api/projects"));
   if (!parsed.success) throw new Error("Daftar proyek cloud tidak valid.");
   return parsed.data;
 }
 export async function openCloudProject(id: string) {
-  if (isLocalDemo()) {
-    if (usePersistence.getState().busy) throw new Error("Tunggu penyimpanan selesai.");
-    const loaded = await loadDemoProject(id);
-    const scope = usePersistence.getState().draft?.scope;
-    if (!scope) throw new Error("Draft belum siap.");
-    await replaceDraft({ ...loaded, scope, savedLocalRevision: loaded.localRevision });
-    stopSimulation(); resetSimulation(); useCanvas.getState().select([]); return;
-  }
   if (usePersistence.getState().busy) throw new Error("Tunggu penyimpanan selesai.");
   const owner = usePersistence.getState().userId;
   if (!owner) throw new Error("Masuk terlebih dahulu.");
@@ -105,10 +80,9 @@ export async function saveAsNew() {
 }
 export async function deleteCloudProject(id: string, revision: number) {
   if (usePersistence.getState().busy) throw new Error("Tunggu penyimpanan selesai.");
-  if (isLocalDemo()) await deleteDemoProject(id);
-  else await cloudRequest(`/api/projects/${id}`, "DELETE", { expectedRevision: revision });
+  await cloudRequest(`/api/projects/${id}`, "DELETE", { expectedRevision: revision });
   const draft = usePersistence.getState().draft;
-  if (draft?.cloud?.id === id || (isLocalDemo() && draft?.id === id)) {
+  if (draft?.cloud?.id === id) {
     // Keep the current circuit locally; detach it from the deleted cloud identity.
     await replaceDraft(newDraft(draft.scope, draft.project));
   }
