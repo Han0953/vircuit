@@ -1,2 +1,3 @@
 import { defineConfig } from "vitest/config";
-export default defineConfig({ test: { include: ["features/**/*.test.ts", "tests/unit/**/*.test.ts"] } });
+import { resolve } from "node:path";
+export default defineConfig({ resolve: { alias: { "@": resolve(process.cwd()) } }, test: { include: ["features/**/*.test.ts", "tests/unit/**/*.test.ts"] } });

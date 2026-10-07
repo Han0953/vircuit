@@ -1,4 +1,5 @@
 "use client";
+import { PracticeContextPanel } from "@/features/learning/ui/practice-context";
 import { stopSimulation } from "../../worker/bridge";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
@@ -13,12 +14,18 @@ import { cn } from "@/lib/utils";
 
 import { CircuitCanvas } from "./circuit-canvas";
 import { ResizableWorkspace } from "./resizable-workspace";
+import { DraftRecovery } from "@/features/projects/ui/draft-recovery";
+import { Autosave } from "@/features/projects/ui/autosave";
 
 const subscribeDesktop = (listener: () => void) => { const query = window.matchMedia("(min-width: 1024px)"); query.addEventListener("change", listener); return () => query.removeEventListener("change", listener); };
 
 type MobilePanel = "parts" | "properties" | WorkspaceTab;
 
 export function WorkspaceShell() {
+  return <DraftRecovery><WorkspaceContent /></DraftRecovery>;
+}
+
+function WorkspaceContent() {
   const desktop = useSyncExternalStore(subscribeDesktop, () => window.matchMedia("(min-width: 1024px)").matches, () => false);
   const [codeVisited, setCodeVisited] = useState(false);
   const [category, setCategory] = useState("Boards");
@@ -48,12 +55,14 @@ export function WorkspaceShell() {
   const panelTitle = mobilePanel === "parts" ? "Parts" : mobilePanel === "properties" ? "Properties" : workspaceTabs.find((item) => item.id === mobilePanel)?.label;
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background">
+      <Autosave />
       <a href="#workspace-canvas" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-md focus:bg-surface focus:p-4 focus:ring-2 focus:ring-ring">Lewati ke canvas</a>
       <WorkspaceTopbar onOpenAI={(trigger) => openPanel("ai", trigger)} />
+      <PracticeContextPanel />
       <p id="workspace-unavailable" className="flex shrink-0 items-start gap-2 border-b bg-surface-muted px-4 py-2 text-xs leading-relaxed text-text-secondary">
         <Info aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-        Simulasi edukatif · Arduino C/C++ subset. Proyek belum tersimpan; refresh menghapus rangkaian.
+        Simulasi edukatif · Arduino C/C++ subset. Draft disimpan lokal di browser ini. Ekspor JSON untuk cadangan.
       </p>
       <main aria-label="Workspace Virtual Lab" className="flex min-h-0 flex-1 flex-col">
         <ResizableWorkspace

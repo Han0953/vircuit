@@ -1,0 +1,122 @@
+{
+  "id": "course.dasar-iot", "slug": "dasar-iot", "title": "Dasar IoT dengan Arduino Uno",
+  "description": "Pahami rangkaian sederhana, baca input, dan kendalikan output melalui praktik di Virtual Lab.",
+  "level": "beginner", "order": 1, "version": 1, "published": true,
+  "modules": [
+    { "id": "module.elektronika", "title": "Elektronika Dasar", "order": 1 },
+    { "id": "module.digital", "title": "Digital I/O", "order": 2 },
+    { "id": "module.analog", "title": "Analog Input", "order": 3 },
+    { "id": "module.proyek", "title": "Debugging & Project", "order": 4 }
+  ],
+  "lessons": [
+    {
+      "id": "lesson.tegangan-ground", "slug": "tegangan-ground", "title": "Tegangan dan Ground", "moduleId": "module.elektronika", "order": 1, "duration": 5,
+      "summary": "Kenali beda potensial dan jalur balik rangkaian sebelum membuat sambungan.",
+      "objectives": ["Menjelaskan tegangan sebagai beda potensial.", "Mengenali ground sebagai titik acuan dan jalur balik."], "prerequisites": [],
+      "blocks": [
+        { "type": "paragraph", "text": "Tegangan adalah beda potensial antara dua titik. Label 5V pada board menyatakan tegangan terhadap GND; angka itu bukan ukuran arus yang selalu mengalir." },
+        { "type": "diagram", "steps": ["Sumber / pin output", "Beban", "Ground / jalur balik"], "caption": "Rangkaian membutuhkan jalur yang lengkap agar arus dapat mengalir." },
+        { "type": "paragraph", "text": "Ground menjadi acuan bersama untuk membaca sinyal. Jika input sensor dan board memakai acuan yang berbeda, pembacaan dapat tidak sesuai harapan. Mulai pemeriksaan dari jalur daya dan ground." },
+        { "type": "callout", "title": "Dari virtual ke hardware", "text": "Virtual Lab memakai model edukatif yang disederhanakan. Saat memakai hardware, periksa tegangan kerja dan datasheet. Jangan menghubungkan sumber daya langsung ke ground." }
+      ], "concepts": ["Tegangan diukur antara dua titik.", "Ground adalah acuan; rangkaian tetap membutuhkan jalur balik."], "practice": null
+    },
+    {
+      "id": "lesson.led-resistor", "slug": "led-resistor", "title": "LED, Resistor, dan Polaritas", "moduleId": "module.elektronika", "order": 2, "duration": 8,
+      "summary": "Susun LED dengan resistor seri dan periksa identitas pin.",
+      "objectives": ["Membedakan anoda dan katoda LED.", "Menjelaskan fungsi resistor seri.", "Membuat wiring pin-to-pin."], "prerequisites": ["lesson.tegangan-ground"],
+      "blocks": [
+        { "type": "paragraph", "text": "LED memiliki polaritas: anoda (A) dan katoda (K). Resistor seri membatasi arus pada hardware. Nilai 220 Ω dapat digunakan sebagai titik awal latihan ini, bukan nilai universal untuk semua LED dan sumber tegangan." },
+        { "type": "diagram", "steps": ["Uno D3", "Resistor 220 Ω", "LED A → K", "Uno GND"], "caption": "Resistor berada dalam satu jalur seri dengan LED." },
+        { "type": "paragraph", "text": "Di canvas, pilih pin sumber lalu pin tujuan. Wire mengikuti identitas pin meskipun komponennya dipindah. Cocokkan label D3, A, K, dan GND; posisi visual saja tidak membuktikan koneksi." }
+      ], "concepts": ["Polaritas memengaruhi arah kerja LED.", "Resistor seri membatasi arus pada rangkaian fisik."],
+      "practice": { "id": "practice.led-wiring", "template": "led-wiring", "version": 1, "goal": "Hubungkan LED ke D3 melalui resistor dan ground.", "components": ["Arduino Uno", "Resistor", "LED"], "instructions": [
+        { "phase": "Build", "text": "Tata board, resistor, dan LED yang sudah disediakan." },
+        { "phase": "Wire", "text": "Hubungkan D3 → resistor pin 1, resistor pin 2 → LED A, dan LED K → GND." },
+        { "phase": "Simulate", "text": "Jalankan contoh kode, lalu amati LED berkedip." },
+        { "phase": "Debug", "text": "Jika LED tidak berubah, periksa endpoint wire dan panel Problems." }
+      ], "observations": ["LED berubah hidup/mati setelah jalur lengkap.", "Model virtual tidak menghitung seluruh perilaku arus dan panas komponen." ] }
+    },
+    {
+      "id": "lesson.blink", "slug": "blink", "title": "Arduino Uno dan Blink", "moduleId": "module.digital", "order": 3, "duration": 10,
+      "summary": "Gunakan setup, loop, pinMode, dan digitalWrite untuk mengendalikan output.",
+      "objectives": ["Membedakan setup dan loop.", "Mengatur pin sebagai OUTPUT.", "Mengubah durasi hidup dan mati LED."], "prerequisites": ["lesson.led-resistor"],
+      "blocks": [
+        { "type": "paragraph", "text": "setup() dijalankan sekali saat simulasi dimulai. loop() diulang selama Run aktif. pinMode(3, OUTPUT) menyiapkan D3 sebagai output; digitalWrite(3, HIGH) dan LOW mengubah keadaan digitalnya." },
+        { "type": "code", "source": "void setup() {\n  pinMode(3, OUTPUT);\n}\nvoid loop() {\n  digitalWrite(3, HIGH);\n  delay(500);\n  digitalWrite(3, LOW);\n  delay(500);\n}" },
+        { "type": "callout", "title": "Subset yang didukung", "text": "Kode di Vircuit adalah Arduino-style C/C++ subset. delay memakai waktu virtual. Library Arduino umum dan seluruh fitur C++ belum didukung; API yang tidak dikenal menghasilkan diagnostics." }
+      ], "concepts": ["setup menyiapkan board; loop mengulang perilaku.", "Nomor pin di kode harus sesuai wiring."],
+      "practice": { "id": "practice.blink", "template": "blink", "version": 1, "goal": "Ubah pola waktu LED melalui kode.", "components": ["Arduino Uno", "LED", "Resistor"], "instructions": [
+        { "phase": "Wire", "text": "Periksa rangkaian D3 → resistor → LED → GND." },
+        { "phase": "Code", "text": "Ubah delay hidup menjadi 1000 dan delay mati menjadi 250." },
+        { "phase": "Simulate", "text": "Run lalu Stop. Bandingkan waktu hidup dan mati." },
+        { "phase": "Debug", "text": "Cocokkan pinMode dan digitalWrite dengan pin D3." }
+      ], "observations": ["LED hidup lebih lama daripada mati setelah kode diubah."] }
+    },
+    {
+      "id": "lesson.button", "slug": "button", "title": "Push Button dan digitalRead", "moduleId": "module.digital", "order": 4, "duration": 10,
+      "summary": "Baca input tombol dan gunakan hasilnya untuk menyalakan LED.",
+      "objectives": ["Membaca input dengan digitalRead.", "Menjelaskan INPUT_PULLUP dan active-low.", "Mengamati input melalui Serial Monitor."], "prerequisites": ["lesson.blink"],
+      "blocks": [
+        { "type": "paragraph", "text": "INPUT_PULLUP membuat input berada pada HIGH saat tombol terbuka. Ketika tombol menghubungkan D2 ke GND, input menjadi LOW. Karena itu kondisi tombol ditekan diperiksa dengan digitalRead(2) == LOW." },
+        { "type": "code", "source": "void setup() {\n  pinMode(2, INPUT_PULLUP);\n  pinMode(3, OUTPUT);\n  Serial.begin(9600);\n}\nvoid loop() {\n  int pressed = digitalRead(2) == LOW;\n  digitalWrite(3, pressed);\n  Serial.println(pressed);\n  delay(20);\n}" },
+        { "type": "paragraph", "text": "Tombol adalah input, board menjalankan logika, dan LED adalah output. Nilai serial membantu membedakan masalah pembacaan tombol dari masalah output LED." }
+      ], "concepts": ["INPUT_PULLUP memakai logika active-low untuk wiring ke ground.", "Serial membantu memeriksa nilai input."],
+      "practice": { "id": "practice.button", "template": "button", "version": 1, "goal": "Nyalakan LED hanya saat tombol ditekan.", "components": ["Arduino Uno", "Push Button", "LED", "Resistor"], "instructions": [
+        { "phase": "Wire", "text": "Periksa tombol pin 1 → D2 dan pin 2 → GND; LED memakai D3." },
+        { "phase": "Code", "text": "Baca contoh program dan cari kondisi active-low." },
+        { "phase": "Simulate", "text": "Run, tahan tombol virtual, lalu lepaskan." },
+        { "phase": "Debug", "text": "Buka Serial Monitor; bandingkan nilai pressed dengan output LED." }
+      ], "observations": ["LED hidup saat tombol ditekan dan mati setelah dilepas.", "Serial menampilkan 1 saat ditekan dan 0 saat dilepas."] }
+    },
+    {
+      "id": "lesson.pot", "slug": "potentiometer", "title": "Potentiometer dan analogRead", "moduleId": "module.analog", "order": 5, "duration": 10,
+      "summary": "Baca input analog dan kendalikan intensitas output PWM.",
+      "objectives": ["Membaca A0 dengan analogRead.", "Membedakan ADC dan PWM.", "Menghubungkan perubahan input dengan output."], "prerequisites": ["lesson.button"],
+      "blocks": [
+        { "type": "paragraph", "text": "Potentiometer mempunyai VCC, GND, dan OUT. OUT dihubungkan ke A0. Model Uno membaca nilai ADC 0–1023. PWM adalah output pulsa dengan duty cycle; analogWrite pada D3 menerima nilai 0–255, bukan tegangan analog kontinu." },
+        { "type": "code", "source": "void setup() {\n  pinMode(3, OUTPUT);\n  Serial.begin(9600);\n}\nvoid loop() {\n  int value = analogRead(A0);\n  int pwm = (value - value % 4) / 4;\n  analogWrite(3, pwm);\n  Serial.println(value);\n  delay(50);\n}" },
+        { "type": "diagram", "steps": ["Potentiometer OUT", "Uno A0 / ADC", "Program", "Uno D3 / PWM", "LED"], "caption": "Input analog diolah sebelum menjadi output PWM." }
+      ], "concepts": ["ADC mengubah input analog menjadi angka.", "PWM membutuhkan pin yang mendukung PWM."],
+      "practice": { "id": "practice.pot", "template": "pot", "version": 1, "goal": "Ubah intensitas LED dengan slider potentiometer.", "components": ["Arduino Uno", "Potentiometer", "LED", "Resistor"], "instructions": [
+        { "phase": "Wire", "text": "Periksa VCC → 5V, GND → GND, OUT → A0; output LED memakai D3." },
+        { "phase": "Code", "text": "Periksa pemetaan ADC ke PWM; modulo memastikan hasil bilangan bulat." },
+        { "phase": "Simulate", "text": "Run, geser potentiometer dari minimum ke maksimum." },
+        { "phase": "Debug", "text": "Bandingkan Serial Monitor dengan intensitas LED." }
+      ], "observations": ["Nilai serial meningkat ketika slider dinaikkan.", "Intensitas virtual LED mengikuti nilai PWM."] }
+    },
+    {
+      "id": "lesson.debug", "slug": "debugging", "title": "Debugging Wiring dan Kode", "moduleId": "module.proyek", "order": 6, "duration": 8,
+      "summary": "Periksa input, koneksi, dan program secara berurutan.",
+      "objectives": ["Menggunakan Problems dan Serial Monitor.", "Memisahkan masalah circuit dari masalah code.", "Memperbaiki satu penyebab sebelum menguji lagi."], "prerequisites": ["lesson.pot"],
+      "blocks": [
+        { "type": "list", "items": ["Periksa board aktif, daya, ground, polaritas, dan endpoint wire.", "Cocokkan nomor pin di kode dengan rangkaian.", "Baca Problems untuk diagnostics circuit, code, dan runtime.", "Gunakan Serial untuk memeriksa nilai; ubah satu hal lalu Run kembali."] },
+        { "type": "paragraph", "text": "Tidak semua rangkaian yang salah menghasilkan syntax error. LED yang terhubung ke D3 tidak akan dikendalikan oleh program yang hanya menulis D4. Ini adalah ketidaksesuaian antara circuit dan code; telusuri label pin sebelum mengganti komponen." },
+        { "type": "callout", "title": "Diagnostics membantu, bukan sertifikasi", "text": "Problems mencakup pemeriksaan yang didukung model saat ini. Panel kosong tidak membuktikan rangkaian fisik aman atau seluruh tujuan latihan tercapai." }
+      ], "concepts": ["Bedakan wiring, code, dan runtime.", "Uji perubahan kecil agar penyebab dapat diketahui."],
+      "practice": { "id": "practice.debug", "template": "debug", "version": 1, "goal": "Temukan ketidaksesuaian pin dan perbaiki output LED.", "components": ["Arduino Uno", "LED", "Resistor"], "instructions": [
+        { "phase": "Wire", "text": "Telusuri LED sampai pin output board." },
+        { "phase": "Code", "text": "Bandingkan nomor pin dalam contoh kode dengan wiring." },
+        { "phase": "Simulate", "text": "Run; amati output yang belum sesuai." },
+        { "phase": "Debug", "text": "Perbaiki nomor pin lalu jalankan lagi. Gunakan Problems jika ada diagnostics." }
+      ], "observations": ["Kode awal memakai D4 tetapi LED terhubung ke D3.", "LED berkedip setelah kode memakai D3 secara konsisten."] }
+    },
+    {
+      "id": "lesson.traffic", "slug": "traffic-light", "title": "Mini Project: Traffic Light", "moduleId": "module.proyek", "order": 7, "duration": 15,
+      "summary": "Gabungkan beberapa output digital menjadi urutan lampu sederhana.",
+      "objectives": ["Menata tiga output independen.", "Menyusun urutan merah, hijau, dan kuning.", "Menguji hubungan code, timing, dan wiring."], "prerequisites": ["lesson.debug"],
+      "blocks": [
+        { "type": "paragraph", "text": "Traffic Light menggabungkan tiga LED, masing-masing dengan resistor seri dan pin output tersendiri. Dalam latihan ini merah memakai D3, kuning D5, dan hijau D6. Ground menjadi jalur balik bersama." },
+        { "type": "diagram", "steps": ["Merah", "Hijau", "Kuning", "Kembali merah"], "caption": "Satu urutan sederhana untuk latihan; bukan controller lalu lintas siap digunakan di jalan." },
+        { "type": "list", "items": ["Pastikan setiap LED mempunyai jalur resistor dan ground.", "Atur seluruh output di setup sebelum loop dimulai.", "Buat hanya satu lampu aktif pada setiap tahap.", "Ubah timing dan jelaskan efeknya sebelum menguji kembali."] },
+        { "type": "callout", "title": "Tahap berikutnya", "text": "Latihan ini belum memiliki evaluator atau skor otomatis. Bandingkan hasilmu dengan pengamatan yang diharapkan dan gunakan Problems untuk membantu debugging." }
+      ], "concepts": ["Setiap output memiliki identitas pin tersendiri.", "Urutan state dan timing membentuk perilaku project."],
+      "practice": { "id": "practice.traffic", "template": "traffic", "version": 1, "goal": "Susun urutan Traffic Light dengan tiga LED.", "components": ["Arduino Uno", "3 LED", "3 Resistor"], "instructions": [
+        { "phase": "Build", "text": "Kenali LED berlabel Merah, Kuning, dan Hijau." },
+        { "phase": "Wire", "text": "Periksa output D3, D5, D6 dan jalur ground masing-masing LED." },
+        { "phase": "Code", "text": "Lengkapi loop: merah 1000 ms, hijau 1000 ms, kuning 500 ms. Matikan lampu lain pada setiap tahap." },
+        { "phase": "Simulate", "text": "Run dan amati sedikitnya dua putaran urutan." },
+        { "phase": "Debug", "text": "Periksa pin dan digitalWrite jika lebih dari satu LED aktif." }
+      ], "observations": ["Merah → hijau → kuning berulang.", "Hanya satu LED aktif pada setiap tahap."] }
+    }
+  ]
+}

@@ -172,9 +172,9 @@ export function BelajarPage() {
           <>
             <SimulatorCtaButton />
             <Button asChild variant="outline" className="h-12 px-6">
-              <Link href={marketingRoutes.login}>
+              <Link href="/masuk?next=%2Fdashboard%2Flearn">
                 <LogIn aria-hidden="true" />
-                Masuk untuk Pantau Progress
+                Mulai belajar
               </Link>
             </Button>
           </>

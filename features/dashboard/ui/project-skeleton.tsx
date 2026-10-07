@@ -1,0 +1,3 @@
+export function ProjectSkeleton() {
+  return <div role="status" aria-label="Memuat proyek" className="space-y-6"><div className="h-8 w-48 rounded-md bg-surface-muted" /><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 6 }, (_, index) => <div key={index} className="space-y-5 rounded-lg border bg-surface p-5"><div className="h-5 w-8 rounded bg-surface-muted" /><div className="h-5 w-3/4 rounded bg-surface-muted" /><div className="h-4 w-1/2 rounded bg-surface-muted" /><div className="h-11 rounded bg-surface-muted" /></div>)}</div><span className="sr-only">Memuat proyek…</span></div>;
+}
