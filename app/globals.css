@@ -24,19 +24,16 @@
 .workspace-divider:hover, .workspace-divider:focus-visible { background: var(--primary); outline: 2px solid var(--ring); }
 .workspace-divider[data-separator='active'] { background: var(--primary); }
 
-/* Cirra adapts to the panel width, including narrow lesson/mobile sheets. */
 .cirra-chat { container-type: inline-size; }
-.workspace-cirra-body .cirra-composer {
-  max-height: 40%; flex-shrink: 1; min-height: 0; overflow-y: auto;
-}
-@container (min-width: 48rem) {
-  .cirra-layout { display: grid; grid-template-columns: 20rem minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; }
-  .cirra-layout > header { grid-column: 1 / -1; }
-  .cirra-layout > [role="log"] { grid-column: 2; grid-row: 2; }
-  .cirra-layout > [role="status"] { grid-column: 2; grid-row: 3; }
-  .cirra-layout > [role="alert"] { grid-column: 2; grid-row: 4; overflow: auto; max-height: 5rem; }
-  .cirra-composer { grid-column: 1; grid-row: 2 / 5; min-height: 0; height: 100%; overflow: auto; border-top-width: 0; border-right-width: 1px; }
-  .cirra-composer textarea { min-height: 44px; height: 44px; }
+.cirra-composer textarea { field-sizing: content; max-height: min(8rem, calc(var(--cirra-visible-height, 100dvh) * 0.24)); }
+.cirra-typing span { width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: cirra-dot 1.2s ease-in-out infinite; }
+.cirra-typing span:nth-child(2) { animation-delay: 150ms; }
+.cirra-typing span:nth-child(3) { animation-delay: 300ms; }
+.cirra-typing[data-active='false'] span { animation: none; }
+@keyframes cirra-dot { 0%, 70%, 100% { opacity: 0.4; transform: translateY(0); } 35% { opacity: 1; transform: translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .cirra-typing span { animation: none; transform: none; } }
+@media (max-width: 1023px) {
+  .cirra-viewport { top: var(--cirra-visible-top, 0px); bottom: auto; height: var(--cirra-visible-height, 100dvh); max-height: none; }
 }
 
 /* Physical component materials stay distinct from application surface tokens. */

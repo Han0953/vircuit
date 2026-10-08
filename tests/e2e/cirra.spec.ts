@@ -31,7 +31,7 @@ test("lesson Tutor, cancel, retry and session history preserve focus and learnin
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Kenapa LED membutuhkan resistor?"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("log")).toContainText("resistor membatasi arus");
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("fixture-slow"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
-  await chat.getByRole("button", { name: "Batalkan" }).click();
+  await chat.getByRole("button", { name: "Hentikan" }).click();
   await expect(chat.getByRole("alert")).toContainText("dibatalkan");
   await page.keyboard.press("Escape"); await expect(page.getByRole("button", { name: "Tanya Cirra", exact: true })).toBeFocused();
   await page.getByRole("button", { name: "Tanya Cirra", exact: true }).click(); await expect(chat.getByRole("log")).toContainText("resistor membatasi arus");
@@ -62,7 +62,7 @@ test("challenge Debugger and Assistant do not mutate circuit/code or complete ch
   const codeRequest = page.waitForRequest((request) => request.url().endsWith("/api/ai/cirra"));
   await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   expect((await codeRequest).postDataJSON().project.code.source).toBe(source);
-  await expect(chat.getByRole("button", { name: "Kirim", exact: true })).toBeEnabled();
+  await expect(chat.getByLabel("Pertanyaan untuk Cirra")).toBeEnabled();
   await page.getByRole("button", { name: "Minimalkan Cirra" }).click();
   await page.getByRole("link", { name: "Circuit", exact: true }).click();
   await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
