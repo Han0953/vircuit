@@ -22,6 +22,11 @@ export function ResizableWorkspace({ parts, properties, bottom, children }: { pa
   const horizontal = useGroupRef();
   const vertical = useGroupRef();
   useEffect(() => {
+    const show = () => { setFocus(false); setPreferences((p) => ({ ...p, bottom: { size: 65, visible: true } })); };
+    window.addEventListener("vircuit:show-bottom", show);
+    return () => window.removeEventListener("vircuit:show-bottom", show);
+  }, []);
+  useEffect(() => {
     const frame = requestAnimationFrame(() => {
       try { setPreferences(parseLayout(localStorage.getItem(layoutStorageKey))); }
       catch { setStorageError(true); }

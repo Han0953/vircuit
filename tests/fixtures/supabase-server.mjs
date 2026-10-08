@@ -31,6 +31,15 @@ export async function startSupabaseFixture() {
     const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString()) : {};
     const equal = (key) => url.searchParams.get(key)?.replace(/^eq\./, "");
     if (request.method === "OPTIONS") return send({});
+    if (url.pathname === "/__fixture/gemini") {
+      if (request.headers["x-goog-api-key"] !== "local-playwright-fixture") return send({ error: { code: 403, message: "Fixture key required" } }, 403);
+      const data = JSON.parse(body.contents[0].parts[0].text);
+      if (data.userMessage.includes("fixture-slow")) await new Promise((resolve) => setTimeout(resolve, 2000));
+      const mode = data.untrustedContext.mode;
+      const result = { mode, answer: mode === "tutor" ? "Aku bantu kamu memahami resistor: resistor membatasi arus untuk LED." : mode === "debugger" ? "Aku memeriksa wiring dan kode aktual kamu. Periksa kecocokan pin output dan jalur GND." : "Aku bantu kamu merencanakan project berdasarkan komponen yang didukung.", observations: mode === "debugger" ? ["Koneksi dan kode diambil dari draft saat pesan dikirim."] : [], suggestions: ["Periksa satu langkah, lalu uji lagi."], hints: data.untrustedContext.challenge ? ["Mulai dari pin dan jalur ground sebelum mengubah kode."] : [], references: [] };
+      if (mode === "project-assistant") result.blueprint = { goal: "Rencana project", constraints: ["Dukungan simulator masih subset."], components: [{ name: "Arduino Uno", catalogType: "uno", support: "partial" }], circuitPlan: ["Rencanakan koneksi input dan output."], programStructure: ["Baca input lalu kendalikan output."], testing: ["Uji rangkaian secara bertahap."] };
+      return send({ candidates: [{ content: { role: "model", parts: [{ text: JSON.stringify(result) }] }, finishReason: "STOP" }], usageMetadata: { totalTokenCount: 30 } });
+    }
     if (url.pathname === "/__fixture/reset") { reset(body.count); await resetProgressDatabase(); failure = !!body.failure; return send({ ok: true }); }
     if (url.pathname === "/__fixture/state") return send({ saves, count: rows.length, rows: rows.map(({ id, title, revision }) => ({ id, title, revision })) });
     if (url.pathname === "/__fixture/conflict") { conflict = !!body.enabled; return send({ ok: true }); }

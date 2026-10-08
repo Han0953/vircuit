@@ -11,9 +11,11 @@ import { previewSubmission } from "../preview";
 import type { Bindings, Evaluation, Submission, Role } from "../contracts";
 import { pendingSubmissions, queueSubmission, type PendingSubmission } from "../pending";
 import { syncSubmission } from "../sync";
+import { openCirra } from "@/features/ai/ui/session-store";
 const roleLabels: Record<Role, string> = { board: "Board", led: "LED", button: "Tombol", potentiometer: "Potentiometer", red_led: "LED merah", yellow_led: "LED kuning", green_led: "LED hijau" };
 
 export function ChallengePanel({ lessonId }: { lessonId: string }) {
+  const [open, setOpen] = useState(false);
   const id = useId();
   const challenge = lessonChallenge(lessonId);
   const challengeId = challenge?.id;
@@ -71,7 +73,7 @@ export function ChallengePanel({ lessonId }: { lessonId: string }) {
   function choose(role: Role, value: string) {
     setBindings((old) => { const next = { ...old }; if (value) next[role] = value; else delete next[role]; return next; });
   }
-  return <Sheet><SheetTrigger asChild><Button variant="outline">Tantangan & evaluasi</Button></SheetTrigger><SheetContent side="right" className="w-full overflow-y-auto p-5 sm:max-w-lg"><SheetHeader className="px-0"><SheetTitle>{challenge.title}</SheetTitle><SheetDescription>{challenge.objective}</SheetDescription></SheetHeader>
+  return <Sheet open={open} onOpenChange={setOpen}><SheetTrigger asChild><Button variant="outline">Tantangan & evaluasi</Button></SheetTrigger><SheetContent side="right" className="w-full overflow-y-auto p-5 sm:max-w-lg"><SheetHeader className="px-0"><SheetTitle>{challenge.title}</SheetTitle><SheetDescription>{challenge.objective}</SheetDescription></SheetHeader>
     <p className="my-4 text-xs text-text-secondary">Tahap aktif: {result ? "Evaluasi" : "Tantangan"}. Penilaian memakai snapshot terpisah dari simulasi aktif.</p>
     <fieldset className="space-y-3" disabled={busy}><legend className="mb-3 font-semibold">Komponen yang dinilai</legend>{challenge.roles.map((role) => <div key={role} className="text-sm">
       <label htmlFor={`${id}-${role}`} className="block">{roleLabels[role]}</label>
@@ -80,6 +82,7 @@ export function ChallengePanel({ lessonId }: { lessonId: string }) {
       </select>
     </div>)}</fieldset>
     <Button className="my-5 w-full" disabled={busy || workspaceBusy} onClick={() => void evaluate()}>{busy ? "Mengevaluasi…" : "Evaluasi"}</Button>
+    <Button className="mb-4 w-full" variant="outline" disabled={busy || workspaceBusy} onClick={() => { setOpen(false); openCirra("debugger", { bindings: resolved }); }}>Tanya Cirra tentang tantangan</Button>
     {error && <p role="alert" className="my-3 text-sm">{error}</p>}
     {pending && <Button disabled={busy || workspaceBusy} variant="outline" className="mb-4 w-full" onClick={() => void retry()}>Coba sinkronkan hasil</Button>}
     <div aria-live="polite">{result && <><h3 className="font-semibold">{result.passed ? "Terpenuhi" : "Belum terpenuhi"}</h3><p className="my-2 text-sm">{verified ? result.passed ? "Terverifikasi — materi selesai" : "Hasil terverifikasi dan tersimpan. Coba perbaiki lagi." : "Hasil lokal — belum tersinkronisasi"}</p>{captured && (JSON.stringify(captured.project) !== JSON.stringify(project) || JSON.stringify(captured.bindings) !== JSON.stringify(bindings)) && <p className="text-sm">Project atau pilihan komponen berubah. Evaluasi ulang untuk hasil terbaru.</p>}{result.diagnostics.map((text, i) => <p key={i} className="my-2 text-sm">{text}</p>)}</>}</div>

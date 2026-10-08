@@ -16,6 +16,7 @@ import { CircuitCanvas } from "./circuit-canvas";
 import { ResizableWorkspace } from "./resizable-workspace";
 import { DraftRecovery } from "@/features/projects/ui/draft-recovery";
 import { Autosave } from "@/features/projects/ui/autosave";
+import { useCirraSession } from "@/features/ai/ui/session-store";
 
 const subscribeDesktop = (listener: () => void) => { const query = window.matchMedia("(min-width: 1024px)"); query.addEventListener("change", listener); return () => query.removeEventListener("change", listener); };
 
@@ -46,11 +47,23 @@ function WorkspaceContent() {
 
   function openPanel(panel: MobilePanel, trigger: HTMLButtonElement) {
     if (isWorkspaceTab(panel)) { setTab(panel); if (panel === "code") setCodeVisited(true); }
-    if (window.matchMedia("(min-width: 1024px)").matches) return;
+    if (window.matchMedia("(min-width: 1024px)").matches) { if (panel === "ai") window.dispatchEvent(new Event("vircuit:show-bottom")); return; }
     lastTrigger.current = trigger;
     setMobilePanel(panel);
     setSheetOpen(true);
   }
+
+  useEffect(() => {
+    const open = () => {
+      setTab("ai"); setMobilePanel("ai");
+      if (window.matchMedia("(min-width: 1024px)").matches) window.dispatchEvent(new Event("vircuit:show-bottom"));
+      else setSheetOpen(true);
+    };
+    const account = new BroadcastChannel("vircuit-auth");
+    account.onmessage = () => useCirraSession.setState({ threads: {}, launch: null });
+    window.addEventListener("vircuit:open-cirra", open);
+    return () => { window.removeEventListener("vircuit:open-cirra", open); account.close(); };
+  }, []);
 
   const panelTitle = mobilePanel === "parts" ? "Parts" : mobilePanel === "properties" ? "Properties" : workspaceTabs.find((item) => item.id === mobilePanel)?.label;
 
@@ -68,11 +81,11 @@ function WorkspaceContent() {
         <ResizableWorkspace
           parts={<><h2 className="border-b px-4 py-3 text-sm font-semibold">Parts</h2><PartsPanel category={category} onCategoryChange={setCategory} /></>}
           properties={<><h2 className="border-b px-4 py-3 text-sm font-semibold">Properties</h2><PropertiesPanel /></>}
-          bottom={<Tabs value={tab} onValueChange={(value) => { if (isWorkspaceTab(value)) { setTab(value); if (value === "code") setCodeVisited(true); } }} className="h-full gap-0 overflow-hidden">
+          bottom={<Tabs value={tab} onValueChange={(value) => { if (isWorkspaceTab(value)) { setTab(value); if (value === "ai") window.dispatchEvent(new Event("vircuit:show-bottom")); if (value === "code") setCodeVisited(true); } }} className="h-full gap-0 overflow-hidden">
             <TabsList aria-label="Panel workspace" variant="line" className="w-full shrink-0 justify-start border-b bg-surface px-4">
               {workspaceTabs.map(({ id, label, icon: Icon }) => <TabsTrigger key={id} value={id} className="flex-none px-4"><Icon aria-hidden="true" />{label}</TabsTrigger>)}
             </TabsList>
-            {workspaceTabs.map(({ id }) => <TabsContent forceMount key={id} value={id} className="min-h-0 overflow-auto data-[state=inactive]:hidden">{(id !== "code" || (desktop && codeVisited)) && <WorkspacePanelContent tab={id} />}</TabsContent>)}
+            {workspaceTabs.map(({ id }) => <TabsContent forceMount key={id} value={id} className="min-h-0 overflow-auto data-[state=inactive]:hidden">{(id !== "code" || (desktop && codeVisited)) && (id !== "ai" || desktop) && <WorkspacePanelContent tab={id} />}</TabsContent>)}
           </Tabs>}>
           <section ref={canvas} id="workspace-canvas" tabIndex={-1} aria-label="Circuit Canvas" className="flex h-full min-w-0 flex-col focus-visible:outline-2 focus-visible:outline-ring">
             <div className="flex justify-end border-b lg:hidden"><Button variant="ghost" onClick={(event) => openPanel("properties", event.currentTarget)}><SlidersHorizontal />Properties</Button></div>

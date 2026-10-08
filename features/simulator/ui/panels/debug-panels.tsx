@@ -1,4 +1,5 @@
 "use client";
+import { openCirra } from "@/features/ai/ui/session-store";
 import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, CircleAlert, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ export function ProblemsPanel() {
   const problems = useSimulation((s) => s.problems);
   return <div className="h-full overflow-auto p-3 text-sm"><Button variant="outline" onClick={() => useSimulation.setState({ problems: validateCircuit(useProject.getState().project) })}>Periksa rangkaian</Button>
     {!problems.length && <p className="py-3 text-text-secondary">Belum ada diagnostic. Periksa rangkaian atau jalankan kode.</p>}
-    <ul className="mt-3 space-y-2">{problems.map((p, i) => { const Icon = p.severity === "error" ? CircleAlert : p.severity === "warning" ? AlertTriangle : Info; return <li key={`${p.id}-${i}`} className="flex items-start gap-2 rounded border p-3"><Icon className={`mt-0.5 size-4 shrink-0 ${p.severity === "error" ? "text-destructive" : "text-text-secondary"}`} /><div><p>{p.message}</p><p className="text-xs text-text-secondary">{p.source} · {p.severity}{p.line ? ` · baris ${p.line}` : ""}</p>{p.componentId && <Button variant="ghost" onClick={() => useCanvas.getState().select([p.componentId!])}>Pilih komponen</Button>}</div></li>; })}</ul>
+    <ul className="mt-3 space-y-2">{problems.map((p, i) => { const Icon = p.severity === "error" ? CircleAlert : p.severity === "warning" ? AlertTriangle : Info; return <li key={`${p.id}-${i}`} className="flex items-start gap-2 rounded border p-3"><Icon className={`mt-0.5 size-4 shrink-0 ${p.severity === "error" ? "text-destructive" : "text-text-secondary"}`} /><div><p>{p.message}</p><Button variant="outline" className="my-2" onClick={() => openCirra("debugger", { problemId: p.id })}>Tanya Cirra</Button><p className="text-xs text-text-secondary">{p.source} · {p.severity}{p.line ? ` · baris ${p.line}` : ""}</p>{p.componentId && <Button variant="ghost" onClick={() => useCanvas.getState().select([p.componentId!])}>Pilih komponen</Button>}</div></li>; })}</ul>
   </div>;
 }
 export function SerialPanel() {

@@ -39,8 +39,8 @@ export function WorkspaceTopbar({ onOpenAI }: { onOpenAI: (trigger: HTMLButtonEl
             <UserRound aria-hidden="true" className="size-4" />{userId ? "Akun" : "Tamu"}
           </span>
           <ProjectControls key={userId ?? "guest"} />
-          <Button variant="ghost" onClick={(event) => onOpenAI(event.currentTarget)} aria-label="Buka panel AI" className="px-3">
-            <Sparkles aria-hidden="true" />AI
+          <Button variant="ghost" onClick={(event) => onOpenAI(event.currentTarget)} aria-label="Buka panel Cirra" className="px-3">
+            <Sparkles aria-hidden="true" />Cirra
           </Button>
           <ThemeToggle />
         </div>

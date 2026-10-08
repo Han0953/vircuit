@@ -3,6 +3,7 @@ import { clearPrivateState, flushDraft } from "@/features/projects/local/control
 import { cloudRequest } from "@/features/projects/cloud/request";
 import { usePersistence } from "@/features/projects/store";
 import { clearPendingAccount } from "@/features/challenges/pending";
+import { clearCirraAccount } from "@/features/ai/ui/session-store";
 
 export async function logoutAccount(owner: string) {
   const state = usePersistence.getState();
@@ -10,6 +11,7 @@ export async function logoutAccount(owner: string) {
   if (state.userId === owner && state.ready) await flushDraft();
   await cloudRequest("/api/auth/logout", "POST", {});
   clearPrivateState(owner);
+  clearCirraAccount(owner);
   try { await clearAccountDrafts(owner); await clearPendingAccount(owner); }
   finally {
     const channel = new BroadcastChannel("vircuit-auth");
