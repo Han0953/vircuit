@@ -1,5 +1,11 @@
 # Authentication + Project Persistence
 
+## Workspace route compatibility — 2026-10-08
+
+Circuit `/simulator` and Code `/simulator/code` share one recovered draft/project/runtime through the simulator layout. Safe auth destinations allow both internal paths, normalize valid project/practice/save/new commands, and discard arbitrary redirects. Session refresh proxy covers both routes; learning commands are still verified server-side. Guest Save from Code returns to Code with its explicit draft intent.
+
+JSON import/export is in the project menu. Import validates the existing v1 snapshot and backs up the active draft before replacement; draft ID, cloud identity and revision ownership are retained. Import marks meaningful project changes dirty. Cloud operations and snapshot format are unchanged.
+
 ## Konfigurasi lokal
 
 Salin nama variable dari `.env.example` ke `.env.local`, lalu isi dari Supabase Connect/API settings. `.env.local` harus tetap di-ignore. Aplikasi menggunakan publishable key; tidak membutuhkan service role untuk CRUD.

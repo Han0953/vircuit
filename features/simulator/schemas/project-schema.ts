@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { catalog, getDefinition } from "../catalog/registry";
 import type { Project } from "../types/project";
+import { normalizeRotation } from "../geometry/rotation";
 const endpoint = z.object({ componentId: z.string().min(1).max(100), pinId: z.string().min(1).max(100) });
 const position = z.object({ x: z.number().min(-100000).max(100000), y: z.number().min(-100000).max(100000) });
 export const projectSchema = z.object({
   schemaVersion: z.literal(1), metadata: z.object({ name: z.string().max(200) }),
-  components: z.array(z.object({ id: z.string().min(1).max(100), type: z.string().refine((type) => catalog.some((c) => c.key === type), "Komponen tidak dikenal"), label: z.string().max(200), position, rotation: z.number().min(0).max(359), properties: z.record(z.string().max(100), z.number().finite()) })).max(100),
+  components: z.array(z.object({ id: z.string().min(1).max(100), type: z.string().refine((type) => catalog.some((c) => c.key === type), "Komponen tidak dikenal"), label: z.string().max(200), position, rotation: z.number().min(0).max(359).default(0).transform((degrees): number => normalizeRotation(degrees)), properties: z.record(z.string().max(100), z.number().finite()) })).max(100),
   wires: z.array(z.object({ id: z.string().min(1).max(100), from: endpoint, to: endpoint, color: z.enum(["blue", "red", "green", "neutral"]) })).max(500),
   viewport: position.extend({ zoom: z.number().min(0.25).max(4) }),
   code: z.object({ language: z.literal("arduino-cpp-subset"), source: z.string().max(20000) }),

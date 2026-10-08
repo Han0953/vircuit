@@ -48,7 +48,8 @@ export async function requestSave() {
   const draft = usePersistence.getState().draft;
   if (!draft) throw new Error("Draft belum tersedia.");
   patchDraft({ saveIntent: true }); await flushDraft();
-  return `/masuk?next=${encodeURIComponent(`/simulator?save=1&draft=${draft.id}`)}`;
+  const path = typeof window !== "undefined" && window.location.pathname === "/simulator/code" ? "/simulator/code" : "/simulator";
+  return `/masuk?next=${encodeURIComponent(`${path}?save=1&draft=${draft.id}`)}`;
 }
 export async function listCloudProjects() {
   const parsed = projectListSchema.safeParse(await cloudRequest("/api/projects"));

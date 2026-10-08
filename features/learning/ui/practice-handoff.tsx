@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { usePersistence } from "@/features/projects/store";
 import { CloudError } from "@/features/projects/cloud/request";
 import { safeDestination } from "@/features/auth/redirect";
@@ -10,6 +10,7 @@ import { parsePracticeCommand } from "../practice-contract";
 import { applyPractice } from "../practice-handoff";
 
 export function PracticeHandoff({ verified }: { verified: boolean }) {
+  const pathname = usePathname();
   const query = useSearchParams().toString();
   const ready = usePersistence((s) => s.ready);
   const userId = usePersistence((s) => s.userId);
@@ -19,7 +20,7 @@ export function PracticeHandoff({ verified }: { verified: boolean }) {
   const [error, setError] = useState("");
   function finish() {
     setState("idle"); usePersistence.setState({ handoffBusy: false });
-    router.replace("/simulator", { scroll: false });
+    router.replace(pathname, { scroll: false });
   }
   async function run(confirmed = false) {
     if (running.current) return;
@@ -31,7 +32,7 @@ export function PracticeHandoff({ verified }: { verified: boolean }) {
       if (result === "confirm") setState("confirm"); else finish();
     } catch (cause) {
       if (cause instanceof CloudError && cause.status === 401) {
-        router.replace(`/masuk?next=${encodeURIComponent(safeDestination(`/simulator?${query}`))}`); return;
+        router.replace(`/masuk?next=${encodeURIComponent(safeDestination(`${pathname}?${query}`))}`); return;
       }
       setError(cause instanceof Error ? cause.message : "Praktik belum dapat dibuka."); setState("error");
     } finally { running.current = false; }

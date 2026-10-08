@@ -1,7 +1,8 @@
 "use client";
+import { CircuitPanel } from "@/features/simulator/ui/panels/circuit-panel";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FolderOpen, LogOut, Plus, Save, Trash2, Download } from "lucide-react";
+import { FolderOpen, LogOut, Plus, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -80,9 +81,10 @@ export function ProjectControls() {
         </form>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" disabled={busy || loading} onClick={() => void action(async () => { await newProject(); setOpen(false); })}><Plus aria-hidden />Proyek baru</Button>
-          <Button variant="outline" onClick={exportBackup}><Download aria-hidden />Ekspor cadangan</Button>
+
           {userId && <Button variant="outline" disabled={busy || loading} onClick={() => void action(async () => { await saveAsNew(); setOpen(false); })}>Simpan sebagai proyek baru</Button>}
         </div>
+        <CircuitPanel />
         {!!archives.length && <section aria-label="Arsip draft lokal" className="space-y-2 border-t pt-3"><h2 className="text-sm font-semibold">Arsip draft lokal</h2><p className="text-xs text-text-secondary">Perubahan yang belum disimpan tetap diarsipkan ketika berganti proyek.</p>{archives.map((item) => <div key={item.scope} className="flex items-center gap-2 rounded-md border p-2"><p className="min-w-0 flex-1 truncate text-sm">{item.project.metadata.name}</p><Button variant="outline" disabled={busy || loading} onClick={() => void action(async () => {
           const scope = usePersistence.getState().draft?.scope;
           if (scope) await replaceDraft({ ...item, scope });

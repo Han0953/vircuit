@@ -4,7 +4,9 @@ import type { Project } from "../../features/simulator/types/project";
 async function load(page: Page, project: Project) {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/simulator");
+  await page.getByRole("button", { name: "Buka menu proyek" }).click();
   await page.getByLabel("Impor JSON", { exact: true }).setInputFiles({ name: "test.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(project)) });
+  if (await page.getByRole("dialog").isVisible()) await page.keyboard.press("Escape");
   await expect(page.locator(".react-flow__node")).toHaveCount(project.components.length);
 }
 test("Blink runs in worker, stops, and survives panel layout changes", async ({ page }) => {
@@ -14,6 +16,12 @@ test("Blink runs in worker, stops, and survives panel layout changes", async ({ 
   const output = page.getByTestId("output-led");
   await expect(output).toHaveAttribute("data-value", "1");
   await expect(output).toHaveAttribute("data-value", "0");
+  await page.getByRole("link", { name: "Code", exact: true }).click();
+  await expect(page).toHaveURL(/\/simulator\/code$/);
+  await expect(page.locator(".monaco-editor")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Stop", exact: true })).toBeEnabled();
+  await page.getByRole("link", { name: "Circuit", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Stop", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "Focus Mode", exact: true }).click();
   await expect(output).toHaveAttribute("data-value", "1");
   await page.getByRole("button", { name: "Focus Mode", exact: true }).click();
@@ -37,7 +45,7 @@ test("button controls LED and runtime diagnostics are real", async ({ page }) =>
   await expect(page.getByTestId("output-led")).toHaveAttribute("data-value", "0");
   await page.getByRole("button", { name: "Stop", exact: true }).click();
   await page.getByRole("button", { name: "Focus Mode", exact: true }).click();
-  await page.getByRole("tab", { name: "Code", exact: true }).click();
+  await page.getByRole("link", { name: "Code", exact: true }).click();
   await expect(page.locator(".monaco-editor")).toBeVisible();
   await page.evaluate(() => {
     const editor = (window as unknown as { __vircuitEditor?: { setValue: (val: string) => void } }).__vircuitEditor;
@@ -48,7 +56,7 @@ test("button controls LED and runtime diagnostics are real", async ({ page }) =>
   await page.getByRole("button", { name: "Run", exact: true }).click();
   await page.getByRole("tab", { name: "Problems", exact: true }).click();
   await expect(page.getByText("API belum didukung: fetch", { exact: true })).toBeVisible();
-  await page.getByRole("tab", { name: "Code", exact: true }).click();
+  await page.getByRole("link", { name: "Code", exact: true }).click();
   await expect(page.locator(".monaco-editor .squiggly-error")).toBeVisible();
 });
 
@@ -69,4 +77,9 @@ test("potentiometer slider updates analog reading and PWM output", async ({ page
   });
   await expect(output).toHaveAttribute("data-value", "0");
   await page.getByRole("button", { name: "Stop", exact: true }).click();
+  await page.getByRole("button", { name: "Run", exact: true }).click();
+  await expect(slider).toHaveValue("50");
+  await expect(output).toHaveAttribute("data-value", "1");
+  await page.getByRole("button", { name: "Reset simulasi", exact: true }).click();
+  await expect(output).toHaveAttribute("data-value", "0");
 });

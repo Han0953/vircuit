@@ -52,17 +52,33 @@ test("challenge Debugger and Assistant do not mutate circuit/code or complete ch
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Beri aku petunjuk untuk challenge ini"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("log")).toContainText("wiring dan kode aktual");
   await expect(page.locator(".react-flow__node")).toHaveCount(3);
+  await chat.getByLabel("Pertanyaan untuk Cirra").fill("Periksa kode yang sedang terbuka");
+  await page.getByRole("button", { name: "Minimalkan Cirra" }).click();
+  await page.getByRole("link", { name: "Code", exact: true }).click();
+  await expect(page.locator(".monaco-editor")).toBeVisible();
+  const source = await page.evaluate(() => (window as unknown as { __vircuitEditor: { getValue: () => string } }).__vircuitEditor.getValue());
+  await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
+  await expect(chat.getByLabel("Pertanyaan untuk Cirra")).toHaveValue("Periksa kode yang sedang terbuka");
+  const codeRequest = page.waitForRequest((request) => request.url().endsWith("/api/ai/cirra"));
+  await chat.getByRole("button", { name: "Kirim", exact: true }).click();
+  expect((await codeRequest).postDataJSON().project.code.source).toBe(source);
+  await expect(chat.getByRole("button", { name: "Kirim", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "Minimalkan Cirra" }).click();
+  await page.getByRole("link", { name: "Circuit", exact: true }).click();
+  await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
   await chat.getByLabel("Mode", { exact: true }).selectOption("project-assistant");
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Aku mau membuat smart plant monitoring"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("log")).toContainText("komponen yang didukung");
   await expect(chat.getByRole("region", { name: "Rencana project" })).toBeVisible();
   expect(await draftSnapshot(page)).toBe(original);
+  expect((await chat.getByRole("log").boundingBox())!.height).toBeGreaterThan(80);
   await page.screenshot({ path: "test-results/cirra-desktop.png", fullPage: true });
   await page.getByRole("button", { name: "Kembali ke lesson" }).click(); await expect(page.getByText("Materi selesai", { exact: true })).toHaveCount(0);
 });
 test("new project planning and Problems handoff use the existing canvas without edits", async ({ page }) => {
   await login(page); await page.getByRole("region", { name: "Proyek terbaru" }).getByRole("button", { name: "Proyek baru", exact: true }).click(); await expect(page).toHaveURL(/\/simulator$/);
-  await page.getByRole("button", { name: "Rencanakan proyek dengan Cirra" }).click();
+  await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
+  await page.getByLabel("Mode", { exact: true }).selectOption("project-assistant");
   const chat = page.getByRole("region", { name: "Percakapan Cirra" });
   await expect(chat.getByLabel("Mode", { exact: true })).toHaveValue("project-assistant");
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Bantu aku merencanakan lampu sederhana"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
@@ -86,6 +102,9 @@ test("mobile Cirra fits 360px, supports themes and leaves draft intact", async (
     await page.keyboard.press("Escape");
   }
   await page.goto("/simulator"); await page.getByRole("button", { name: "Buka panel Cirra" }).click();
+  await expect(page.getByRole("button", { name: "Minimalkan Cirra" })).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  expect(await page.getByRole("dialog", { name: "Asisten Cirra" }).evaluate((el) => el.contains(document.activeElement))).toBe(true);
   const chat = page.getByRole("region", { name: "Percakapan Cirra" }); await chat.getByLabel("Pertanyaan untuk Cirra").fill("Apa fungsi resistor?"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("log")).toContainText("resistor membatasi arus"); await page.keyboard.press("Escape"); await expect(page.locator(".react-flow")).toBeVisible();
   await page.getByRole("button", { name: "Buka panel Cirra" }).click();

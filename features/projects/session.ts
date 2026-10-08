@@ -30,7 +30,7 @@ async function initialize() {
   resetSimulation(); useCanvas.getState().select([]);
   await recoverDraft(user ? `user:${user.id}` : "guest");
   if (migrate && usePersistence.getState().ready) {
-    try { await saveToCloud(); window.history.replaceState(null, "", "/simulator"); } catch { /* Retry retains the exact operation and local draft. */ }
+    try { await saveToCloud(); window.history.replaceState(null, "", window.location.pathname); } catch { /* Retry retains the exact operation and local draft. */ }
   }
 }
 export function watchAuth() {

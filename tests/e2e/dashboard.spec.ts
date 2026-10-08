@@ -93,7 +93,9 @@ test("new intent once, open URL, local conflict, save and dashboard navigation",
   await expect(page.getByRole("heading", { name: "Proyek 001" })).toBeVisible();
   const circuit = fixture({ board: "uno", led: "led" }, [], "void setup(){}void loop(){}");
   await page.route("**/api/projects", async (route) => { if (route.request().method() === "POST") await route.fulfill({ status: 503, json: { error: "Offline test: draft aman" } }); else await route.continue(); });
+  await page.getByRole("button", { name: "Buka menu proyek" }).click();
   await page.getByLabel("Impor JSON", { exact: true }).setInputFiles({ name: "circuit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(circuit)) });
+  if (await page.getByRole("dialog").isVisible()) await page.keyboard.press("Escape");
   await expect(page.locator(".react-flow__node")).toHaveCount(2);
   await page.getByRole("button", { name: "Kembali ke dashboard" }).click();
   await page.getByRole("link", { name: "Buka Proyek 001", exact: true }).click();
@@ -106,8 +108,12 @@ test("new intent once, open URL, local conflict, save and dashboard navigation",
   await page.getByRole("button", { name: "Kembali ke dashboard" }).click();
   await expect(page.getByRole("heading", { name: "Halo, Astra" })).toBeVisible();
   expect((await (await request.get(`${provider}/__fixture/state`)).json()).saves).toBeGreaterThan(0);
-  await page.goto(`/simulator?project=${first}`); await expect(page).toHaveURL(/\/simulator$/);
+  await page.goto(`/simulator/code?project=${first}`); await expect(page).toHaveURL(/\/simulator\/code$/);
+  await expect(page.locator(".monaco-editor")).toBeVisible();
   await expect(page.locator(".react-flow__node")).toHaveCount(2);
+  await page.getByRole("link", { name: "Circuit", exact: true }).click();
+  await expect(page).toHaveURL(/\/simulator$/);
+  await expect(page.getByRole("heading", { name: "Proyek tanpa judul" })).toBeVisible();
   await page.goto("/simulator?project=invalid");
   await expect(page.getByRole("dialog")).toContainText("Tautan proyek tidak valid");
   await page.getByRole("button", { name: "Kembali ke draft lokal" }).click();

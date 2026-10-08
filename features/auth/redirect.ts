@@ -14,15 +14,15 @@ export function safeDestination(value: unknown): string {
       const course = findCourse(learning[1]);
       return course && (!learning[2] || course.lessons.some((l) => l.slug === learning[2])) ? url.pathname : "/dashboard/learn";
     }
-    if (url.pathname !== "/simulator") return "/simulator";
+    if (!["/simulator", "/simulator/code"].includes(url.pathname)) return "/simulator";
     const practice = parsePracticeCommand(url.search);
-    if (practice) return findLesson(practice.lessonId)?.lesson.practice ? `/simulator?${new URLSearchParams({ lesson: practice.lessonId, practice: practice.intent, ...(practice.challenge ? { challenge: "1" } : {}) })}` : "/simulator";
+    if (practice) return findLesson(practice.lessonId)?.lesson.practice ? `${url.pathname}?${new URLSearchParams({ lesson: practice.lessonId, practice: practice.intent, ...(practice.challenge ? { challenge: "1" } : {}) })}` : "/simulator";
     const draft = url.searchParams.get("draft");
-    if (url.searchParams.get("save") === "1" && z.uuid().safeParse(draft).success) return `/simulator?save=1&draft=${draft}`;
+    if (url.searchParams.get("save") === "1" && z.uuid().safeParse(draft).success) return `${url.pathname}?save=1&draft=${draft}`;
     const project = url.searchParams.get("project");
-    if (z.uuid().safeParse(project).success) return `/simulator?project=${project}`;
+    if (z.uuid().safeParse(project).success) return `${url.pathname}?project=${project}`;
     const intent = url.searchParams.get("new");
-    if (z.uuid().safeParse(intent).success) return `/simulator?new=${intent}`;
-    return "/simulator";
+    if (z.uuid().safeParse(intent).success) return `${url.pathname}?new=${intent}`;
+    return url.pathname;
   } catch { return "/simulator"; }
 }

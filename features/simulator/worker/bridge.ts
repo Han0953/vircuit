@@ -2,15 +2,16 @@ import { useProject } from "../stores/project-store";
 import { useSimulation } from "../stores/simulation-store";
 import { validateCircuit } from "../graph/circuit";
 import type { WorkerResponse, WorkerRequest } from "./protocol";
+import { runtimeProjectChanged } from "../runtime/project-changes";
 let worker: Worker | null = null;
 let watchdog: ReturnType<typeof setTimeout> | undefined;
 let unsubscribe: (() => void) | undefined;
 function terminate() { worker?.terminate(); worker = null; clearTimeout(watchdog); unsubscribe?.(); unsubscribe = undefined; }
 export function stopSimulation() { terminate(); useSimulation.setState({ status: "stopped" }); }
-export function resetSimulation() { terminate(); useSimulation.setState({ status: "idle", outputs: {}, serial: "", time: 0, problems: [] }); }
+export function resetSimulation() { terminate(); useSimulation.setState({ status: "idle", outputs: {}, inputs: {}, serial: "", time: 0, problems: [] }); }
 export function runSimulation() {
   terminate(); const project = useProject.getState().project; const problems = validateCircuit(project);
-  useSimulation.setState({ problems, outputs: {}, serial: "", time: 0, status: problems.some((p) => p.severity === "error") ? "error" : "running" });
+  useSimulation.setState({ problems, outputs: {}, inputs: {}, serial: "", time: 0, status: problems.some((p) => p.severity === "error") ? "error" : "running" });
   if (problems.some((p) => p.severity === "error")) return;
   worker = new Worker(new URL("./simulation.worker.ts", import.meta.url), { type: "module" });
   const active = worker;
@@ -23,8 +24,12 @@ export function runSimulation() {
   };
   active.onerror = () => { terminate(); useSimulation.setState({ status: "error", problems: [{ id: "worker", source: "runtime", severity: "error", message: "Worker gagal dimuat. Muat ulang halaman lalu coba lagi." }] }); };
   const message: WorkerRequest = { type: "RUN", project }; active.postMessage(message); arm();
-  unsubscribe = useProject.subscribe((s, previous) => { if (s.project.components !== previous.project.components || s.project.wires !== previous.project.wires || s.project.code !== previous.project.code) stopSimulation(); });
+  unsubscribe = useProject.subscribe((s, previous) => { if (runtimeProjectChanged(previous.project, s.project)) stopSimulation(); });
 }
-export function setSimulationInput(id: string, property: string, value: number) { const message: WorkerRequest = { type: "INPUT", id, property, value }; worker?.postMessage(message); }
+export function setSimulationInput(id: string, property: string, value: number) {
+  if (!worker || useSimulation.getState().status !== "running") return;
+  useSimulation.setState((s) => ({ inputs: { ...s.inputs, [id]: { ...s.inputs[id], [property]: value } } }));
+  const message: WorkerRequest = { type: "INPUT", id, property, value }; worker.postMessage(message);
+}
 
 export function clearSerial() { worker?.postMessage({ type: "CLEAR_SERIAL" } satisfies WorkerRequest); useSimulation.setState({ serial: "" }); }

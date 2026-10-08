@@ -14,6 +14,9 @@ describe("auth boundaries", () => {
     expect(safeDestination(`/simulator?project=${id}&owner=spoof`)).toBe(`/simulator?project=${id}`);
     expect(safeDestination(`/simulator?new=${id}`)).toBe(`/simulator?new=${id}`);
     expect(safeDestination("/simulator?project=invalid")).toBe("/simulator");
+    expect(safeDestination("/simulator/code")).toBe("/simulator/code");
+    expect(safeDestination(`/simulator/code?project=${id}&owner=spoof`)).toBe(`/simulator/code?project=${id}`);
+    expect(safeDestination("/simulator/code?next=https://evil.test")).toBe("/simulator/code");
   });
   it("validates forms and rejects authority fields", () => {
     expect(registerSchema.safeParse({ email: "test@example.com", password: "short" }).success).toBe(false);

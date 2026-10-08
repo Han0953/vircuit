@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { usePersistence } from "../store";
 import { applyProjectCommand, parseProjectCommand } from "../handoff";
 
 export function WorkspaceProjectHandoff({ verified }: { verified: boolean }) {
+  const pathname = usePathname();
   const query = useSearchParams().toString();
   const router = useRouter();
   const ready = usePersistence((s) => s.ready);
@@ -17,7 +18,7 @@ export function WorkspaceProjectHandoff({ verified }: { verified: boolean }) {
   const running = useRef(false);
   function finish() {
     setState("idle"); usePersistence.setState({ handoffBusy: false });
-    router.replace("/simulator", { scroll: false });
+    router.replace(pathname, { scroll: false });
   }
   async function run(choice?: "local" | "cloud") {
     if (running.current) return;
@@ -27,7 +28,7 @@ export function WorkspaceProjectHandoff({ verified }: { verified: boolean }) {
       const command = parseProjectCommand(query);
       if (!command) { finish(); return; }
       if (!userId) {
-        router.replace(`/masuk?next=${encodeURIComponent(`/simulator?${query}`)}`);
+        router.replace(`/masuk?next=${encodeURIComponent(`${pathname}?${query}`)}`);
         return;
       }
       const result = await applyProjectCommand(command, choice);

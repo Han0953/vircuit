@@ -23,7 +23,7 @@ export function practiceProject(lesson: Lesson): Project {
   }
   const project = emptyProject();
   project.metadata.name = `Praktik: ${lesson.title}`;
-  project.components = parts.map(([id, type], index) => ({ id, type, label: kind === "traffic" && type === "led" ? ({ led: "Merah", yellow: "Kuning", green: "Hijau" }[id] ?? "LED") : getDefinition(type).name, properties: { ...getDefinition(type).defaults }, position: { x: index === 0 ? 0 : 300 + ((index - 1) % 3) * 220, y: index === 0 ? 0 : Math.floor((index - 1) / 3) * 180 }, rotation: 0 }));
+  project.components = parts.map(([id, type], index) => ({ id, type, label: kind === "traffic" && type === "led" ? ({ led: "Merah", yellow: "Kuning", green: "Hijau" }[id] ?? "LED") : getDefinition(type).name, properties: { ...getDefinition(type).defaults }, position: { x: index === 0 ? 0 : 720 + ((index - 1) % 3) * 180, y: index === 0 ? 0 : Math.floor((index - 1) / 3) * 180 }, rotation: 0 }));
   project.settings.boardId = "board";
   project.wires = kind === "led-wiring" ? [] : connections.map(([from, to], n) => {
     const [componentId, pinId] = from.split("."); const [targetId, targetPin] = to.split(".");

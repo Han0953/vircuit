@@ -29,6 +29,9 @@ test("learning is protected, preserves destination, renders real ordered content
   const practiceTarget = "/simulator?lesson=lesson.blink&practice=bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
   const practiceGuarded = await request.get(practiceTarget, { maxRedirects: 0 });
   expect(new URL(practiceGuarded.headers().location!, "http://localhost:3002").searchParams.get("next")).toBe(practiceTarget);
+  const codePracticeTarget = practiceTarget.replace("/simulator?", "/simulator/code?");
+  const codeGuarded = await request.get(codePracticeTarget, { maxRedirects: 0 });
+  expect(new URL(codeGuarded.headers().location!, "http://localhost:3002").searchParams.get("next")).toBe(codePracticeTarget);
   expect((await request.get(`/api/learning/practice?${practiceTarget.split("?")[1]}`)).status()).toBe(401);
   await page.goto("/belajar"); await expect(page.getByRole("heading", { level: 1 })).toContainText("Belajar dengan membangun");
   await page.goto(lesson); await expect(page).toHaveURL(/\/masuk\?next=/);
@@ -54,7 +57,9 @@ test("practice confirms replacement, backs up circuit, runs, restores context an
   await page.goto("/simulator");
   const original = fixture({ board: "uno", r: "resistor", led: "led" }, [["board.D13", "r.1"], ["r.2", "led.A"], ["led.K", "board.GND"]], "void setup(){pinMode(13,OUTPUT);}void loop(){digitalWrite(13,HIGH);delay(500);}");
   original.metadata.name = "Rangkaian penting";
+  await page.getByRole("button", { name: "Buka menu proyek" }).click();
   await page.getByLabel("Impor JSON", { exact: true }).setInputFiles({ name: "original.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(original)) });
+  if (await page.getByRole("dialog").isVisible()) await page.keyboard.press("Escape");
   await expect(page.locator(".react-flow__node")).toHaveCount(3);
   await page.getByRole("button", { name: "Kembali ke dashboard" }).click();
   await page.goto(lesson); await page.getByRole("button", { name: "Praktikkan di Lab" }).click();
@@ -82,7 +87,7 @@ test("practice confirms replacement, backs up circuit, runs, restores context an
   await page.goto("/simulator");
   await page.getByRole("button", { name: "Buka menu proyek" }).click();
   await expect(page.getByRole("region", { name: "Arsip draft lokal" })).toContainText("Rangkaian penting");
-  await page.getByRole("region", { name: "Arsip draft lokal" }).getByRole("button", { name: "Pulihkan" }).click();
+  await page.getByRole("region", { name: "Arsip draft lokal" }).locator("div").filter({ has: page.getByText("Rangkaian penting", { exact: true }) }).getByRole("button", { name: "Pulihkan" }).click();
   await expect(page.getByRole("heading", { name: "Rangkaian penting" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Kembali ke lesson" })).toHaveCount(0);
 });

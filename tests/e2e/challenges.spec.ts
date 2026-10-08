@@ -17,16 +17,13 @@ async function challenge(page: Page) {
   await expect(page.locator(".react-flow__node")).toHaveCount(3);
 }
 async function code(page: Page, source: string) {
-  const desktopTab = page.getByRole("tab", { name: "Code", exact: true });
-  if ((page.viewportSize()?.width ?? 1280) >= 1024) { await expect(desktopTab).toBeVisible(); await desktopTab.click(); }
-  else await page.getByRole("button", { name: "Buka Code", exact: true }).click();
+  await page.getByRole("link", { name: "Code", exact: true }).click();
   await expect(page.locator(".monaco-editor")).toBeVisible();
   await page.evaluate((text) => {
     const editor = (window as unknown as { __vircuitEditor?: { setValue: (value: string) => void } }).__vircuitEditor;
     if (!editor) throw new Error("Editor belum siap"); editor.setValue(text);
   }, source);
-  const mobile = page.getByRole("dialog").filter({ has: page.getByRole("heading", { name: "Code", exact: true }) });
-  if (await mobile.isVisible()) await page.keyboard.press("Escape");
+  await page.getByRole("link", { name: "Circuit", exact: true }).click();
 }
 const blink = "void setup(){pinMode(3,OUTPUT);}void loop(){digitalWrite(3,HIGH);delay(500);digitalWrite(3,LOW);delay(500);}";
 test.beforeEach(async ({ page, request }) => {

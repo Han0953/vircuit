@@ -26,6 +26,9 @@
 
 /* Cirra adapts to the panel width, including narrow lesson/mobile sheets. */
 .cirra-chat { container-type: inline-size; }
+.workspace-cirra-body .cirra-composer {
+  max-height: 40%; flex-shrink: 1; min-height: 0; overflow-y: auto;
+}
 @container (min-width: 48rem) {
   .cirra-layout { display: grid; grid-template-columns: 20rem minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; }
   .cirra-layout > header { grid-column: 1 / -1; }
@@ -34,4 +37,42 @@
   .cirra-layout > [role="alert"] { grid-column: 2; grid-row: 4; overflow: auto; max-height: 5rem; }
   .cirra-composer { grid-column: 1; grid-row: 2 / 5; min-height: 0; height: 100%; overflow: auto; border-top-width: 0; border-right-width: 1px; }
   .cirra-composer textarea { min-height: 44px; height: 44px; }
+}
+
+/* Physical component materials stay distinct from application surface tokens. */
+.component-art {
+  --part-pcb: #1b7598;
+  --part-pcb-dark: #244343;
+  --part-outline: #293335;
+  --part-chip: #25282b;
+  --part-metal: #bdc6c9;
+  --part-gold: #d8b971;
+  --part-silkscreen: #f1f4ed;
+  --part-breadboard: #e6e5df;
+  --part-groove: #cdcec7;
+  --part-strip: #d8d9d2;
+  --part-positive: #c24e45;
+  --part-negative: #386ca6;
+  --part-led-off: #752c31;
+  --part-led-on: #ff5a51;
+  --part-resistor: #dbc99d;
+  --part-relay: #286596;
+  --part-terminal: #437b57;
+}
+.react-flow__handle.component-pin {
+  border: 2px solid transparent; border-radius: 50%; background: transparent;
+}
+.component-object { outline: 1px solid transparent; outline-offset: 4px; }
+.component-object:hover { outline-color: var(--border-strong); }
+.component-object.is-selected, .component-object:focus-within {
+  outline: 2px solid var(--primary); border-radius: 3px;
+}
+.runtime-hit { background: transparent; }
+.runtime-hit:focus-visible { opacity: 1; outline: 2px solid var(--ring); outline-offset: 2px; }
+.react-flow__handle.component-pin:hover,
+.react-flow__handle.component-pin:focus-visible,
+.react-flow__handle.component-pin.connectingfrom,
+.react-flow__handle.component-pin.connectingto {
+  background: color-mix(in srgb, var(--primary) 25%, transparent);
+  border-color: var(--primary); outline: 2px solid var(--ring); outline-offset: 1px;
 }

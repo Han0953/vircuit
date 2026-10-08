@@ -1,21 +1,29 @@
 import { RuntimeControls } from "./runtime-controls";
 import { PinHandles } from "./pin-handles";
-import { memo } from "react";
-import type { Node, NodeProps } from "@xyflow/react";
+import { memo, useEffect, useMemo } from "react";
+import { useUpdateNodeInternals, type Node, type NodeProps } from "@xyflow/react";
 import { getDefinition } from "../../catalog/registry";
 import type { ComponentInstance } from "../../types/project";
-
+import { visualLayout, rotateLayout } from "../visuals/pin-layout";
+import { ComponentVisual } from "../visuals/component-visual";
+import { useSimulation } from "../../stores/simulation-store";
 export type CircuitNode = Node<{ component: ComponentInstance }, "component">;
-export const ComponentNode = memo(function ComponentNode({ data, selected }: NodeProps<CircuitNode>) {
+export const ComponentNode = memo(function ComponentNode({ data, selected, id }: NodeProps<CircuitNode>) {
   const component = data.component;
   const definition = getDefinition(component.type);
-  return <div style={{ width: definition.groups ? 720 : 240 }} className={`relative rounded-lg border-2 bg-surface p-4 shadow-sm ${selected ? "border-primary" : "border-border"}`}>
-    <svg viewBox="0 0 160 64" className="mb-2 h-16 w-full text-primary" aria-hidden="true" style={{ transform: `rotate(${component.rotation}deg)` }}>
-      {component.type === "led" ? <><path d="M64 48V24a16 16 0 0 1 32 0v24Z" fill="currentColor" opacity=".3" /><path d="M68 48v14m24-14v14" stroke="currentColor" strokeWidth="3" /></> : component.type === "resistor" ? <><path d="M12 32h30m76 0h30" stroke="currentColor" strokeWidth="3"/><rect x="42" y="20" width="76" height="24" rx="8" fill="currentColor" opacity=".25"/><path d="M62 20v24m14-24v24m22-24v24" stroke="currentColor" strokeWidth="5"/></> : <><rect x="16" y="4" width="128" height="56" rx="6" fill="currentColor" opacity=".15"/><rect x="62" y="16" width="36" height="32" rx="3" fill="currentColor"/><path d="M22 16h26m-26 16h26m-26 16h26m64-32h26m-26 16h26m-26 16h26" stroke="currentColor" strokeWidth="3"/></>}
-    </svg>
-    <p className="truncate text-sm font-medium">{component.label}</p>
-    <p className="text-xs text-text-secondary">{definition.category} · {definition.support === "visual-only" ? "Visual saja" : "Subset MVP"}</p>
-    <RuntimeControls component={component} />
-    <PinHandles definition={definition} />
+  const output = useSimulation((s) => s.outputs[component.id] ?? 0);
+  const value = useSimulation((s) => s.inputs[component.id]?.[component.type === "button" ? "pressed" : "value"] ?? component.properties.value ?? component.properties.pressed ?? 0);
+  const temperature = useSimulation((s) => s.inputs[component.id]?.temperature ?? component.properties.temperature);
+  const humidity = useSimulation((s) => s.inputs[component.id]?.humidity ?? component.properties.humidity);
+  const layout = useMemo(() => visualLayout(definition), [definition]);
+  const rotated = useMemo(() => rotateLayout(layout, component.rotation), [layout, component.rotation]);
+  const update = useUpdateNodeInternals();
+  useEffect(() => { update(id); }, [id, rotated, update]);
+  return <div title={`${component.label}${definition.support === "visual-only" ? " · Visual saja" : ""}`} data-testid="component-body" style={{ width: rotated.width, height: rotated.height }} className={`component-art component-object relative ${selected ? "is-selected" : ""}`}>
+    <ComponentVisual component={component} layout={layout} rotated={rotated} output={output} value={value} temperature={temperature} humidity={humidity} />
+    <div className="pointer-events-none absolute left-0 top-0" style={{ width: layout.width, height: layout.height, transformOrigin: "center", transform: `translate(${(rotated.width - layout.width) / 2}px, ${(rotated.height - layout.height) / 2}px) rotate(${component.rotation}deg)` }}>
+      <RuntimeControls component={component} layout={layout} />
+    </div>
+    <PinHandles layout={rotated} label={component.label} />
   </div>;
 });

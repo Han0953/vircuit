@@ -5,7 +5,9 @@ const owner = "11111111-1111-4111-8111-111111111111";
 const cloudId = "22222222-2222-4222-8222-222222222222";
 const circuit = fixture({ board: "uno", r: "resistor", led: "led" }, [["board.D13", "r.1"], ["r.2", "led.A"], ["led.K", "board.GND"]], "void setup(){pinMode(13,OUTPUT);}void loop(){digitalWrite(13,HIGH);delay(500);digitalWrite(13,LOW);delay(500);}");
 async function importCircuit(page: Page) {
+  await page.getByRole("button", { name: "Buka menu proyek" }).click();
   await page.getByLabel("Impor JSON", { exact: true }).setInputFiles({ name: "draft.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(circuit)) });
+  if (await page.getByRole("dialog").isVisible()) await page.keyboard.press("Escape");
   await expect(page.locator(".react-flow__node")).toHaveCount(3);
 }
 async function draft(page: Page, scope = "guest") {
@@ -25,7 +27,7 @@ test("real API rejects unauthenticated cloud access and cross-origin writes", as
 test("guest snapshot survives refresh and canceled login; runtime ticks do not autosave", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 }); await page.goto("/simulator");
   await importCircuit(page);
-  await page.getByRole("tab", { name: "Code", exact: true }).click();
+  await page.getByRole("link", { name: "Code", exact: true }).click();
   await expect(page.locator(".monaco-editor")).toBeVisible();
   const editedCode = circuit.code.source + "\n// Draft hasil edit Monaco\n";
   await page.evaluate((source) => {
@@ -61,6 +63,29 @@ test("corrupted recovery does not overwrite the stored draft", async ({ page }) 
   await page.reload(); await expect(page.getByRole("alert").filter({ hasText: "tidak ditimpa" })).toBeVisible();
   expect((await draft(page))?.id).toBe("corrupt");
   await expect(page.locator(".react-flow__node")).toHaveCount(0);
+});
+
+test("failed import backup restores the active draft and exposes an actionable error", async ({ page }) => {
+  await page.goto("/simulator"); await importCircuit(page);
+  await expect.poll(async () => (await draft(page))?.project.wires.length).toBe(3);
+  const original = await draft(page);
+  await page.getByRole("button", { name: "Buka menu proyek" }).click();
+  await page.evaluate(() => {
+    const put = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function (value: unknown, key?: IDBValidKey) {
+      if (this.name === "drafts" && value && typeof value === "object" && "scope" in value && typeof value.scope === "string" && value.scope.startsWith("archive:")) {
+        IDBObjectStore.prototype.put = put;
+        throw new DOMException("Fixture: backup storage unavailable", "QuotaExceededError");
+      }
+      return put.call(this, value, key);
+    };
+  });
+  const replacement = fixture({ board: "esp32" }, [], "void setup(){}void loop(){}");
+  await page.getByLabel("Impor JSON", { exact: true }).setInputFiles({ name: "replacement.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(replacement)) });
+  await expect(page.getByRole("alert").filter({ hasText: "Impor gagal" })).toBeVisible();
+  await expect(page.locator(".react-flow__node")).toHaveCount(3);
+  expect((await draft(page))?.id).toBe(original?.id);
+  expect((await draft(page))?.project).toEqual(original?.project);
 });
 test("explicit guest migration, save retry, rename, load, delete and logout (mock cloud)", async ({ page }) => {
   let loggedIn = false; let revision = 0; let payload: Project | null = null; let failSave = false;
