@@ -7,10 +7,13 @@ import { useCanvas } from "../../stores/canvas-store";
 import { validConnection } from "../../validation/wires";
 import { catalog } from "../../catalog/registry";
 import { ComponentNode, type CircuitNode } from "../components/component-node";
-import { CircuitWire } from "../components/circuit-wire";
+import { CircuitWire, type CircuitEdge } from "../components/circuit-wire";
+import { TapWirePreview, WireConnectionPreview } from "../components/wire-connection-preview";
 import { PlacementPreview } from "../components/placement-preview";
 import { findBreadboardPlacement, type Placement } from "../../geometry/breadboard-placement";
 import type { ComponentInstance } from "../../types/project";
+import { useWireRouting } from "./use-wire-routing";
+import { FlowElements } from "./flow-elements";
 import "@xyflow/react/dist/style.css";
 const nodeTypes = { component: ComponentNode };
 const edgeTypes = { wire: CircuitWire };
@@ -19,15 +22,17 @@ function CanvasContent() {
   const [notice, setNotice] = useState<string | null>(null);
   const reconnecting = useRef<string | null>(null);
   const canvasElement = useRef<HTMLDivElement>(null);
+  const routing = useWireRouting();
+  const [elements] = useState(() => new FlowElements());
   const components = useProject((s) => s.project.components);
   const selection = useCanvas((s) => s.selection);
   const wires = useProject((s) => s.project.wires);
-  const edges = useMemo(() => wires.map((w) => ({ id: w.id, type: "wire", zIndex: 2, source: w.from.componentId, sourceHandle: w.from.pinId, target: w.to.componentId, targetHandle: w.to.pinId, selected: selection.includes(w.id), style: { stroke: w.color === "red" ? "var(--destructive)" : w.color === "green" ? "var(--success)" : w.color === "neutral" ? "var(--foreground)" : "var(--primary)", strokeWidth: 2 } })), [wires, selection]);
+  const edges = useMemo(() => elements.wireEdges(wires, selection, routing.routes), [elements, wires, selection, routing.routes]);
   const viewport = useProject((s) => s.project.viewport);
   const edit = useProject((s) => s.edit);
   const { screenToFlowPosition } = useReactFlow();
   const { resolvedTheme } = useTheme();
-  const nodes = useMemo<CircuitNode[]>(() => components.map((component) => ({ id: component.id, type: "component", zIndex: component.type.startsWith("breadboard-") ? 0 : 1, position: component.position, selected: selection.includes(component.id), data: { component } })), [components, selection]);
+  const nodes = useMemo(() => elements.componentNodes(components, selection), [elements, components, selection]);
   function changeNodes(changes: NodeChange<CircuitNode>[]) {
     for (const change of changes) {
       if (change.type === "position" && change.position) edit((p) => ({ ...p, components: p.components.map((c) => c.id === change.id ? { ...c, position: change.position! } : c) }), false);
@@ -35,13 +40,13 @@ function CanvasContent() {
       if (change.type === "remove") useProject.getState().remove([change.id]);
     }
   }
-  return <div ref={canvasElement} tabIndex={0} className="h-full min-h-0 focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2" data-testid="circuit-canvas" onKeyDown={(e) => {
+  return <div ref={canvasElement} tabIndex={0} className="h-full min-h-0 focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2" data-testid="circuit-canvas" data-routing-pending={routing.pending} data-routing-revision={routing.revision} data-routing-batch-ms={routing.controller.stats.maxBatchMs.toFixed(2)} data-routing-compute-ms={routing.controller.stats.searchMs.toFixed(2)} onKeyDown={(e) => {
     if ((e.target as HTMLElement).closest("input,textarea,[contenteditable=true]")) return;
     if (e.ctrlKey || e.metaKey) {
       if (e.key.toLowerCase() === "z") { e.preventDefault(); if (e.shiftKey) useProject.getState().redo(); else useProject.getState().undo(); }
       if (e.key.toLowerCase() === "d") { e.preventDefault(); useProject.getState().duplicate(selection); }
     }
-  }}><ReactFlow<CircuitNode> nodes={nodes} edges={edges} edgeTypes={edgeTypes} connectionMode={ConnectionMode.Loose} connectOnClick connectionRadius={30}
+  }}><ReactFlow<CircuitNode, CircuitEdge> nodes={nodes} edges={edges} edgeTypes={edgeTypes} connectionLineComponent={WireConnectionPreview} connectionMode={ConnectionMode.Loose} connectOnClick connectionRadius={30}
     elevateNodesOnSelect={false}
     isValidConnection={(c) => { const p = useProject.getState().project; return validConnection({ ...p, wires: p.wires.filter((w) => w.id !== reconnecting.current) }, { componentId: c.source, pinId: c.sourceHandle ?? "" }, { componentId: c.target, pinId: c.targetHandle ?? "" }); }}
     onReconnectStart={(_, edge) => { reconnecting.current = edge.id; }} onReconnectEnd={() => { reconnecting.current = null; }}
@@ -55,7 +60,7 @@ function CanvasContent() {
     onEdgeClick={(_, edge) => useCanvas.getState().select([edge.id])}
     onEdgesDelete={(edges) => { useProject.getState().remove(edges.map((e) => e.id)); canvasElement.current?.focus(); }}
     onNodesDelete={(nodes) => { useProject.getState().remove(nodes.map((n) => n.id)); canvasElement.current?.focus(); }} nodeTypes={nodeTypes} onNodesChange={changeNodes}
-    onNodeDragStart={() => { useProject.getState().checkpoint(); setNotice(null); }}
+    onNodeDragStart={() => { routing.controller.beginDrag(); useProject.getState().checkpoint(); setNotice(null); }}
     onNodeDrag={(_, node, dragged) => {
       const component = { ...node.data.component, position: node.position };
       const placement = dragged.length === 1 ? findBreadboardPlacement(component, useProject.getState().project.components) : null;
@@ -68,10 +73,12 @@ function CanvasContent() {
         setNotice("Kaki selaras dengan lubang. Hubungkan pin ke breadboard dengan kabel agar tersambung secara listrik.");
       } else setNotice(placement?.reason ?? null);
       setPreview(null);
+      routing.controller.endDrag();
     }} onPaneClick={() => setNotice(null)} viewport={viewport} onViewportChange={(viewport) => edit((p) => ({ ...p, viewport }), false)} minZoom={0.25} maxZoom={4} panOnDrag zoomOnPinch selectionKeyCode="Shift" panActivationKeyCode="Space" deleteKeyCode={["Backspace", "Delete"]} colorMode={resolvedTheme === "dark" ? "dark" : "light"}
     onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }} onDrop={(e) => { e.preventDefault(); const type = e.dataTransfer.getData("application/vircuit-component"); if (catalog.some((c) => c.key === type)) useProject.getState().add(type, screenToFlowPosition({ x: e.clientX, y: e.clientY })); }}>
     <Background variant={BackgroundVariant.Dots} gap={20} color="var(--border-strong)" />
     <Controls />
+    <TapWirePreview />
     {preview && <PlacementPreview {...preview} />}
     {(preview || notice) && <div role="status" className="pointer-events-none absolute inset-x-4 top-4 mx-auto max-w-md rounded border bg-surface px-3 py-2 text-xs text-text-secondary">{preview ? preview.placement.valid ? "Posisi cocok. Lepas untuk menyelaraskan; koneksi tetap memakai kabel." : preview.placement.reason : notice}</div>}
     {!nodes.length && <div className="pointer-events-none absolute inset-x-4 top-4 text-center text-xs text-text-secondary">Tambahkan komponen dari Parts untuk mulai merangkai.</div>}

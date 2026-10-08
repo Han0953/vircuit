@@ -26,4 +26,4 @@ export const ComponentNode = memo(function ComponentNode({ data, selected, id }:
     </div>
     <PinHandles layout={rotated} label={component.label} />
   </div>;
-});
+}, (previous, next) => previous.id === next.id && previous.selected === next.selected && previous.data.component === next.data.component);

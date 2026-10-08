@@ -65,6 +65,12 @@
   outline: 2px solid var(--primary); border-radius: 3px;
 }
 .runtime-hit { background: transparent; }
+.wire-highlight { fill: none; stroke: var(--ring); stroke-width: 7; opacity: 0; pointer-events: none; }
+.wire-highlight.is-selected,
+.react-flow__edge:focus .wire-highlight,
+.react-flow__edge:focus-visible .wire-highlight { opacity: 0.4; }
+.react-flow__edge:hover .wire-highlight { opacity: 0.25; }
+.wire-coincident { pointer-events: all; }
 .runtime-hit:focus-visible { opacity: 1; outline: 2px solid var(--ring); outline-offset: 2px; }
 .react-flow__handle.component-pin:hover,
 .react-flow__handle.component-pin:focus-visible,

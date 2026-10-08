@@ -36,4 +36,8 @@ The worker stays alive for position, rotation, labels, viewport and wire-color e
 
 ## Verification boundary
 
+World pin coordinates and rotated bounds now come from `geometry/component-geometry.ts`.
+Orthogonal wire routing consumes that geometry without changing pin identity or
+electrical mounting. See [Smart wire routing](smart-wire-routing.md).
+
 Vitest and Playwright cover geometry, snapshot normalization, rotation/undo, snap/rejection, electrical isolation, runtime inputs, reconnect, recovery and workspace navigation. Browser tests use local service fixtures. They do not prove remote Supabase RLS or live Gemini availability. Check the current implementation report for commands actually executed.

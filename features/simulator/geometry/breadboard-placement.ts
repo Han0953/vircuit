@@ -1,13 +1,12 @@
 import { getDefinition } from "../catalog/registry";
 import type { ComponentInstance } from "../types/project";
-import { visualLayout, rotateLayout, visualPitch, type Anchor } from "../ui/visuals/pin-layout";
+import { visualLayout, visualPitch, type Anchor } from "../ui/visuals/pin-layout";
+import { worldPins } from "./component-geometry";
+export { worldPins } from "./component-geometry";
 
 export const snapTolerance = visualPitch * 0.55;
 export const footprintTypes = ["led", "resistor", "button"] as const;
 export function hasFootprint(type: string) { return footprintTypes.some((key) => key === type); }
-export function worldPins(component: ComponentInstance): Anchor[] {
-  return rotateLayout(visualLayout(getDefinition(component.type)), component.rotation).anchors.map((a) => ({ ...a, x: a.x + component.position.x, y: a.y + component.position.y }));
-}
 export function componentFootprint(type: string) {
   if (!hasFootprint(type)) return null;
   const definition = getDefinition(type);
