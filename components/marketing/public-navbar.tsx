@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, CircuitBoard, Menu } from "lucide-react";
@@ -17,11 +17,28 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { isActiveRoute, marketingRoutes, primaryNavigation } from "./marketing-routes";
+import { scrolledHeader } from "./scenes/scroll-policy";
+import styles from "./home-controls.module.css";
 
 export function PublicNavbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const header = useRef<HTMLElement>(null);
+  const home = pathname === "/";
   const loginActive = isActiveRoute(pathname, marketingRoutes.login);
+
+  useEffect(() => {
+    if (!home || !header.current) return;
+    const element = header.current;
+    const measure = () => document.documentElement.style.setProperty("--home-header-height", `${element.offsetHeight}px`);
+    const update = () => setScrolled((previous) => scrolledHeader(previous, scrollY));
+    const observer = new ResizeObserver(measure);
+    observer.observe(element); measure();
+    const frame = requestAnimationFrame(update);
+    window.addEventListener("scroll", update, { passive: true });
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", update); document.documentElement.style.removeProperty("--home-header-height"); };
+  }, [home]);
 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 1024px)");
@@ -33,7 +50,7 @@ export function PublicNavbar() {
   }, []);
 
   return (
-    <header className="border-b border-border bg-background">
+    <header ref={header} data-home-header={home ? "" : undefined} data-scrolled={home ? scrolled : undefined} data-menu-open={menuOpen} className={cn("border-b border-border bg-background", home && styles.header)}>
       <a
         href="#main-content"
         className="sr-only z-(--z-tooltip) rounded-md bg-primary p-4 text-primary-foreground focus:not-sr-only focus:absolute focus:top-4 focus:left-4"

@@ -6,6 +6,7 @@ export const marketingRoutes = {
   pricing: "/harga",
   login: "/masuk",
   simulator: "/simulator",
+  learningApp: "/dashboard/learn",
 } as const;
 
 export type MarketingRoute = (typeof marketingRoutes)[keyof typeof marketingRoutes];

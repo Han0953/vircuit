@@ -1,61 +1,34 @@
-import { Egg } from "lucide-react";
-import { marketingRoutes } from "./marketing-routes";
-import { projectCatalog } from "./project-catalog";
+import Link from "next/link";
+import { ArrowUpRight, HardDrive, Cloud, FolderOpen } from "lucide-react";
 import { SectionHeading } from "./section-heading";
-import { SectionLink } from "./section-link";
+import styles from "./homepage.module.css";
 
-const featuredSlugs = ["traffic-light", "smart-lamp", "digital-thermometer", "weather-station", "smart-home"];
-const projects = projectCatalog.filter(({ slug }) => featuredSlugs.includes(slug));
+const practices = [
+  ["blink", "Blink LED", "Digital output & waktu"],
+  ["button", "Button LED", "Input & logika"],
+  ["potentiometer", "Potentiometer PWM", "Analog & kecerahan"],
+  ["debugging", "Debugging", "Wiring & kode"],
+  ["traffic-light", "Traffic Light", "Mini project"],
+];
 
 export function ProjectShowcaseSection() {
-  return (
-    <section aria-labelledby="projects-heading" className="border-t bg-surface">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
-        <SectionHeading
-          id="projects-heading"
-          eyebrow="06 / Project Showcase"
-          title="Konsep yang dipelajari. Ide yang bisa dibangun."
-          description="Pilihan project yang direncanakan untuk menjembatani latihan dasar dan sistem IoT yang lebih kompleks. Katalog ini merupakan pratinjau, belum dapat dibuka sebagai project."
-        />
-        <div className="mt-10 grid gap-8 lg:grid-cols-3">
-          <ul className="divide-y border-y lg:col-span-2">
-            {projects.map(({ icon: Icon, name, topic, text }) => (
-              <li key={name} className="flex items-start gap-4 py-6 sm:gap-6">
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-md border bg-background">
-                  <Icon className="size-6" aria-hidden="true" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                    <h3 className="text-lg font-semibold">{name}</h3>
-                    <p className="font-mono text-xs text-text-secondary">{topic}</p>
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">{text}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          <article className="flex flex-col rounded-lg border bg-background p-6 sm:p-8">
-            <p className="font-mono text-xs tracking-widest text-text-secondary uppercase">
-              Project akhir / Lanjutan
-            </p>
-            <div className="my-8 flex min-h-40 items-center justify-center rounded-md border border-dashed bg-surface-muted">
-              <Egg className="size-20 text-primary" strokeWidth={1} aria-hidden="true" />
-            </div>
-            <h3 className="text-h3 font-semibold tracking-tight">IoT Egg Incubator</h3>
-            <p className="mt-4 text-sm leading-relaxed text-text-secondary">
-              Rangkai pemahaman sensor, kontrol suhu, display, relay, dan kipas dalam konsep inkubator telur virtual.
-            </p>
-            <p className="mt-auto pt-8 font-mono text-xs text-text-secondary">
-              Sensor → Logika kontrol → Aktuator
-            </p>
-          </article>
-        </div>
-
-        <SectionLink href={marketingRoutes.explore} className="mt-8">
-          Jelajahi Project
-        </SectionLink>
+  return <section className="border-y bg-surface" aria-labelledby="projects-heading">
+    <div className={styles.section + " " + styles.split}>
+      <div>
+        <SectionHeading id="projects-heading" eyebrow="06 / Project pertamamu" title="Mulai dari LED. Lanjutkan ke project pertamamu." description="Latihan singkat untuk pemula, siswa, mahasiswa, dan pengajar yang ingin menghubungkan konsep dengan eksperimen." />
+        <ul className={styles.projectList}>{practices.map(([slug, title, topic]) => <li key={slug}><Link className={styles.projectLink} href={"/dashboard/learn/dasar-iot/" + slug}>
+          <span><strong className="font-medium">{title}</strong><span className="mt-1 block text-xs text-text-secondary">{topic}</span></span><ArrowUpRight className="size-5 shrink-0 text-primary" aria-hidden="true" />
+        </Link></li>)}</ul>
       </div>
-    </section>
-  );
+      <div className={styles.savePanel}>
+        <FolderOpen className="mb-6 size-8 text-primary" strokeWidth={1.5} aria-hidden="true" />
+        <h3 className="text-h3 font-semibold tracking-tight">Simpan pekerjaanmu. Lanjutkan eksperimennya.</h3>
+        <div className="mt-7 space-y-6">
+          <div className="flex gap-3"><HardDrive className="mt-1 size-5 shrink-0" aria-hidden="true" /><div><h4 className="text-sm font-semibold">Draft di browser</h4><p className="mt-2 text-sm leading-relaxed text-text-secondary">Perubahan guest tersimpan lokal di browser yang sama. Ekspor JSON untuk cadangan.</p></div></div>
+          <div className="flex gap-3"><Cloud className="mt-1 size-5 shrink-0" aria-hidden="true" /><div><h4 className="text-sm font-semibold">Project di akun</h4><p className="mt-2 text-sm leading-relaxed text-text-secondary">Login untuk menyimpan project ke akun dan membukanya dari Proyek Saya. Periksa status Simpan sebelum meninggalkan pekerjaan.</p></div></div>
+        </div>
+        <Link href="/daftar" className="mt-8 inline-flex min-h-11 items-center gap-2 rounded-sm text-sm font-medium text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-ring">Buat akun<ArrowUpRight className="size-4" aria-hidden="true" /></Link>
+      </div>
+    </div>
+  </section>;
 }

@@ -32,7 +32,7 @@ export function ProblemSection() {
           <SectionHeading
             id="problem-heading"
             eyebrow="01 / Titik awal"
-            title="Rasa ingin tahu seharusnya punya ruang untuk dicoba."
+            title="Pahami konsepnya. Coba sendiri cara kerjanya."
             description="Belajar IoT membutuhkan praktik. Namun, kesempatan untuk bereksperimen belum selalu mudah dijangkau."
           />
           <p className="mt-8 max-w-md border-l-2 border-primary pl-5 text-sm leading-relaxed text-text-secondary">

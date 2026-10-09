@@ -3,12 +3,14 @@ import { ArrowRight, ArrowUpRight, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroCircuit } from "./hero-circuit";
 import { marketingRoutes } from "./marketing-routes";
+import styles from "./homepage.module.css";
+import { MotionScene } from "./scenes/motion-scene";
 
 export function LandingHero() {
   return (
     <section
       aria-labelledby="hero-heading"
-      className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-12 sm:px-8 sm:py-16 lg:min-h-[calc(100svh-5rem)] lg:grid-cols-2 lg:gap-12 lg:py-20"
+      className={`${styles.section} ${styles.hero} grid items-center gap-10 lg:min-h-[calc(100svh-5rem)] lg:grid-cols-2 lg:gap-12`}
     >
       <div className="min-w-0">
         <p className="mb-6 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
@@ -18,16 +20,14 @@ export function LandingHero() {
 
         <h1
           id="hero-heading"
-          className="max-w-xl text-display font-semibold leading-(--leading-heading) tracking-tight text-balance"
+          className={styles.heroTitle}
         >
-          Ide jadi rangkaian.
-          <br />
-          <span className="text-primary">Praktik jadi pemahaman.</span>
+          Belajar IoT dengan <span className="text-primary">membangunnya</span> secara langsung.
         </h1>
 
         <p className="mt-6 max-w-lg text-base leading-relaxed text-text-secondary sm:text-body-lg">
-          Belajar IoT bersama Vircuit. Susun komponen, hubungkan kabel, dan pahami
-          cara kode menggerakkan rangkaian dalam satu laboratorium virtual.
+          Susun rangkaian, tulis kode, dan amati responsnya. Hubungkan materi
+          dengan praktik dalam satu Virtual Lab.
         </p>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -38,7 +38,7 @@ export function LandingHero() {
             </Link>
           </Button>
           <Button asChild variant="outline" className="h-12 px-6 text-base">
-            <Link href={marketingRoutes.learn}>
+            <Link href={marketingRoutes.learningApp}>
               <BookOpen aria-hidden="true" className="size-5" />
               Mulai Belajar
             </Link>
@@ -46,10 +46,10 @@ export function LandingHero() {
         </div>
 
         <p className="mt-3 text-xs text-text-secondary">
-          Virtual Lab sedang dikembangkan. Kenali fitur dan alur belajarnya lebih dulu.
+          Langsung coba tanpa login. Simulator inti tetap gratis.
         </p>
 
-        <p className="mt-8 flex flex-wrap items-center gap-3 text-sm text-text-secondary sm:mt-12">
+        <p className="mt-12 hidden flex-wrap items-center gap-3 text-sm text-text-secondary lg:flex">
           Rangkai
           <ArrowRight aria-hidden="true" className="size-4 text-border-strong" />
           Coba
@@ -58,7 +58,7 @@ export function LandingHero() {
         </p>
       </div>
 
-      <HeroCircuit />
+      <MotionScene kind="hero"><HeroCircuit /></MotionScene>
     </section>
   );
 }
