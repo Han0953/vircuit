@@ -1,9 +1,15 @@
 .header { position: sticky; top: 0; z-index: 40; padding-top: env(safe-area-inset-top, 0px); transition: box-shadow 180ms ease-out, background-color 180ms ease-out; }
 .header[data-scrolled='true'] { background: var(--surface-elevated); box-shadow: var(--shadow-panel); }
+.header a { transition: color 150ms, background-color 150ms, transform 150ms; }
+.header a[aria-current='page'] { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
+.header a:active, .header button:active:not(:disabled) { transform: scale(.98); }
+.header [data-motion-group='nav.logo'] svg { animation: logo-settle 400ms ease-out; }
+@keyframes logo-settle { from { transform: translateY(-4px) rotate(-5deg); } to { transform: none; } }
+.header[data-menu-open='true'] ~ .backToTop { visibility: hidden; pointer-events: none; }
 :global(html:has([data-home-header])) { scroll-padding-top: calc(var(--home-header-height, 80px) + 16px); }
 .backToTop { position: fixed; z-index: 30; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); width: 44px; height: 44px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--surface-elevated); color: var(--foreground); box-shadow: var(--shadow-overlay); display: grid; place-items: center; opacity: 0; transform: translateY(8px); visibility: hidden; pointer-events: none; transition: opacity 180ms ease-out, transform 180ms ease-out, visibility 180ms; }
 .backToTop[data-visible='true'], .backToTop:focus-visible { opacity: 1; transform: none; visibility: visible; pointer-events: auto; }
 .backToTop:hover { color: var(--primary); }
 .backToTop:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
 @media (min-width: 1024px) { .backToTop { right: 1.5rem; bottom: 1.5rem; } }
-@media (prefers-reduced-motion: reduce) { .header, .backToTop { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .header, .backToTop, .header a { transition: none; } .header [data-motion-group='nav.logo'] svg { animation: none; } }

@@ -1,3 +1,7 @@
+import { FeaturesShowcase } from "@/components/marketing/scenes/features-showcase";
+import { PublicMotion } from "@/components/marketing/scenes/public-motion-page";
+import { PublicArtwork } from "@/components/marketing/scenes/public-artwork";
+import publicStyles from "@/components/marketing/public-pages.module.css";
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
@@ -28,6 +32,7 @@ export const metadata: Metadata = {
 
 const featureGroups = [
   {
+    id: "workspace",
     category: "Lingkungan Eksperimen & Perancangan",
     eyebrow: "01 / Workspace & Rangkaian",
     items: [
@@ -52,9 +57,9 @@ const featureGroups = [
         description:
           "Penyusunan komponen bebas dengan mekanisme drag-and-drop, rotasi, seleksi, serta penataan papan microcontroller, breadboard, sensor, aktuator, dan komponen pasif.",
         highlights: [
-          "Dukungan board utama: Arduino Uno, Arduino Nano, dan ESP32",
+          "Dukungan board utama: Arduino Uno dan ESP32; Nano sebagai visual-only",
           "Pilihan breadboard mini, half-size, hingga full-size",
-          "Komponen pasif dan interaktif: LED, resistor, buzzer, button, potentiometer",
+          "Komponen pasif dan interaktif: LED, resistor, button, potentiometer",
         ],
       },
       {
@@ -73,6 +78,7 @@ const featureGroups = [
     ],
   },
   {
+    id: "runtime",
     category: "Pemrograman & Simulasi Reaktif",
     eyebrow: "02 / Runtime & Pengujian",
     items: [
@@ -82,7 +88,7 @@ const featureGroups = [
         title: "Code Editor",
         badge: "Integrated IDE",
         description:
-          "Editor kode terintegrasi dengan penomoran baris, pewarnaan sintaksis, serta struktur bahasa Arduino C/C++ standar untuk mengendalikan perilaku rangkaian secara langsung.",
+          "Editor kode terintegrasi dengan penomoran baris, pewarnaan sintaksis, serta subset bahasa Arduino-style C/C++ untuk mengendalikan perilaku rangkaian secara langsung.",
         highlights: [
           "Dukungan fungsi inti: setup(), loop(), pinMode(), digital & analog I/O",
           "Pemisahan workspace kode dan kanvas dengan mode fokus",
@@ -95,7 +101,7 @@ const featureGroups = [
         title: "Real-time Simulation",
         badge: "Simulation Engine",
         description:
-          "Mesin simulasi yang membaca status sirkuit, instruksi kode, serta manipulasi komponen input secara real-time untuk menghasilkan respons komponen output yang akurat.",
+          "Mesin simulasi yang membaca status sirkuit, instruksi kode, serta manipulasi komponen input secara real-time untuk menghasilkan respons output berdasarkan model simulasi edukatif.",
         highlights: [
           "Eksperimen sebab-akibat: ubah input dan amati langsung respons output",
           "Arsitektur terisolasi ramah performa tanpa mengunci antarmuka browser",
@@ -118,6 +124,7 @@ const featureGroups = [
     ],
   },
   {
+    id: "cirra",
     category: "Kecerdasan Buatan Pendamping",
     eyebrow: "03 / Asisten AI Edukatif",
     items: [
@@ -163,6 +170,7 @@ const featureGroups = [
     ],
   },
   {
+    id: "learning",
     category: "Kurikulum & Perkembangan",
     eyebrow: "04 / Alur Kemampuan",
     items: [
@@ -174,8 +182,8 @@ const featureGroups = [
         description:
           "Pemantauan kemajuan kompetensi modular yang memetakan pemahaman elektronika dasar, wiring, pemrograman microcrontroller, sensor, hingga pengembangan proyek terpadu.",
         highlights: [
-          "Matriks skill mencakup Digital I/O, Analog, PWM, dan Komunikasi Serial",
-          "Riwayat penyelesaian challenge dan proyek capstone",
+          "Progress berdasarkan materi dan challenge yang tersedia",
+          "Riwayat penyelesaian materi dan challenge inti",
           "Jembatan konseptual teruji sebelum beralih ke perangkat fisik nyata",
         ],
       },
@@ -184,7 +192,7 @@ const featureGroups = [
 ];
 export function FiturPage() {
   return (
-    <>
+    <PublicMotion route="/fitur">
       <PageHero
         id="fitur-hero-heading"
         eyebrow="Fitur Vircuit"
@@ -205,19 +213,21 @@ export function FiturPage() {
             </Button>
           </>
         }
-        note="Semua fitur dirancang mengikuti spesifikasi teknis PRD Vircuit."
+        aside={<PublicArtwork kind="workspace" id="fitur.hero.art" />}
+        note="Simulator edukatif. Periksa dukungan komponen sebelum bereksperimen."
       />
 
+      <FeaturesShowcase />
       {/* Feature groups */}
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8 sm:py-16">
         <div className="space-y-16 lg:space-y-24">
           {featureGroups.map((group) => (
-            <section key={group.category} aria-labelledby={`group-${group.eyebrow}`}>
+            <section data-motion-section={`features.${group.id}`} key={group.id} aria-labelledby={`features-${group.id}-heading`}>
               <div className="border-b pb-4">
-                <p className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
+                <p data-motion-group={`features.${group.id}.label`} data-motion="identity" className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
                   {group.eyebrow}
                 </p>
-                <h2 id={`group-${group.eyebrow}`} className="mt-2 text-h2 font-semibold tracking-tight">
+                <h2 data-motion-group={`features.${group.id}.heading`} data-motion="text" id={`features-${group.id}-heading`} className="mt-2 text-h2 font-semibold tracking-tight">
                   {group.category}
                 </h2>
               </div>
@@ -227,12 +237,12 @@ export function FiturPage() {
                   const Icon = item.icon;
                   return (
                     <article
-                      key={item.id}
+                      data-motion-card key={item.id}
                       id={item.id}
                       className="flex flex-col justify-between rounded-lg border bg-surface p-6 sm:p-8 transition-colors hover:border-border-strong"
                     >
                       <div>
-                        <div className="flex items-center justify-between gap-3">
+                        <div data-motion-group={`${item.id}.identity`} data-motion="identity" className="flex items-center justify-between gap-3">
                           <span className="flex size-11 items-center justify-center rounded-md border bg-background text-primary">
                             <Icon className="size-5" aria-hidden="true" />
                           </span>
@@ -241,11 +251,11 @@ export function FiturPage() {
                           </Badge>
                         </div>
 
-                        <h3 className="mt-6 text-xl font-semibold tracking-tight">{item.title}</h3>
-                        <p className="mt-3 text-sm leading-relaxed text-text-secondary">{item.description}</p>
+                        <h3 data-motion-group={`${item.id}.title`} data-motion="text" className="mt-6 text-xl font-semibold tracking-tight">{item.title}</h3>
+                        <p data-motion-group={`${item.id}.description`} data-motion="text" className="mt-3 text-sm leading-relaxed text-text-secondary">{item.description}</p>
                       </div>
 
-                      <div className="mt-6 border-t pt-5">
+                      <div data-motion-group={`${item.id}.details`} data-motion="details" className="mt-6 border-t pt-5">
                         <p className="text-xs font-semibold tracking-wider text-text-secondary uppercase">
                           Kemampuan Utama
                         </p>
@@ -270,6 +280,7 @@ export function FiturPage() {
         </div>
       </div>
 
+      <section data-motion-section="features-cirra" className={publicStyles.section}><div className={publicStyles.intro}><p data-motion-group="features-cirra.label" data-motion="identity">Pendamping, bukan pengganti eksperimen</p><h2 data-motion-group="features-cirra.heading" data-motion="text">Cirra membantu menjelaskan konteks.</h2><p data-motion-group="features-cirra.description" data-motion="text">Tutor, Debugger dan Project Assistant tersedia untuk akun login, bergantung kuota dan ketersediaan layanan.</p></div><div data-motion-group="features-cirra.preview" data-motion="art" className="grid gap-4 sm:grid-cols-3">{["Pertanyaan: mengapa LED belum menyala?", "Konteks: wiring, kode dan Problems", "Arahan: periksa pin output dan ground"].map((text) => <p data-part key={text} className="rounded-lg border bg-surface p-6">{text}</p>)}</div><p data-motion-group="features-cirra.note" data-motion="text" className={publicStyles.caption}>Contoh percakapan ilustratif, bukan respons AI langsung.</p></section>
       <CtaSection
         id="fitur-cta-heading"
         eyebrow="Uji Coba Langsung"
@@ -288,7 +299,7 @@ export function FiturPage() {
         }
         note="Simulator inti dapat diakses langsung oleh mode tamu."
       />
-    </>
+    </PublicMotion>
   );
 }
 

@@ -1,0 +1,69 @@
+.page { --public-gap: clamp(2rem, 5vw, 5rem); overflow: clip; }
+.page [data-hero] { padding-top: 1rem; }
+.page [data-hero] h1 { max-width: 18ch; }
+.page [data-motion-card] { position: relative; }
+.page [data-motion-card] article { transition: border-color 200ms, background-color 200ms; }
+.page[data-public-route='/fitur'] [data-hero] { background: linear-gradient(120deg, var(--background) 55%, var(--primary-soft)); }
+.page[data-public-route='/fitur'] [data-motion-card] { border-radius: var(--radius-sm); }
+.page[data-public-route='/belajar'] [data-hero] { background: var(--surface-muted); }
+.page[data-public-route='/belajar'] #cycle-heading { max-width: 18ch; }
+.page[data-public-route='/belajar'] #cycle-heading ~ p { max-width: 50ch; }
+.page[data-public-route='/belajar'] article { border-left: 2px solid var(--primary); }
+.page[data-public-route='/jelajahi'] [data-hero] { border-bottom: 1px solid var(--border); }
+.page[data-public-route='/jelajahi'] [data-project] { gap: 1rem; }
+.page[data-public-route='/jelajahi'] [data-project]:hover { border-color: var(--primary); }
+.page [data-project] figure svg { transition: transform 200ms ease-out; }
+.page [data-project]:hover figure svg, .page [data-project]:focus-within figure svg { transform: translateY(-2px); }
+.page[data-public-route='/harga'] [data-hero] { text-align: left; }
+.page [data-gallery-filter='Beginner'] [data-level]:not([data-level='Beginner']), .page [data-gallery-filter='Intermediate'] [data-level]:not([data-level='Intermediate']), .page [data-gallery-filter='Advanced'] [data-level]:not([data-level='Advanced']) { display: none; }
+.page [data-gallery-filter]:not(.page [data-gallery-filter='All']) [data-level] { animation: answer 250ms ease-out; }
+.page a, .page button { transition: color 150ms, background-color 150ms, border-color 150ms, transform 150ms; }
+.page button:active:not(:disabled), .page a[data-slot='button']:active { transform: scale(.98); }
+.page button:focus-visible, .page a:focus-visible, .page summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
+.art { color: var(--primary); width: 100%; height: auto; border-radius: var(--radius-lg); background: var(--surface-muted); }
+.heroArt { max-width: 36rem; margin-inline: auto; }
+.caption { margin-top: .75rem; font-family: var(--font-code); font-size: .75rem; color: var(--text-secondary); }
+.section { max-width: 80rem; margin-inline: auto; padding: var(--public-gap) 1rem; }
+.intro { max-width: 42rem; margin-bottom: 2rem; }
+.intro h2 { font-size: var(--text-h2); font-weight: 600; letter-spacing: -.025em; }
+.intro p { color: var(--text-secondary); margin-top: 1rem; }
+.featureStage { display: grid; gap: 2rem; }
+.stageArt { align-self: start; }
+.steps { display: grid; gap: 1.5rem; }
+.steps section { padding: 1.5rem 0; border-top: 1px solid var(--border); }
+.steps h3 { font-size: 1.5rem; font-weight: 600; }
+.steps p { margin-top: .75rem; color: var(--text-secondary); }
+.stageTabs, .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+.stageTabs button, .filters button { min-height: 44px; padding: .5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.stageTabs button[aria-pressed='true'], .filters button[aria-pressed='true'] { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
+.lessonPreview { padding: 1.5rem; border-left: 2px solid var(--primary); background: var(--surface); }
+.lessonPreview h3 { font-size: 1.25rem; font-weight: 600; }
+.galleryArt { margin: -1rem -1rem 1.5rem; }
+.comparison { display: grid; gap: .75rem; }
+.comparisonRow { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; transition: background-color 200ms, border-color 200ms; }
+.comparisonRow[data-active='true'] { background: var(--primary-soft); border-color: var(--primary); }
+.comparisonRow dt { font-weight: 600; margin-bottom: .5rem; }
+.comparisonRow dd { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; color: var(--text-secondary); }
+.faq summary { min-height: 44px; cursor: pointer; display: flex; gap: 1rem; justify-content: space-between; align-items: center; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary svg { flex-shrink: 0; transition: transform 200ms; }
+.faq[open] summary svg { transform: rotate(180deg); }
+.faq[open] p { animation: answer 250ms ease-out; }
+.footer { overflow: visible; }
+@keyframes answer { from { transform: translateY(-4px); opacity: .6; } to { transform: none; opacity: 1; } }
+@media (min-width:640px) { .section { padding-inline: 2rem; } }
+@media (min-width:1024px) {
+  .page[data-public-route='/belajar'] [data-hero] > div { grid-template-columns: minmax(0,.9fr) minmax(0,1.2fr); }
+  .page[data-public-route='/belajar'] [data-hero] > div > div:first-child { grid-column: 2; grid-row: 1; border-left: 2px solid var(--primary); padding-left: 2rem; }
+  .page[data-public-route='/belajar'] [data-hero] > div > div:last-child { grid-column: 1; grid-row: 1; }
+  .page[data-public-route='/jelajahi'] [data-hero] > div { grid-template-columns: minmax(0,1fr) minmax(0,.85fr); align-items: start; }
+  .page[data-public-route='/jelajahi'] [data-hero] > div > div:last-child { padding-top: 3rem; transform: rotate(-2deg); }
+  .page[data-public-route='/harga'] [data-hero] { text-align: center; }
+  .page[data-public-route='/harga'] [data-hero] > div { grid-template-columns: 1fr; gap: 2rem; }
+  .page[data-public-route='/harga'] [data-hero] h1 { max-width: 26ch; }
+  .page[data-public-route='/harga'] [data-hero] p, .page[data-public-route='/harga'] [data-hero] h1 { margin-inline: auto; }
+  .page[data-public-route='/harga'] [data-hero] [data-motion='identity'], .page[data-public-route='/harga'] [data-hero] [data-motion='actions'] { justify-content: center; }
+  .page[data-public-route='/harga'] [data-hero] .heroArt { max-width: 42rem; }
+}
+@media (min-width:1024px) and (min-height:620px) { .featureStage { grid-template-columns: 1fr 1fr; } .stageArt { position: sticky; top: calc(var(--home-header-height,80px) + 16px); } .steps section { min-height: 40vh; } }
+@media (prefers-reduced-motion:reduce) { .page *, .page *::before { animation: none !important; transition: none !important; } .stageArt { position: static; } }

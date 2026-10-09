@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { marketingScrollRoute } from "./public-motion-config";
 import type Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -15,9 +17,10 @@ export function scrollHomeTo(target: number, focus?: HTMLElement) {
   cancelFocus?.();
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let timer = 0;
+  let settleFrame = 0;
   let retries = 0;
   const cancel = () => {
-    window.clearTimeout(timer); window.removeEventListener("scrollend", done);
+    window.clearTimeout(timer); cancelAnimationFrame(settleFrame); window.removeEventListener("scrollend", done);
     window.removeEventListener("wheel", cancel); window.removeEventListener("touchstart", cancel); window.removeEventListener("keydown", cancel);
     delete document.documentElement.dataset.homeMoving;
     window.dispatchEvent(new Event("home-scroll-settled"));
@@ -32,7 +35,14 @@ export function scrollHomeTo(target: number, focus?: HTMLElement) {
     // the requested destination, but never fight a new user gesture.
     if (!active && !reduced && Math.abs(scrollY - target) >= 3 && retries++ < 2) { native(); return; }
     cancel();
-    if (Math.abs(scrollY - target) < 3) focus?.focus({ preventScroll: true });
+    if (Math.abs(scrollY - target) < 3) {
+      // Finalize after queued scene refresh: native smooth scrolling may stop a pixel short.
+      settleFrame = requestAnimationFrame(() => {
+        if (active && !reduced) active.scrollTo(target, { immediate: true });
+        else window.scrollTo({ top: target, behavior: "instant" });
+        focus?.focus({ preventScroll: true });
+      });
+    }
   };
   cancelFocus = cancel;
   document.documentElement.dataset.homeMoving = "true";
@@ -46,7 +56,8 @@ export function scrollHomeTo(target: number, focus?: HTMLElement) {
   }
 }
 
-export function HomeScroll() {
+export function MarketingScroll() {
+  const pathname = usePathname();
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const desktop = matchMedia("(min-width: 1024px)");
@@ -65,7 +76,7 @@ export function HomeScroll() {
       document.documentElement.dataset.homeScroll = "native";
     };
     const update = async () => {
-      const eligible = smoothScrollEligible({ desktop: desktop.matches, fine: fine.matches, coarse: coarse.matches, reduced: reduced.matches, touch, locked: document.body.hasAttribute("data-scroll-locked") || document.querySelector("[data-menu-open='true']") !== null });
+      const eligible = marketingScrollRoute(pathname) && smoothScrollEligible({ desktop: desktop.matches, fine: fine.matches, coarse: coarse.matches, reduced: reduced.matches, touch, locked: document.body.hasAttribute("data-scroll-locked") || document.querySelector("[data-menu-open='true']") !== null });
       if (!eligible) { destroy(); return; }
       if (active) return;
       const request = ++generation;
@@ -111,6 +122,8 @@ export function HomeScroll() {
       window.removeEventListener("touchstart", touched); document.removeEventListener("click", anchor);
       delete document.documentElement.dataset.homeScroll;
     };
-  }, []);
+  }, [pathname]);
   return null;
 }
+
+export const HomeScroll = MarketingScroll;

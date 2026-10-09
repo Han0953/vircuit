@@ -23,23 +23,23 @@ export function CtaSection({
   note?: string;
 }) {
   return (
-    <section aria-labelledby={id} className={`relative isolate overflow-hidden border-t ${styles.circuitBackground}`}>
+    <section data-motion-section={id} aria-labelledby={id} className={`relative isolate overflow-hidden border-t ${styles.circuitBackground}`}>
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
         <div className="max-w-2xl">
-          <p className="mb-4 font-mono text-xs tracking-widest text-text-secondary uppercase">
+          <p data-motion-group={`${id}.eyebrow`} data-motion="identity" className="mb-4 font-mono text-xs tracking-widest text-text-secondary uppercase">
             {eyebrow}
           </p>
-          <h2 id={id} className="text-h1 font-semibold leading-(--leading-heading) tracking-tight text-balance">
+          <h2 data-motion-group={`${id}.heading`} data-motion="text" id={id} className="text-h1 font-semibold leading-(--leading-heading) tracking-tight text-balance">
             {title}
           </h2>
-          <p className="mt-5 max-w-lg leading-relaxed text-text-secondary">
+          <p data-motion-group={`${id}.description`} data-motion="text" className="mt-5 max-w-lg leading-relaxed text-text-secondary">
             {description}
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div data-motion-group={`${id}.actions`} data-motion="actions" className="mt-8 flex flex-col gap-3 sm:flex-row">
             {actions}
           </div>
           {note && (
-            <p className="mt-4 text-xs text-text-secondary">
+            <p data-motion-group={`${id}.note`} data-motion="text" className="mt-4 text-xs text-text-secondary">
               {note}
             </p>
           )}
@@ -52,7 +52,7 @@ export function CtaSection({
 export function SimulatorCtaButton({ label = "Coba Simulator" }: { label?: string }) {
   return (
     <Button asChild className="h-12 px-6">
-      <Link href={marketingRoutes.simulator}>
+      <Link prefetch={false} href={marketingRoutes.simulator}>
         {label}
         <ArrowUpRight aria-hidden="true" />
       </Link>

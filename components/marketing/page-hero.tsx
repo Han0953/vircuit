@@ -23,7 +23,7 @@ export function PageHero({
 }) {
   return (
     <section
-      aria-labelledby={id}
+      data-motion-section={id} data-hero="" aria-labelledby={id}
       className={cn("relative isolate overflow-hidden", styles.circuitBackground, className)}
     >
       <div
@@ -33,21 +33,21 @@ export function PageHero({
         )}
       >
         <div className="min-w-0">
-          <p className="mb-5 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
+          <p data-motion-group={`${id}.eyebrow`} data-motion="identity" className="mb-5 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
             <span className="h-px w-8 bg-primary" aria-hidden="true" />
             {eyebrow}
           </p>
           <h1
-            id={id}
+            data-motion-group={`${id}.heading`} data-motion="text" id={id}
             className="max-w-3xl text-h1 font-semibold leading-(--leading-heading) tracking-tight text-balance"
           >
             {title}
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-body-lg">
+          <p data-motion-group={`${id}.description`} data-motion="text" className="mt-5 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-body-lg">
             {description}
           </p>
-          {actions && <div className="mt-8 flex flex-col gap-3 sm:flex-row">{actions}</div>}
-          {note && <p className="mt-3 text-xs text-text-secondary">{note}</p>}
+          {actions && <div data-motion-group={`${id}.actions`} data-motion="actions" className="mt-8 flex flex-col gap-3 sm:flex-row">{actions}</div>}
+          {note && <p data-motion-group={`${id}.note`} data-motion="text" className="mt-3 text-xs text-text-secondary">{note}</p>}
         </div>
         {aside && <div className="min-w-0">{aside}</div>}
       </div>

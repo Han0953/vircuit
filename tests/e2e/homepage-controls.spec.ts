@@ -15,7 +15,7 @@ test("desktop scroll adapter follows eligibility and tears down across routes", 
   await page.getByRole("button", { name: "Buka menu navigasi" }).click();
   await page.getByRole("navigation", { name: "Navigasi mobile" }).getByRole("link", { name: "Fitur", exact: true }).click();
   await expect(page).toHaveURL(/\/fitur$/);
-  await expect(page.locator("html")).not.toHaveAttribute("data-home-scroll");
+  await expect(page.locator("html")).toHaveAttribute("data-home-scroll", "native");
   await expect(page.locator("html")).not.toHaveClass(/lenis/);
   await page.goBack();
   await expect(page.locator("html")).toHaveAttribute("data-home-scroll", "native");
@@ -64,7 +64,8 @@ for (const width of [390, 1440]) test(`Back to Top and footer anchor reach actua
   await expect(page.locator("main")).toBeFocused();
   await expect(button).not.toBeVisible();
   await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
-  await page.locator("footer").getByRole("link", { name: "Kembali ke atas", exact: true }).click();
+  await expect(page.locator("footer").getByRole("link", { name: "Kembali ke atas", exact: true })).toHaveCount(0);
+  await button.click();
   await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
   await expect(page.locator("main")).toBeFocused();
   await page.emulateMedia({ reducedMotion: "reduce" });

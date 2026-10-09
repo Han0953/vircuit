@@ -1,3 +1,7 @@
+import { learningCatalog, lessonHref } from "@/features/learning/registry";
+import { LearningRoadmap } from "@/components/marketing/scenes/learning-roadmap";
+import { PublicMotion } from "@/components/marketing/scenes/public-motion-page";
+import { PublicArtwork } from "@/components/marketing/scenes/public-artwork";
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
@@ -157,8 +161,9 @@ const skillCompetencies = [
 ];
 
 export function BelajarPage() {
+  const course = learningCatalog()[0];
   return (
-    <>
+    <PublicMotion route="/belajar">
       <PageHero
         id="belajar-hero-heading"
         eyebrow="Sistem Pembelajaran Vircuit"
@@ -179,19 +184,21 @@ export function BelajarPage() {
             </Button>
           </>
         }
+        aside={<PublicArtwork kind="learning" id="belajar.hero.art" />}
         note="Ikhtisar ini terbuka untuk umum. Kamu bisa mencoba simulator langsung tanpa akun."
       />
 
+      <LearningRoadmap lessons={course.lessons.map((lesson) => ({ id: lesson.id, title: lesson.title, summary: lesson.summary, duration: lesson.duration, href: lessonHref(course, lesson) }))} />
       {/* Siklus 8 Langkah */}
-      <section aria-labelledby="cycle-heading" className="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
+      <section data-motion-section="cycle" aria-labelledby="cycle-heading" className="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
         <div className="max-w-3xl">
-          <p className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
+          <p data-motion-group="cycle.label" data-motion="identity" className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
             Alur Inti Pembelajaran
           </p>
-          <h2 id="cycle-heading" className="mt-2 text-h2 font-semibold tracking-tight text-balance">
+          <h2 data-motion-group="cycle.heading" data-motion="text" id="cycle-heading" className="mt-2 text-h2 font-semibold tracking-tight text-balance">
             8 Tahap Menuju Penguasaan IoT
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-text-secondary">
+          <p data-motion-group="cycle.description" data-motion="text" className="mt-4 text-base leading-relaxed text-text-secondary">
             Setiap proyek di Vircuit mengikuti tahapan berurutan dari pemahaman teori hingga evaluasi mandiri,
             memastikan kamu memahami dasar di balik setiap sambungan kabel dan baris kode.
           </p>
@@ -202,11 +209,11 @@ export function BelajarPage() {
             const Icon = item.icon;
             return (
               <article
-                key={item.phase}
+                data-motion-card key={item.phase}
                 className="flex flex-col justify-between rounded-lg border bg-surface p-6 transition-colors hover:border-primary/50"
               >
                 <div>
-                  <div className="flex items-center justify-between">
+                  <div data-motion-group={`cycle.${item.phase}.identity`} data-motion="identity" className="flex items-center justify-between">
                     <span className="font-mono text-xs font-semibold text-primary">
                       {item.step} / {item.phase.toUpperCase()}
                     </span>
@@ -215,11 +222,11 @@ export function BelajarPage() {
                     </span>
                   </div>
 
-                  <h3 className="mt-4 text-lg font-semibold tracking-tight">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">{item.description}</p>
+                  <h3 data-motion-group={`cycle.${item.phase}.title`} data-motion="text" className="mt-4 text-lg font-semibold tracking-tight">{item.title}</h3>
+                  <p data-motion-group={`cycle.${item.phase}.description`} data-motion="text" className="mt-2 text-sm leading-relaxed text-text-secondary">{item.description}</p>
                 </div>
 
-                <div className="mt-6 border-t pt-4">
+                <div data-motion-group={`cycle.${item.phase}.outcome`} data-motion="details" className="mt-6 border-t pt-4">
                   <p className="text-[11px] font-mono uppercase text-text-secondary">Capaian:</p>
                   <p className="mt-1 text-xs leading-relaxed text-foreground">{item.outcome}</p>
                 </div>
@@ -230,29 +237,29 @@ export function BelajarPage() {
       </section>
 
       {/* 3 Pilar Pembelajaran */}
-      <section aria-labelledby="pillars-heading" className="border-t bg-surface">
+      <section data-motion-section="pillars" aria-labelledby="pillars-heading" className="border-t bg-surface">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
           <div className="max-w-3xl">
-            <p className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
+            <p data-motion-group="pillars.label" data-motion="identity" className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
               Pendekatan Edukasi
             </p>
-            <h2 id="pillars-heading" className="mt-2 text-h2 font-semibold tracking-tight">
+            <h2 data-motion-group="pillars.heading" data-motion="text" id="pillars-heading" className="mt-2 text-h2 font-semibold tracking-tight">
               Tiga Prinsip di Balik Metode Vircuit
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-text-secondary">
+            <p data-motion-group="pillars.description" data-motion="text" className="mt-4 text-base leading-relaxed text-text-secondary">
               Kami merancang pengalaman belajar yang menghargai proses coba-salah tanpa rasa takut merusak peralatan.
             </p>
           </div>
 
           <div className="mt-12 grid gap-8 md:grid-cols-3">
             {pedagogicalPillars.map((pillar) => (
-              <article key={pillar.title} className="rounded-lg border bg-background p-6 sm:p-8 flex flex-col justify-between">
+              <article data-motion-card key={pillar.title} className="rounded-lg border bg-background p-6 sm:p-8 flex flex-col justify-between">
                 <div>
-                  <Badge variant="outline" className="font-mono text-xs">
+                  <Badge data-motion-group={`principle.${pillar.title}.badge`} data-motion="identity" variant="outline" className="font-mono text-xs">
                     {pillar.badge}
                   </Badge>
-                  <h3 className="mt-4 text-xl font-semibold tracking-tight">{pillar.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-text-secondary">{pillar.description}</p>
+                  <h3 data-motion-group={`principle.${pillar.title}.title`} data-motion="text" className="mt-4 text-xl font-semibold tracking-tight">{pillar.title}</h3>
+                  <p data-motion-group={`principle.${pillar.title}.description`} data-motion="text" className="mt-3 text-sm leading-relaxed text-text-secondary">{pillar.description}</p>
                 </div>
               </article>
             ))}
@@ -261,28 +268,28 @@ export function BelajarPage() {
       </section>
 
       {/* Matriks Kompetensi */}
-      <section aria-labelledby="competencies-heading" className="border-t">
+      <section data-motion-section="competencies" aria-labelledby="competencies-heading" className="border-t">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
           <div className="max-w-3xl">
-            <p className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
+            <p data-motion-group="competencies.label" data-motion="identity" className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
               Peta Keahlian
             </p>
-            <h2 id="competencies-heading" className="mt-2 text-h2 font-semibold tracking-tight">
-              Kompetensi yang Akan Kamu Kuasai
+            <h2 data-motion-group="competencies.heading" data-motion="text" id="competencies-heading" className="mt-2 text-h2 font-semibold tracking-tight">
+              Topik yang Menghubungkan Eksperimenmu
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-text-secondary">
-              Perkembangan skill kamu tercatat secara transparan di dashboard saat kamu menyelesaikan modul pembelajaran dan challenge.
+            <p data-motion-group="competencies.description" data-motion="text" className="mt-4 text-base leading-relaxed text-text-secondary">
+              Materi dasar dan challenge inti sudah tersedia. Sensor, display dan integrasi lanjutan merupakan arah pengembangan kurikulum.
             </p>
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {skillCompetencies.map((skill) => (
-              <div key={skill.name} className="rounded-lg border bg-surface p-5">
-                <div className="flex items-center gap-2">
+              <div data-motion-card key={skill.name} className="rounded-lg border bg-surface p-5">
+                <div data-motion-group={`skill.${skill.name}.identity`} data-motion="identity" className="flex items-center gap-2">
                   <CheckCircle2 className="size-4 text-primary shrink-0" aria-hidden="true" />
                   <h3 className="font-semibold text-sm">{skill.name}</h3>
                 </div>
-                <p className="mt-2 text-xs leading-relaxed text-text-secondary">{skill.desc}</p>
+                <p data-motion-group={`skill.${skill.name}.description`} data-motion="text" className="mt-2 text-xs leading-relaxed text-text-secondary">{skill.desc}</p>
               </div>
             ))}
           </div>
@@ -307,7 +314,7 @@ export function BelajarPage() {
         }
         note="Akun gratis dapat menyimpan proyek dan mengikuti alur pembelajaran inti."
       />
-    </>
+    </PublicMotion>
   );
 }
 

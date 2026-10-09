@@ -25,11 +25,10 @@ export function PublicNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const header = useRef<HTMLElement>(null);
-  const home = pathname === "/";
   const loginActive = isActiveRoute(pathname, marketingRoutes.login);
 
   useEffect(() => {
-    if (!home || !header.current) return;
+    if (!header.current) return;
     const element = header.current;
     const measure = () => document.documentElement.style.setProperty("--home-header-height", `${element.offsetHeight}px`);
     const update = () => setScrolled((previous) => scrolledHeader(previous, scrollY));
@@ -38,7 +37,7 @@ export function PublicNavbar() {
     const frame = requestAnimationFrame(update);
     window.addEventListener("scroll", update, { passive: true });
     return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", update); document.documentElement.style.removeProperty("--home-header-height"); };
-  }, [home]);
+  }, []);
 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 1024px)");
@@ -50,8 +49,9 @@ export function PublicNavbar() {
   }, []);
 
   return (
-    <header ref={header} data-home-header={home ? "" : undefined} data-scrolled={home ? scrolled : undefined} data-menu-open={menuOpen} className={cn("border-b border-border bg-background", home && styles.header)}>
+    <header ref={header} data-home-header="" data-scrolled={scrolled} data-menu-open={menuOpen} className={cn("border-b border-border bg-background", styles.header)}>
       <a
+        data-motion-group="nav.skip" data-motion="control"
         href="#main-content"
         className="sr-only z-(--z-tooltip) rounded-md bg-primary p-4 text-primary-foreground focus:not-sr-only focus:absolute focus:top-4 focus:left-4"
       >
@@ -59,9 +59,10 @@ export function PublicNavbar() {
       </a>
       <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-3 px-4 sm:px-8 lg:gap-6">
         <Link
+          prefetch={false}
           href={marketingRoutes.home}
           aria-label="Vircuit — Beranda"
-          className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-sm text-xl font-bold tracking-tight outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          data-motion-group="nav.logo" data-motion="control" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-sm text-xl font-bold tracking-tight outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <CircuitBoard aria-hidden="true" className="size-7 text-primary" strokeWidth={1.75} />
           Vircuit<span className="text-primary" aria-hidden="true">.</span>
@@ -75,9 +76,9 @@ export function PublicNavbar() {
                 key={href}
                 asChild
                 variant="ghost"
-                className={cn(active ? "text-primary font-semibold" : "text-text-secondary hover:text-foreground")}
+                data-motion-group={`nav.${href}`} data-motion="control" className={cn(active ? "text-primary font-semibold" : "text-text-secondary hover:text-foreground")}
               >
-                <Link href={href} aria-current={active ? "page" : undefined}>
+                <Link prefetch={false} href={href} aria-current={active ? "page" : undefined}>
                   {label}
                 </Link>
               </Button>
@@ -86,14 +87,14 @@ export function PublicNavbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <ThemeToggle />
-          <Button asChild variant="ghost" className={cn(loginActive && "text-primary font-semibold")}>
-            <Link href={marketingRoutes.login} aria-current={loginActive ? "page" : undefined}>
+          <span data-motion-group="nav.theme" data-motion="control"><ThemeToggle /></span>
+          <Button data-motion-group="nav.login" data-motion="control" asChild variant="ghost" className={cn(loginActive && "text-primary font-semibold")}>
+            <Link prefetch={false} href={marketingRoutes.login} aria-current={loginActive ? "page" : undefined}>
               Masuk
             </Link>
           </Button>
-          <Button asChild>
-            <Link href={marketingRoutes.simulator}>
+          <Button data-motion-group="nav.simulator" data-motion="control" asChild>
+            <Link prefetch={false} href={marketingRoutes.simulator}>
               Coba Simulator
               <ArrowUpRight aria-hidden="true" />
             </Link>
@@ -101,16 +102,16 @@ export function PublicNavbar() {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <Button asChild className="px-3">
-            <Link href={marketingRoutes.simulator}>Coba Simulator</Link>
+          <Button data-motion-group="nav.simulator" data-motion="control" asChild className="px-3">
+            <Link prefetch={false} href={marketingRoutes.simulator}>Coba Simulator</Link>
           </Button>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" aria-label="Buka menu navigasi">
+              <Button data-motion-group="nav.menu" data-motion="control" variant="outline" size="icon" aria-label="Buka menu navigasi">
                 <Menu aria-hidden="true" className="size-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent className="w-full max-w-sm overflow-y-auto">
+            <SheetContent data-motion-group="nav.sheet" data-motion="control" className="w-full max-w-sm overflow-y-auto">
               <SheetHeader className="border-b p-6 pr-16 text-left">
                 <SheetTitle className="text-xl">Vircuit</SheetTitle>
                 <SheetDescription>Belajar IoT lewat praktik.</SheetDescription>
@@ -128,7 +129,7 @@ export function PublicNavbar() {
                           active && "bg-primary-soft text-primary font-semibold"
                         )}
                       >
-                        <Link href={href} aria-current={active ? "page" : undefined}>
+                        <Link prefetch={false} href={href} aria-current={active ? "page" : undefined}>
                           {label}
                         </Link>
                       </Button>

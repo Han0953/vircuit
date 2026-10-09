@@ -2,6 +2,10 @@
 
 Implementation: 10 October 2026. This extends the [immersive homepage foundation](immersive-homepage.md). Scope is `/`; simulator, auth, persistence, challenges and Cirra backend are reused without changes.
 
+Follow-up: [Public pages motion](public-pages-motion.md) moves scroll/header/BackToTop
+ownership to the shared marketing layout. The homepage world and story below are
+unchanged; the homepage-only ownership statements are the earlier checkpoint.
+
 ## Ownership and rendering
 
 The page remains a Server Component. Its copy, links, four narrative beats, component captions and FAQ remain available without JavaScript. The hero retains SVG/CSS perspective for initial paint.

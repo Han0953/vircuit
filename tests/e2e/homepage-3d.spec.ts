@@ -82,6 +82,7 @@ test("failed WebGL chunk retains meaningful SVG", async ({ page }) => {
   await seek(page, .5);
   await expect(page.locator("[data-svg-fallback]")).toBeVisible();
   await expect(page.locator("canvas")).toHaveCount(0);
+  await page.unrouteAll({ behavior: "wait" });
 });
 
 test("context creation failure does not replace the page with an error", async ({ page }) => {
@@ -116,8 +117,8 @@ test("runtime reduced motion and repeated navigation release the world", async (
     await expect(page).toHaveURL(/\/fitur$/);
     await expect(page.locator("canvas")).toHaveCount(0);
     await expect(page.locator(".pin-spacer")).toHaveCount(0);
-    await expect(page.locator("html")).not.toHaveClass(/lenis/);
-    await expect(page.locator("header").first()).toHaveCSS("position", "static");
+    await expect(page.locator("html")).toHaveAttribute("data-home-scroll", "lenis");
+    await expect(page.locator("header").first()).toHaveCSS("position", "sticky");
     await page.goBack();
   }
 });
