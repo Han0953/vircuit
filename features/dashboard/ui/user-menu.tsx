@@ -5,7 +5,7 @@ import { Download, LogOut, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { ThemePopover } from "./theme-popover";
 import { logoutAccount } from "@/features/auth/logout";
 import { archivedDrafts, readDraft, type Draft } from "@/features/projects/local/drafts";
 import { flushDraft } from "@/features/projects/local/controller";
@@ -43,8 +43,8 @@ export function UserMenu({ user }: { user: DashboardIdentity }) {
     const url = URL.createObjectURL(new Blob([JSON.stringify(draft.project, null, 2)], { type: "application/json" }));
     const link = document.createElement("a"); link.href = url; link.download = `vircuit-${draft.id}.json`; link.click(); URL.revokeObjectURL(url);
   }
-  return <div className="flex items-center gap-1">
-    <ThemeToggle />
+  return <div className="flex items-center gap-1.5">
+    <ThemePopover />
     <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Menu akun"><UserRound aria-hidden /></Button></DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-w-[calc(100vw-2rem)]">
         <DropdownMenuLabel className="max-w-64 break-all">{user.name}<span className="block text-xs font-normal text-text-secondary">{user.email}</span></DropdownMenuLabel>

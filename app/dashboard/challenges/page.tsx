@@ -1,12 +1,68 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import { dashboardIdentity } from "@/features/dashboard/server";
 import { challengeCatalog } from "@/features/challenges/registry";
-import { findLesson, lessonHref } from "@/features/learning/registry";
-import { PracticeLaunchAction } from "@/features/learning/ui/practice-launch-action";
+import { findLesson } from "@/features/learning/registry";
+import { progressForPage } from "@/features/progress/server";
+import { ChallengeArenaView } from "@/features/challenges/ui/challenge-arena-view";
+import { DashboardMotionSection } from "@/features/dashboard/motion/dashboard-motion";
+import { Badge } from "@/components/ui/badge";
+
+export const metadata: Metadata = {
+  title: "Tantangan",
+  description: "Arena tantangan evaluasi sirkuit dan pemrograman IoT di Virtual Lab Vircuit.",
+};
+
 export default async function ChallengesPage() {
   await dashboardIdentity();
-  return <><header><h1 className="text-2xl font-semibold">Tantangan</h1><p className="mt-3 text-text-secondary">Uji rangkaian dan program melalui skenario yang terukur.</p></header><div className="grid gap-4 md:grid-cols-2">{challengeCatalog().map((challenge) => {
-    const found = findLesson(challenge.lessonId)!;
-    return <article key={challenge.id} className="space-y-4 rounded-lg border bg-surface p-5"><h2 className="font-semibold">{challenge.title}</h2><p className="text-sm text-text-secondary">{challenge.objective}</p><Link className="block text-sm text-primary underline" href={lessonHref(found.course, found.lesson)}>Baca materi: {found.lesson.title}</Link><PracticeLaunchAction lessonId={challenge.lessonId} challenge /></article>;
-  })}</div></>;
+  const challenges = challengeCatalog();
+  const progress = await progressForPage();
+
+  // Pre-resolve lessons mapping on server
+  const lessonsMap: Record<
+    string,
+    NonNullable<ReturnType<typeof findLesson>>
+  > = {};
+
+  for (const c of challenges) {
+    const found = findLesson(c.lessonId);
+    if (found) {
+      lessonsMap[c.lessonId] = found;
+    }
+  }
+
+  return (
+    <DashboardMotionSection className="space-y-8 sm:space-y-10">
+      {/* Header section */}
+      <section className="space-y-2 border-b border-border/50 pb-6">
+        <div className="flex items-center gap-2" data-motion="header">
+          <Badge variant="outline" className="gap-1.5 font-mono text-[11px] font-semibold text-amber-500 border-amber-500/30 bg-amber-500/5">
+            <span className="size-1.5 rounded-full bg-amber-500" />
+            EVALUASI DETERMINISTIK
+          </Badge>
+          <span className="text-xs text-text-tertiary">· Virtual Lab Arena</span>
+        </div>
+
+        <h1
+          data-motion="header"
+          className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl"
+        >
+          Tantangan Eksperimen IoT
+        </h1>
+
+        <p
+          data-motion="header"
+          className="max-w-2xl text-sm leading-relaxed text-text-secondary sm:text-base"
+        >
+          Uji kebenaran rangkaian dan kode programmu di Virtual Lab. Evaluator otomatis memeriksa koneksi hardware, resistor seri, polaritas, hingga logika runtime tanpa penilaian subjektif.
+        </p>
+      </section>
+
+      {/* Challenge Arena Interactive View */}
+      <ChallengeArenaView
+        challenges={challenges}
+        lessonsMap={lessonsMap}
+        rows={progress.rows ?? []}
+      />
+    </DashboardMotionSection>
+  );
 }

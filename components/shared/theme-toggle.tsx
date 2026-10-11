@@ -35,9 +35,8 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" disabled={!mounted} aria-label={`Pilih tema: ${selected.label}`}>
-          <Icon aria-hidden="true" />
-          {selected.label}
+        <Button variant="ghost" size="icon" disabled={!mounted} aria-label={`Pilih tema: ${selected.label}`}>
+          <Icon className="size-4 shrink-0" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
