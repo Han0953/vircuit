@@ -43,7 +43,9 @@ for (const width of [360, 390, 430, 768, 1280, 1440, 1920]) {
     page.on("response", (response) => { if (response.status() >= 400) errors.push(`HTTP ${response.status()}: ${response.url()}`); });
     await page.goto("/");
     await expect(page.locator('[data-scene="hero"]')).toHaveAttribute("data-motion", "hero");
-    await expect.poll(() => page.locator('[data-scene="hero"] [data-wire]').evaluateAll((paths) => paths.every((path) => Number(getComputedStyle(path).strokeDashoffset.replace("px", "")) === 0))).toBe(true);
+    await expect(page.locator('[data-scene="hero"] [data-hero-board]')).toHaveCount(3);
+    await expect(page.locator('[data-scene="hero"] canvas')).toHaveCount(0);
+    await expect(page.locator('[data-hero-output]')).toHaveCSS("opacity", "1");
     await expect(page.locator('[data-scene="story"]')).toHaveAttribute("data-motion", "story");
     await overflow(page);
     if ([390, 1440].includes(width)) await page.screenshot({ path: `test-results/home-${width}-hero.png` });

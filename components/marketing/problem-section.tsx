@@ -26,7 +26,7 @@ const problems = [
 
 export function ProblemSection() {
   return (
-    <section aria-labelledby="problem-heading" className="border-t">
+    <section data-home-zone="problem" aria-labelledby="problem-heading" className="border-t">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-8 lg:grid-cols-2 lg:gap-20 lg:py-24">
         <div>
           <SectionHeading

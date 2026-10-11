@@ -5,16 +5,22 @@ import { CircuitArtwork } from "./circuit-artwork";
 import { sampleStory, type StoryChannel } from "./story-config";
 import { WorldBoundary } from "./three/world-boundary";
 import styles from "../homepage.module.css";
+import { StoryRendererPermission } from "./homepage-experience";
 
 export function StoryVisual() {
   const channel = useContext(StoryContext);
+  const permitted = useContext(StoryRendererPermission);
   const ref = useRef<HTMLDivElement>(null);
   const [world, setWorld] = useState<{ Renderer: ComponentType<{ channel: StoryChannel; host: HTMLElement; ready: () => void; fail: () => void }>; host: HTMLElement } | null>(null);
   const failed = useRef(false);
-  const ready = useCallback(() => { if (!failed.current && ref.current && !matchMedia("(prefers-reduced-motion: reduce)").matches) channel?.setWebgl(true); }, [channel]);
+  const ready = useCallback(() => {
+    const host = ref.current;
+    const owner = host?.closest<HTMLElement>("[data-canvas-owner]")?.dataset.canvasOwner;
+    if (!failed.current && host && (!owner || owner === "story") && !matchMedia("(prefers-reduced-motion: reduce)").matches) channel?.setWebgl(true);
+  }, [channel]);
   const fail = useCallback(() => { failed.current = true; channel?.setWebgl(false); setWorld(null); }, [channel]);
   useEffect(() => {
-    const host = ref.current; if (!host || !channel) return;
+    const host = ref.current; if (!host || !channel || !permitted) return;
     const media = matchMedia("(prefers-reduced-motion: reduce)");
     let disposed = false; let loading = false;
     const observer = new IntersectionObserver((entries) => {
@@ -31,7 +37,7 @@ export function StoryVisual() {
     const preference = () => { if (media.matches) { channel.setWebgl(false); setWorld(null); } else { observer.unobserve(host); observer.observe(host); } };
     observer.observe(host); media.addEventListener("change", preference);
     return () => { disposed = true; observer.disconnect(); media.removeEventListener("change", preference); channel.setWebgl(false); };
-  }, [channel, fail]);
+  }, [channel, fail, permitted]);
   useEffect(() => {
     const root = ref.current;
     if (!channel || !root) return;
@@ -66,6 +72,6 @@ export function StoryVisual() {
         <g data-part="pot"><circle cx="530" cy="310" r="23" fill="var(--part-metal)" /><circle cx="530" cy="310" r="17" fill="var(--part-chip)" /><path data-pot-knob d="M530 310v-12" stroke="var(--part-silkscreen)" strokeWidth="3" /></g>
       </svg>
     </div>
-    {world && channel && <div className={styles.webglLayer} aria-hidden="true"><WorldBoundary onFailure={fail}><world.Renderer channel={channel} host={world.host} ready={ready} fail={fail} /></WorldBoundary></div>}
+    {permitted && world && channel && <div className={styles.webglLayer} aria-hidden="true"><WorldBoundary onFailure={fail}><world.Renderer channel={channel} host={world.host} ready={ready} fail={fail} /></WorldBoundary></div>}
   </div>;
 }

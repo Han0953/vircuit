@@ -5,11 +5,11 @@ import { MotionScene } from "./scenes/motion-scene";
 import styles from "./homepage.module.css";
 
 export function ChallengeSection() {
-  return <section className={styles.section + " " + styles.split} aria-labelledby="challenge-heading">
+  return <section data-home-zone="challenge" className={styles.section + " " + styles.split} aria-labelledby="challenge-heading">
     <div>
       <SectionHeading id="challenge-heading" eyebrow="05 / Belajar, praktik, evaluasi" title="Uji pemahaman. Tahu apa yang perlu diperbaiki." description="Ikuti materi Dasar IoT dengan Arduino Uno. Bawa konsep ke lab, kerjakan challenge, lalu gunakan feedback untuk mencoba kembali." />
       <ol className="mt-7 space-y-3 text-sm text-text-secondary">
-        {["Elektronika Dasar", "Digital I/O", "Analog Input", "Debugging & Project"].map((title, i) => <li key={title} className="flex gap-4 border-b pb-3"><span className="font-mono text-primary">0{i + 1}</span>{title}</li>)}
+        {["Elektronika Dasar", "Digital I/O", "Analog Input", "Debugging & Project"].map((title, i) => <li data-home-item key={title} className="flex gap-4 border-b pb-3"><span className="font-mono text-primary">0{i + 1}</span><span>{title}</span></li>)}
       </ol>
       <p className="mt-6 text-sm leading-relaxed text-text-secondary">Challenge memeriksa rangkaian dan perilaku program dengan aturan deterministic. Progress akun mengikuti materi yang selesai, bukan perkiraan AI.</p>
       <SectionLink href="/dashboard/learn" className="mt-6">Lihat materi dan tantangan</SectionLink>

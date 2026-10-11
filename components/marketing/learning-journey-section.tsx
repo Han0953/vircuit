@@ -13,7 +13,7 @@ const beats = [
 ];
 
 export function LearningJourneySection() {
-  return <section className={styles.story} aria-labelledby="journey-heading">
+  return <section data-home-zone="story" className={styles.story} aria-labelledby="journey-heading">
     <div className={styles.section}>
       <SectionHeading id="journey-heading" eyebrow="02 / Learning by doing" title="Dari materi ke rangkaian yang kamu pahami." description="Satu alur belajar. Setiap percobaan membuat hubungan antara teori dan hasil semakin jelas." />
       <StoryExperience><div className={styles.storyGrid} data-story>
@@ -32,7 +32,7 @@ export function LearningJourneySection() {
           {beats.map((beat, i) => <li key={beat.title} className={styles.storyBeat} data-beat>
             <p className={styles.beatNumber}>0{i + 1} / {beat.phases.join(" + ")}</p>
             <h3 className={styles.beatTitle}>{beat.title}</h3><p className={styles.beatText}>{beat.text}</p>
-            <div className={styles.journeyNames}>{beat.phases.map((phase) => <span key={phase}>{phase}</span>)}</div>
+            <div className={styles.journeyNames}>{beat.phases.map((phase) => <span data-home-item key={phase}>{phase}</span>)}</div>
           </li>)}
         </ol>
       </div></StoryExperience>

@@ -19,7 +19,7 @@ export function createHardwareResources() {
 }
 export type HardwareResources = ReturnType<typeof createHardwareResources>;
 type MaterialName = keyof HardwareResources["materials"];
-function Pieces({ resources: r, positions, size, material = "metal" }: { resources: HardwareResources; positions: Vector[]; size: Vector; material?: MaterialName }) {
+export function Pieces({ resources: r, positions, size, material = "metal" }: { resources: HardwareResources; positions: Vector[]; size: Vector; material?: MaterialName }) {
   const ref = useRef<InstancedMesh>(null);
   useLayoutEffect(() => {
     const matrix = new Matrix4();
@@ -28,7 +28,7 @@ function Pieces({ resources: r, positions, size, material = "metal" }: { resourc
   }, [positions, size]);
   return <instancedMesh ref={ref} args={[r.geometry.box, r.materials[material], positions.length]} dispose={null} />;
 }
-function Part({ r, position = [0, 0, 0], scale, material, cylinder = false, rotation = [0, 0, 0] }: { r: HardwareResources; position?: Vector; scale: Vector; material: MaterialName; cylinder?: boolean; rotation?: Vector }) {
+export function Part({ r, position = [0, 0, 0], scale, material, cylinder = false, rotation = [0, 0, 0] }: { r: HardwareResources; position?: Vector; scale: Vector; material: MaterialName; cylinder?: boolean; rotation?: Vector }) {
   return <mesh geometry={cylinder ? r.geometry.cylinder : r.geometry.box} material={r.materials[material]} position={position} scale={scale} rotation={rotation} dispose={null} />;
 }
 function Uno({ r }: { r: HardwareResources }) {
@@ -36,11 +36,18 @@ function Uno({ r }: { r: HardwareResources }) {
     <mesh geometry={r.geometry.board} material={r.materials.pcb} dispose={null} />
     <Part r={r} position={[.35, .2, .35]} scale={[.55, .25, 1.35]} material="chip" />
     <Part r={r} position={[-1.2, .25, -.7]} scale={[.6, .4, .65]} material="metal" />
+    <Part r={r} position={[-1.505, .25, -.7]} scale={[.018, .22, .44]} material="chip" />
     <Part r={r} position={[-1.3, .28, .85]} scale={[.6, .4, .55]} material="chip" />
     <Part r={r} position={[-.35, .16, -.55]} scale={[.45, .2, .45]} material="chip" />
+    <Part r={r} position={[-.38, .115, .28]} scale={[.35, .07, .16]} material="metal" />
+    <Part r={r} position={[-.8, .12, -1.05]} scale={[.24, .12, .2]} material="metal" />
+    <Part r={r} position={[-.8, .19, -1.05]} scale={[.12, .02, .1]} material="chip" />
+    <Pieces resources={r} positions={[-.09, .79].flatMap((x) => Array.from({ length: 14 }, (_, i): Vector => [x, .14, -.26 + i * .09]))} size={[.12, .04, .035]} />
+    <Pieces resources={r} positions={[-.75, -.5, .2, .45, .7].map((x): Vector => [x, .09, -1.15])} size={[.12, .025, .025]} material="breadboard" />
+    <Pieces resources={r} positions={[-.8, -.3, .3, .8].flatMap((x) => [-.95, .95].map((z): Vector => [x, .085, z]))} size={[.018, .008, .38]} material="gold" />
+    <Part r={r} position={[-.13, .11, .92]} scale={[.08, .05, .11]} material="led" />
     <Pieces resources={r} positions={[-1.38, 1.38].map((z) => [0, .16, z] as Vector)} size={[2.15, .2, .19]} material="chip" />
     <Pieces resources={r} positions={[-1.38, 1.38].flatMap((z) => Array.from({ length: 12 }, (_, i): Vector => [-1 + i * .18, .27, z]))} size={[.07, .025, .07]} material="gold" />
-    <Pieces resources={r} positions={[-.1, .8].flatMap((x) => Array.from({ length: 7 }, (_, i): Vector => [x, .18, -.2 + i * .18]))} size={[.12, .06, .06]} />
     <Pieces resources={r} positions={[[-.6, .25, .75], [-.6, .25, 1.05]]} size={[.23, .3, .23]} />
   </>;
 }
@@ -85,5 +92,5 @@ function Pot({ r }: { r: HardwareResources }) {
 const models = { uno: Uno, "breadboard-mini": Breadboard, led: Led, resistor: Resistor, button: ButtonModel, pot: Pot };
 export function HardwareModel({ type, resources, onGroup }: { type: PrimaryType; resources: HardwareResources; onGroup: (group: Group | null) => void }) {
   const Model = models[type];
-  return <group ref={onGroup} name={type} dispose={null}><Model r={resources} /></group>;
+  return <group ref={onGroup} name={type} dispose={null}><group scale={type === "uno" ? [1.3, 1, .86] : [1, 1, 1]}><Model r={resources} /></group></group>;
 }

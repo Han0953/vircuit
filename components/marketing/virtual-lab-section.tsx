@@ -3,9 +3,10 @@ import { MotionScene } from "./scenes/motion-scene";
 import { SectionHeading } from "./section-heading";
 import { SectionLink } from "./section-link";
 import styles from "./homepage.module.css";
+import { BoardArtwork } from "./scenes/board-showcase";
 
 export function VirtualLabSection() {
-  return <section aria-labelledby="lab-heading" className={styles.section}>
+  return <section data-home-zone="workspace" aria-labelledby="lab-heading" className={styles.section}>
     <div className="flex flex-wrap items-end justify-between gap-6">
       <SectionHeading id="lab-heading" eyebrow="03 / Virtual Lab" title="Satu project. Rangkaian dan kode saling terhubung." description="Atur komponen, hubungkan pin, dan lihat pengaruh program pada output. Berpindah dari Circuit ke Code tanpa meninggalkan project." />
       <SectionLink href="/simulator">Buka Virtual Lab</SectionLink>
@@ -21,7 +22,7 @@ export function VirtualLabSection() {
               <div className={styles.demoFlow} aria-hidden="true">
                 <div className={styles.demoUnit} data-input><CircleDot /><span>BUTTON / D2</span></div>
                 <div className={styles.demoWire} data-signal />
-                <div className={styles.demoUnit}><Cpu /><span>UNO / LOGIC</span></div>
+                <div className={styles.demoUnit}><div className={styles.workspaceBoard + " component-art"}><BoardArtwork type="uno" /></div><span>UNO / LOGIC</span></div>
                 <div className={styles.demoWire} data-signal />
                 <div className={styles.demoUnit + " text-iot"} data-demo-led><Lightbulb /><span>LED / D3</span></div>
               </div>
@@ -39,7 +40,7 @@ export function VirtualLabSection() {
       </figure>
     </MotionScene>
     <div className="mt-7 flex flex-wrap gap-x-8 gap-y-3 text-sm text-text-secondary">
-      {["Input berubah", "Program membaca", "Output merespons"].map((text) => <span className="flex items-center gap-2" key={text}><ArrowRight className="size-4 text-primary" aria-hidden="true" />{text}</span>)}
+      {["Input berubah", "Program membaca", "Output merespons"].map((text) => <span data-home-item className="flex items-center gap-2" key={text}><ArrowRight className="size-4 text-primary" aria-hidden="true" />{text}</span>)}
     </div>
     <p className="mt-5 max-w-3xl text-xs leading-relaxed text-text-secondary">Simulasi edukatif dengan subset Arduino-style C/C++. Mendukung praktik dasar, bukan emulasi lengkap hardware atau seluruh library Arduino.</p>
   </section>;

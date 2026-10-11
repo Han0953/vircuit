@@ -17,7 +17,7 @@ for (const width of [390, 1440]) test(`3D story reversible, demand rendered and 
   await page.setViewportSize({ width, height: 900 });
   await page.goto("/");
   await seek(page, .5);
-  const world = page.locator("[data-renderer]");
+  const world = page.locator('[data-scene="story"] [data-renderer]');
   await expect(world).toHaveAttribute("data-renderer", "webgl", { timeout: 20000 });
   await expect(page.locator("canvas")).toHaveCount(1);
   for (const p of [.02, .15, .30, .50, .70, .90, 1, .50, .02]) {
@@ -50,21 +50,21 @@ for (const width of [390, 1440]) test(`3D story reversible, demand rendered and 
   await page.screenshot({ path: `test-results/world-${width}-fallback.png` });
 });
 
-test("WebGL unavailable keeps the animated SVG and complete catalog", async ({ page }) => {
+test("WebGL unavailable keeps the animated SVG and three featured boards", async ({ page }) => {
   await page.addInitScript(() => Reflect.deleteProperty(window, "WebGL2RenderingContext"));
   await page.setViewportSize({ width: 360, height: 900 });
   await page.goto("/");
   await seek(page, .5);
-  await expect(page.locator("[data-renderer]")).toHaveAttribute("data-renderer", "svg");
+  await expect(page.locator('[data-scene="story"] [data-renderer]')).toHaveAttribute("data-renderer", "svg");
   await expect(page.locator("canvas")).toHaveCount(0);
   const first = await page.locator("[data-svg-fallback] [data-part='pot']").getAttribute("style");
   await seek(page, .2);
   expect(await page.locator("[data-svg-fallback] [data-part='pot']").getAttribute("style")).not.toBe(first);
-  for (const type of ["nano", "esp32", "breadboard-half", "breadboard-full", "dht22", "relay", "fan"]) {
-    const item = page.locator(`[data-catalog-type='${type}']`);
+  for (const type of ["uno", "nano", "esp32"]) {
+    const item = page.locator(`[data-featured-board='${type}']`);
     await item.scrollIntoViewIfNeeded();
     await expect(item.getByRole("heading")).toBeVisible();
-    expect(await item.locator("[data-catalog-body] svg").evaluate((el) => getComputedStyle(el).getPropertyValue("--part-pcb").trim())).toBe("#1b7598");
+    await expect(page.locator(`[data-featured-fallback='${type}'] svg`)).toHaveCount(1);
     const box = (await item.boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(0); expect(box.x + box.width).toBeLessThanOrEqual(361);
   }
@@ -103,9 +103,10 @@ test("context creation failure does not replace the page with an error", async (
 test("runtime reduced motion and repeated navigation release the world", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 3; i++) {
     await seek(page, .62);
-    await expect(page.locator("[data-renderer]")).toHaveAttribute("data-renderer", "webgl");
+    await expect(page.locator("[data-home-experience]")).toHaveAttribute("data-canvas-owner", "story");
+    await expect(page.locator('[data-scene="story"] [data-renderer]')).toHaveAttribute("data-renderer", "webgl");
     await page.emulateMedia({ reducedMotion: "reduce" });
     await expect(page.locator("canvas")).toHaveCount(0);
     await expect(page.locator(".pin-spacer")).toHaveCount(0);
@@ -132,7 +133,7 @@ for (const width of [390, 1440]) test(`deferred world and scroll frame budget at
   const before = new Set(await scripts());
   for (const url of before) expect((await (await page.request.get(url)).body()).toString()).not.toContain("WebGLRenderer");
   await seek(page, .3);
-  await expect(page.locator("[data-renderer]")).toHaveAttribute("data-renderer", "webgl");
+  await expect(page.locator('[data-scene="story"] [data-renderer]')).toHaveAttribute("data-renderer", "webgl");
   const chunks = [];
   for (const url of await scripts()) if (!before.has(url)) {
     const body = await (await page.request.get(url)).body();
@@ -154,7 +155,7 @@ for (const width of [390, 1440]) test(`deferred world and scroll frame budget at
     return samples.sort((a, b) => a - b);
   });
   const p95 = frames[Math.floor(frames.length * .95)];
-  const stats = await page.locator("[data-renderer]").evaluate((el) => ({ calls: Number(el.getAttribute("data-draw-calls")), triangles: Number(el.getAttribute("data-triangles")), quality: el.getAttribute("data-quality") ?? "standard" }));
+  const stats = await page.locator('[data-scene="story"] [data-renderer]').evaluate((el) => ({ calls: Number(el.getAttribute("data-draw-calls")), triangles: Number(el.getAttribute("data-triangles")), quality: el.getAttribute("data-quality") ?? "standard" }));
   const report = { profile: "Windows Edge headless, local production, warm world, unthrottled scripted forward/reverse native scroll; rAF interval, not GPU timing or field INP", width, frameP95Ms: Math.round(p95 * 10) / 10, deferredChunks: chunks, deferredGzipBytes: chunks.reduce((sum, chunk) => sum + chunk.gzip, 0), ...stats };
   console.log(JSON.stringify(report));
   await testInfo.attach("world-performance", { body: JSON.stringify(report, null, 2), contentType: "application/json" });

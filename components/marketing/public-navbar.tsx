@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, CircuitBoard, Menu } from "lucide-react";
-import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { MarketingThemeToggle } from "./marketing-theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -57,7 +57,7 @@ export function PublicNavbar() {
       >
         Lewati ke konten utama
       </a>
-      <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-3 px-4 sm:px-8 lg:gap-6">
+      <div className={cn("mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-3 px-4 sm:px-8 lg:gap-6", styles.headerInner)}>
         <Link
           prefetch={false}
           href={marketingRoutes.home}
@@ -68,7 +68,7 @@ export function PublicNavbar() {
           Vircuit<span className="text-primary" aria-hidden="true">.</span>
         </Link>
 
-        <nav aria-label="Navigasi utama" className="hidden items-center gap-1 lg:flex">
+        <nav aria-label="Navigasi utama" className={cn("hidden items-center gap-1 lg:flex", styles.desktopNav)}>
           {primaryNavigation.map(({ label, href }) => {
             const active = isActiveRoute(pathname, href);
             return (
@@ -87,7 +87,7 @@ export function PublicNavbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <span data-motion-group="nav.theme" data-motion="control"><ThemeToggle /></span>
+          <span data-motion-group="nav.theme" data-motion="control"><MarketingThemeToggle /></span>
           <Button data-motion-group="nav.login" data-motion="control" asChild variant="ghost" className={cn(loginActive && "text-primary font-semibold")}>
             <Link prefetch={false} href={marketingRoutes.login} aria-current={loginActive ? "page" : undefined}>
               Masuk
@@ -111,12 +111,12 @@ export function PublicNavbar() {
                 <Menu aria-hidden="true" className="size-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent data-motion-group="nav.sheet" data-motion="control" className="w-full max-w-sm overflow-y-auto">
+            <SheetContent data-motion-group="nav.sheet" data-motion="control" className={styles.mobileMenu}>
               <SheetHeader className="border-b p-6 pr-16 text-left">
-                <SheetTitle className="text-xl">Vircuit</SheetTitle>
+                <SheetTitle className="flex items-center gap-2 text-xl"><CircuitBoard aria-hidden="true" className="size-6 text-primary" />Vircuit</SheetTitle>
                 <SheetDescription>Belajar IoT lewat praktik.</SheetDescription>
               </SheetHeader>
-              <nav aria-label="Navigasi mobile" className="flex flex-col gap-1 px-4">
+              <nav aria-label="Navigasi mobile" className={styles.mobileLinks}>
                 {primaryNavigation.map(({ label, href }) => {
                   const active = isActiveRoute(pathname, href);
                   return (
@@ -160,7 +160,7 @@ export function PublicNavbar() {
               </div>
               <div className="mt-auto flex items-center justify-between gap-4 border-t p-6">
                 <span className="text-sm text-text-secondary">Tampilan</span>
-                <ThemeToggle />
+                <MarketingThemeToggle />
               </div>
             </SheetContent>
           </Sheet>

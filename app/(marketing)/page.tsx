@@ -7,9 +7,9 @@ import { LearningJourneySection } from "@/components/marketing/learning-journey-
 import { ProjectShowcaseSection } from "@/components/marketing/project-showcase-section";
 import { PricingSection } from "@/components/marketing/pricing-section";
 import { FinalCtaSection } from "@/components/marketing/final-cta-section";
-import styles from "@/components/marketing/homepage.module.css";
 import { ChallengeSection } from "@/components/marketing/challenge-section";
-import { CatalogShowcase } from "@/components/marketing/scenes/catalog-showcase";
+import { BoardShowcase } from "@/components/marketing/scenes/board-showcase";
+import { HomepageExperience } from "@/components/marketing/scenes/homepage-experience";
 
 export const metadata: Metadata = {
   title: { absolute: "Vircuit — Belajar IoT dengan Membangunnya" },
@@ -18,17 +18,17 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <div className={styles.home}>
+    <HomepageExperience>
       <LandingHero />
       <ProblemSection />
       <LearningJourneySection />
-      <CatalogShowcase />
+      <BoardShowcase />
       <VirtualLabSection />
       <AiLearningSection />
       <ChallengeSection />
       <ProjectShowcaseSection />
       <PricingSection />
       <FinalCtaSection />
-    </div>
+    </HomepageExperience>
   );
 }

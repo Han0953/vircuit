@@ -62,7 +62,7 @@ export function SimulatorCtaButton({ label = "Coba Simulator" }: { label?: strin
 
 export function FinalCtaSection() {
   return (
-    <>
+    <div data-home-zone="closing" className={homeStyles.homeClosing}>
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-8">
         <MotionScene kind="closing">
           <svg viewBox="0 0 480 64" className={homeStyles.closingTrace} fill="none" aria-hidden="true">
@@ -89,6 +89,6 @@ export function FinalCtaSection() {
         </>
       }
       />
-    </>
+    </div>
   );
 }

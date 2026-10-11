@@ -12,7 +12,7 @@ const practices = [
 ];
 
 export function ProjectShowcaseSection() {
-  return <section className="border-y bg-surface" aria-labelledby="projects-heading">
+  return <section data-home-zone="projects" className="border-y bg-surface" aria-labelledby="projects-heading">
     <div className={styles.section + " " + styles.split}>
       <div>
         <SectionHeading id="projects-heading" eyebrow="06 / Project pertamamu" title="Mulai dari LED. Lanjutkan ke project pertamamu." description="Latihan singkat untuk pemula, siswa, mahasiswa, dan pengajar yang ingin menghubungkan konsep dengan eksperimen." />
@@ -21,7 +21,7 @@ export function ProjectShowcaseSection() {
         </Link></li>)}</ul>
       </div>
       <div className={styles.savePanel}>
-        <FolderOpen className="mb-6 size-8 text-primary" strokeWidth={1.5} aria-hidden="true" />
+        <div data-home-item><FolderOpen className="mb-6 size-8 text-primary" strokeWidth={1.5} aria-hidden="true" /></div>
         <h3 className="text-h3 font-semibold tracking-tight">Simpan pekerjaanmu. Lanjutkan eksperimennya.</h3>
         <div className="mt-7 space-y-6">
           <div className="flex gap-3"><HardDrive className="mt-1 size-5 shrink-0" aria-hidden="true" /><div><h4 className="text-sm font-semibold">Draft di browser</h4><p className="mt-2 text-sm leading-relaxed text-text-secondary">Perubahan guest tersimpan lokal di browser yang sama. Ekspor JSON untuk cadangan.</p></div></div>

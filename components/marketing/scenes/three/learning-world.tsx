@@ -19,11 +19,10 @@ const routes = [
 function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HTMLElement; ready: () => void; fail: () => void }) {
   const { camera, gl, invalidate, size, setDpr } = useThree();
   const groups = useRef<Partial<Record<PrimaryType, Group>>>({});
-  const first = useRef(true);
   const resources = useMemo(() => createHardwareResources(), []);
   const wires = useMemo(() => routes.map((route) => new TubeGeometry(new CatmullRomCurve3(route.map((point) => new Vector3(...point)), false, "centripetal"), 32, .017, 4, false)), []);
   const wireMaterial = useMemo(() => new MeshBasicMaterial({ color: "#2563eb" }), []);
-  const renderState = useRef({ visible: false, requested: 0, slow: 0, downgraded: false, frames: 0 });
+  const renderState = useRef({ visible: false, requested: 0, slow: 0, downgraded: false, frames: 0, readyFrame: 0 });
   useEffect(() => {
     let active = true;
     const state = renderState.current;
@@ -65,7 +64,7 @@ function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HT
     const visibility = () => apply();
     document.addEventListener("visibilitychange", visibility);
     const off = channel.subscribe(() => apply()); palette(); apply(true);
-    return () => { active = false; off(); observer.disconnect(); theme.disconnect(); document.removeEventListener("visibilitychange", visibility); gl.domElement.removeEventListener("webglcontextlost", lost); };
+    return () => { active = false; cancelAnimationFrame(state.readyFrame); off(); observer.disconnect(); theme.disconnect(); document.removeEventListener("visibilitychange", visibility); gl.domElement.removeEventListener("webglcontextlost", lost); };
   }, [camera, channel, fail, gl, host, invalidate, resources, size.width, wireMaterial, wires]);
   useEffect(() => () => { resources.dispose(); wireMaterial.dispose(); wires.forEach((wire: BufferGeometry) => wire.dispose()); }, [resources, wireMaterial, wires]);
   useFrame(() => {
@@ -78,7 +77,8 @@ function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HT
     }
     state.frames++; host.setAttribute("data-render-frames", String(state.frames));
     host.setAttribute("data-draw-calls", String(gl.info.render.calls)); host.setAttribute("data-triangles", String(gl.info.render.triangles));
-    if (first.current) { first.current = false; requestAnimationFrame(ready); }
+    // A cached route can resume this world after the presentation channel was reset.
+    if (!channel.read().webgl) { cancelAnimationFrame(state.readyFrame); state.readyFrame = requestAnimationFrame(ready); }
   });
   return <>
     <hemisphereLight args={["#ffffff", "#8090a0", 2]} /><directionalLight position={[-3, 8, 5]} intensity={2.5} />

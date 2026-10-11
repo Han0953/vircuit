@@ -9,6 +9,7 @@ import { MotionScene } from "./scenes/motion-scene";
 export function LandingHero() {
   return (
     <section
+      data-home-zone="hero"
       aria-labelledby="hero-heading"
       className={`${styles.section} ${styles.hero} grid items-center gap-10 lg:min-h-[calc(100svh-5rem)] lg:grid-cols-2 lg:gap-12`}
     >

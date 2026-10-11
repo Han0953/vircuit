@@ -10,7 +10,7 @@ const roles = [
 ];
 
 export function AiLearningSection() {
-  return <section className="border-y bg-surface" aria-labelledby="ai-heading">
+  return <section data-home-zone="cirra" className="border-y bg-surface" aria-labelledby="ai-heading">
     <div className={styles.section + " " + styles.split}>
       <div>
         <SectionHeading id="ai-heading" eyebrow="04 / Meet Cirra" title="Kenalan dengan Cirra, pendamping belajar AI kamu." description="Tanya konsep, telusuri masalah, atau susun rencana project. Kamu tetap memegang kendali atas rangkaian dan setiap perbaikannya." />

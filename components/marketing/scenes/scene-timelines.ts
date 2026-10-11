@@ -11,26 +11,29 @@ function wires(root: HTMLElement) {
 
 function hero(root: HTMLElement, fine: boolean, desktop: boolean) {
   const q = gsap.utils.selector(root);
+  const section = root.closest<HTMLElement>("[data-home-zone='hero']")!;
+  const copy = section.querySelectorAll("h1, h1 + p, h1 + p + div");
+  const boards = q("[data-hero-board]");
+  const layers = q("[data-board-motion]");
   const assembly = q("[data-assembly]")[0] as HTMLElement;
-  const intro = gsap.timeline({ defaults: { ease: "power2.out" }, scrollTrigger: { id: "home-hero", trigger: root, start: "top bottom", toggleActions: "play pause resume pause" } });
+  const intro = gsap.timeline({ defaults: { ease: "power2.out" }, scrollTrigger: { id: "home-hero", trigger: section, start: "top bottom", toggleActions: "play pause resume pause" } });
   intro.from(q("[data-grid]"), { opacity: 0, duration: .5 })
-    .from(assembly, { rotationX: desktop ? 30 : 22, rotationY: desktop ? -24 : -18, y: desktop ? 35 : 22, duration: .9 }, 0)
-    .from(q("[data-part]"), { y: -30, opacity: 0, stagger: .14, duration: .6 }, .1)
-    .to(wires(root), { strokeDashoffset: 0, stagger: .18, duration: .55 }, .55)
-    .from(q("[data-code]"), { y: 15, opacity: 0, duration: .5 }, .8)
-    .from(q("[data-code-line]"), { opacity: .3, duration: .35 }, 1.35)
-    .from(q("[data-led-halo]"), { scale: .2, opacity: 0, transformOrigin: "center", duration: .5 }, 1.45)
-    .from(q("[data-output]"), { y: 8, opacity: 0, duration: .4 }, 1.65);
+    // SSR copy remains opaque for LCP; reveal its position, not its availability.
+    .from(copy, { y: 10, stagger: .08, duration: .55 }, 0)
+    .from(boards, { y: desktop ? 32 : 16, opacity: .15, stagger: .12, duration: .7 }, .08)
+    .from(q("[data-code]"), { x: 12, opacity: 0, duration: .45 }, .55)
+    .from(q("[data-hero-output]"), { y: 8, opacity: 0, duration: .4 }, .8);
+  gsap.to(layers, { y: (i) => (i % 2 ? 18 : -18) * (desktop ? 1 : .4), rotation: (i) => i % 2 ? 3 : -3, ease: "none", scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: .25 } });
   if (!fine) return;
-  const tiltX = gsap.quickTo(assembly, "rotationX", { duration: .5, ease: "power2.out" });
-  const tiltY = gsap.quickTo(assembly, "rotationY", { duration: .5, ease: "power2.out" });
+  const moveX = gsap.quickTo(assembly, "x", { duration: .6, ease: "power2.out" });
+  const moveY = gsap.quickTo(assembly, "y", { duration: .6, ease: "power2.out" });
   const move = (event: PointerEvent) => {
     if (intro.isActive() || event.pointerType === "touch") return;
     const box = root.getBoundingClientRect();
-    tiltX(12 - ((event.clientY - box.top) / box.height - .5) * 8);
-    tiltY(-12 + ((event.clientX - box.left) / box.width - .5) * 8);
+    moveX(((event.clientX - box.left) / box.width - .5) * 12);
+    moveY(((event.clientY - box.top) / box.height - .5) * 10);
   };
-  const reset = () => { tiltX(12); tiltY(-12); };
+  const reset = () => { moveX(0); moveY(0); };
   root.addEventListener("pointermove", move);
   root.addEventListener("pointerleave", reset);
   return () => { root.removeEventListener("pointermove", move); root.removeEventListener("pointerleave", reset); };

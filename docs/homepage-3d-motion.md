@@ -1,5 +1,10 @@
 # Homepage 3D and motion
 
+Latest extension (11 October 2026): [Homepage cinematic 3D and full motion](homepage-cinematic-motion.md)
+adds exclusive renderer ownership across homepage zones and replaces the secondary
+seven-item gallery with a three-board spotlight. The historical checkpoint below
+describes the earlier implementation; the original story is preserved.
+
 Implementation: 10 October 2026. This extends the [immersive homepage foundation](immersive-homepage.md). Scope is `/`; simulator, auth, persistence, challenges and Cirra backend are reused without changes.
 
 Follow-up: [Public pages motion](public-pages-motion.md) moves scroll/header/BackToTop
