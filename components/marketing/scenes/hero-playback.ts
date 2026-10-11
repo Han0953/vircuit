@@ -45,12 +45,6 @@ export function createHeroPlayback(view: Presentation) {
   };
   return {
     start() { if (!disposed) enter(true); },
-    select(next: number) {
-      if (disposed || next < 0 || next > 2 || !Number.isInteger(next)) return;
-      userPaused = true; clear(); target = next; publish();
-      if (phase === "exiting" || index === next) return;
-      leave();
-    },
     play() { if (!disposed && !reduced) { userPaused = false; publish(); schedule(); } },
     pause() { userPaused = true; clear(); publish(); },
     block(reason: string, blocked: boolean) {

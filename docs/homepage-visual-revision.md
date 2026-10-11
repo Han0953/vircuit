@@ -108,20 +108,25 @@ The stage contains one visible board and its own output-to-ground path. Pin
 anchors come from the existing visual layout: Uno D3, Nano D3 (visual only),
 ESP32 GPIO23, and each board's GND. Each uses a series 220 Ω resistor and LED.
 The lens response is an illustration, never live simulator execution; Nano's
-lens stays off and its info card contains no executable-program claim.
+lens stays off and its in-stage label says Visual saja.
 
-One playback controller owns entry (1.75s), readable hold (4.95s), and exit
-(0.5s). Manual selection wins over pending autoplay and pauses automatic
-switching until Play. Hover pauses the hold; hidden/offscreen states also pause
-the active transition. Remaining hold time is retained, and stale callbacks are
-discarded. Reduced motion shows complete wiring and manual selectors without
-autoplay. The native support disclosure exposes all three board descriptions
-without JavaScript. React receives only scene/phase/control changes, not frames.
+The latest hero-only revision removes the lower identity/description/code cards,
+board selectors, support paragraph and disclosure. A small in-stage label,
+three decorative dots and a 44px Pause/Play button accompany the circuit.
+One playback controller owns entry (1.75s), hold (2.75s), and exit (0.5s): each
+activation is five seconds apart while visible and playing. Hover only adjusts
+parallax; hidden/offscreen states pause the active transition. Remaining hold
+time is retained, and stale callbacks are discarded. Reduced motion settles one
+board with complete wiring and no autoplay, float, pulse or pointer movement.
+An accessible caption explains the illustration and board support without a
+visible lower content section. React receives phase/control changes, not frames.
 
-Hero SVG and code are server slots; catalog/runtime code is not added to the
-client animation controller. Pointer tilt owns a separate wrapper from the
-timeline. Disposal kills active animations, timers and observers. Wire opacity
-is restored on every activation, including the ESP32 → Uno wraparound.
+Hero SVGs remain server slots; catalog/runtime code is not added to the client
+animation controller. Static perspective, CSS floating, pointer tilt and SVG
+entry each own separate transforms. Layered shadows affect only the board,
+while the board/wires/output share the same plane. Output pulse is limited to
+the hold and disabled for Nano. Disposal kills active animations, timers and
+observers. Wire opacity is restored on every activation, including wraparound.
 
 Story assembly, button/analog/diagnostic beats and SVG fallback keep their
 existing progress channel. Refined camera paths and board poses are sampled
@@ -130,7 +135,7 @@ and WebGL replace each other atomically; late readiness cannot reactivate an
 inactive slot. Header logo sizing is adjusted only on the homepage at ≤430px
 to keep the existing CTA and menu within 360px.
 
-### Current validation
+### Earlier checkpoint validation (before the clean hero revision)
 
 Final source passes `pnpm lint`, `pnpm typecheck`, `pnpm test` (210 passed,
 6 opt-in live AI tests skipped) and `pnpm build`. The seven affected Playwright
@@ -164,3 +169,27 @@ the unchanged mobile cap of 45 calls. Sampled Nano spotlight: 17 calls / 1,860
 triangles. All ten sections have declared motion ownership with no uncovered
 groups. These are synthetic Windows lab samples, not field INP or phone GPU
 measurements. Physical-device/Safari QA and deployment remain unverified.
+
+### Clean hero validation — 2026-10-12
+
+The final hero-only source passes `pnpm lint`, `pnpm typecheck`, `pnpm test`
+(210 passed, 6 opt-in live AI checks skipped) and `pnpm build`. Five affected
+homepage Playwright suites pass 41/41 after the final reduced-motion fix and
+rebuild. Evidence: ignored `playwright-report/hero-clean-final.json`.
+
+Coverage includes the five-second Uno → Nano → ESP32 loop, board-specific
+wiring and lens state, keyboard/touch pause, offscreen pause, reduced motion
+both on entry and during pointer parallax, resize during entrance, compact
+stage geometry, no lower selectors/content, and no horizontal page overflow.
+Hero checks cover 360/390/430/768/1280/1440px; homepage regression also checks
+1920px. Touch emulation cycles all three boards at 390px. Light/Dark/System,
+no-JS, native mobile scroll, desktop Lenis, sticky navigation, Back to Top and
+route cleanup pass. Desktop/mobile compositions and all three board captures
+were visually inspected. No full application E2E rerun or physical-device/Safari
+QA was performed. No dependency, other section, application backend, commit or
+deployment changes are included in this revision.
+
+Synthetic loading budgets also pass (4× CPU, 1.6 Mbps, 40ms latency): LCP
+964/1036ms at 390/1440px, CLS 0, maximum observed Event Timing 80/144ms,
+66,043 gzip bytes for the initial motion chunks. These are local lab samples,
+not field INP or physical phone GPU measurements.

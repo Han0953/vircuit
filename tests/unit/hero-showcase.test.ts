@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createHeroPlayback, type HeroPlaybackState } from "@/components/marketing/scenes/hero-playback";
-import { heroBoards, heroScenes, stageAnchor } from "@/components/marketing/scenes/hero-showcase-config";
+import { heroBoards, heroScenes, heroTiming, stageAnchor } from "@/components/marketing/scenes/hero-showcase-config";
 import { getDefinition } from "@/features/simulator/catalog/registry";
 import { visualLayout } from "@/features/simulator/ui/visuals/pin-layout";
 
@@ -31,33 +31,41 @@ describe("hero circuit stage", () => {
     expect(heroScenes.nano.status).toBe("Visual saja");
     expect(heroScenes.esp32.pin).toBe("GPIO23");
   });
-  it("cycles only after a readable hold and finishes exit before activation", () => {
-    vi.useFakeTimers(); const h = harness(); h.playback.start(); h.complete();
-    vi.advanceTimersByTime(4949); expect(h.state().phase).toBe("holding");
-    vi.advanceTimersByTime(1); expect(h.state().phase).toBe("exiting"); expect(h.activate).toHaveBeenCalledTimes(1);
-    h.complete(); expect(h.activate).toHaveBeenLastCalledWith(1); h.complete();
+  it("activates Uno, Nano and ESP32 on a five-second cadence, after exit completes", () => {
+    vi.useFakeTimers(); const h = harness(); h.playback.start();
+    expect(heroTiming.enter * 1000 + heroTiming.hold + heroTiming.exit * 1000).toBe(5000);
+    for (const next of [1, 2, 0]) {
+      vi.advanceTimersByTime(heroTiming.enter * 1000); h.complete();
+      vi.advanceTimersByTime(heroTiming.hold - 1); expect(h.state().phase).toBe("holding");
+      vi.advanceTimersByTime(1); expect(h.state().phase).toBe("exiting");
+      expect(h.state().index).not.toBe(next);
+      vi.advanceTimersByTime(heroTiming.exit * 1000); h.complete();
+      expect(h.activate).toHaveBeenLastCalledWith(next);
+    }
     h.playback.dispose(); expect(vi.getTimerCount()).toBe(0);
   });
   it("keeps the remaining hold when hidden and respects independent blockers", () => {
     vi.useFakeTimers(); const h = harness(); h.playback.start(); h.complete();
     vi.advanceTimersByTime(1000); h.playback.block("hidden", true); h.playback.block("offscreen", true);
     vi.advanceTimersByTime(20000); h.playback.block("hidden", false); expect(vi.getTimerCount()).toBe(0);
-    h.playback.block("offscreen", false); vi.advanceTimersByTime(3949); expect(h.state().phase).toBe("holding");
+    h.playback.block("offscreen", false); vi.advanceTimersByTime(heroTiming.hold - 1001); expect(h.state().phase).toBe("holding");
     vi.advanceTimersByTime(1); expect(h.state().phase).toBe("exiting"); h.playback.dispose();
   });
-  it("lets the latest manual choice win without stale callbacks or duplicate exits", () => {
-    vi.useFakeTimers(); const h = harness(); h.playback.start();
-    h.playback.select(1); h.playback.select(2); h.playback.select(2);
-    h.complete(); expect(h.state().phase).toBe("exiting");
-    h.complete(); expect(h.activate).toHaveBeenLastCalledWith(2); h.complete();
-    expect(h.state().manualPaused).toBe(true); expect(vi.getTimerCount()).toBe(0);
-    h.playback.play(); expect(vi.getTimerCount()).toBe(1); h.playback.dispose();
-  });
-  it("allows manual transitions while hovered and disables autoplay for reduced motion", () => {
+  it("pauses and resumes the remaining hold without duplicating timers", () => {
     vi.useFakeTimers(); const h = harness(); h.playback.start(); h.complete();
-    h.playback.block("hover", true); h.playback.select(1); expect(h.pause).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1000); h.playback.pause();
+    vi.advanceTimersByTime(20000);
+    expect(h.state().manualPaused).toBe(true); expect(vi.getTimerCount()).toBe(0);
+    h.playback.play(); h.playback.play(); expect(vi.getTimerCount()).toBe(1);
+    vi.advanceTimersByTime(heroTiming.hold - 1000); expect(h.state().phase).toBe("exiting");
+    h.playback.dispose(); h.complete(); expect(h.activate).toHaveBeenCalledTimes(1);
+  });
+  it("settles an interrupted transition and stays stable for reduced motion", () => {
+    vi.useFakeTimers(); const h = harness(); h.playback.start(); h.complete();
+    vi.advanceTimersByTime(heroTiming.hold); expect(h.state().phase).toBe("exiting");
     h.playback.reduce(true); expect(h.state().index).toBe(1); expect(h.state().phase).toBe("holding");
-    h.playback.select(2); expect(h.state().index).toBe(2); h.playback.play(); expect(vi.getTimerCount()).toBe(0);
-    h.playback.dispose(); h.complete(); expect(vi.getTimerCount()).toBe(0);
+    h.complete(); h.playback.play(); vi.advanceTimersByTime(30000);
+    expect(h.state().index).toBe(1); expect(vi.getTimerCount()).toBe(0);
+    h.playback.dispose(); expect(vi.getTimerCount()).toBe(0);
   });
 });

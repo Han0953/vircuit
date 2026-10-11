@@ -8,8 +8,7 @@ test("hero stays 2D with one active board and pin-specific wiring", async ({ pag
   await page.waitForTimeout(1800);
   await expect(page.locator("canvas")).toHaveCount(0);
   for (const type of ["uno", "nano", "esp32"]) {
-    await page.getByRole("button", { name: type === "esp32" ? "ESP32" : type === "nano" ? "Nano" : "Uno", exact: true }).click();
-    await expect(page.locator("[data-hero-2d]")).toHaveAttribute("data-hero-active", type);
+    await expect(page.locator("[data-hero-2d]")).toHaveAttribute("data-hero-active", type, { timeout: 6500 });
     await expect(page.locator("[data-hero-2d]")).toHaveAttribute("data-hero-phase", "holding");
     await expect(page.locator('[data-hero-scene]:visible')).toHaveCount(1);
     await expect(page.locator(`[data-hero-scene="${type}"] [data-from-pin]`)).toHaveAttribute("data-from-pin", type === "esp32" ? "GPIO23" : "D3");

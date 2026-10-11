@@ -73,33 +73,33 @@
 .hero::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 85% 30%, var(--primary-soft), transparent 65%); opacity: .6; z-index: -1; }
 .heroTitle { max-width: 16ch; font-size: clamp(2.5rem, 5.5vw, 5.1rem); line-height: 1.06; font-weight: 600; letter-spacing: -.055em; text-wrap: balance; }
 .scene { min-width: 0; }
-.heroFigure { margin: 0; max-width: 42rem; width: 100%; margin-inline: auto; }
+.heroFigure { position: relative; margin: 0; max-width: 42rem; width: 100%; margin-inline: auto; }
 .heroStage { position: relative; aspect-ratio: 1.5; perspective: 1000px; }
 .technicalGrid { position: absolute; inset: 2%; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse, black 30%, transparent 72%); transform: rotate(-6deg); }
-.heroAssembly { position: absolute; inset: 0; }
+.heroDepth { position: absolute; inset: 4%; transform: rotateX(9deg) rotateY(-12deg) rotateZ(-3deg); transform-style: preserve-3d; }
+.heroFloat, .heroAssembly { position: absolute; inset: 0; }
+.heroBoardDepth { filter: drop-shadow(0 3px 0 color-mix(in srgb, var(--part-outline) 60%, transparent)) drop-shadow(0 14px 12px color-mix(in srgb, var(--part-outline) 22%, transparent)); }
 .circuitStageArt { width: 100%; height: 100%; overflow: visible; }
 .circuitLabel { fill: var(--text-secondary); font: 500 24px var(--font-code); }
-.heroIdentity { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 4.5rem; border-top: 1px solid var(--border-strong); }
-.heroIdentity h2 { font-size: clamp(1.15rem, 2vw, 1.5rem); font-weight: 600; letter-spacing: -.025em; }
-.heroIndex { display: block; margin-bottom: .25rem; font: .62rem var(--font-code); color: var(--text-secondary); letter-spacing: .08em; }
-.heroSupport { flex-shrink: 0; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: .4rem .5rem; font: .62rem var(--font-code); color: var(--text-secondary); }
-.heroExplanation { min-height: 3rem; font-size: .85rem; line-height: 1.65; color: var(--text-secondary); }
-.heroCode { min-height: 6.2rem; padding: .8rem 1rem; border-left: 2px solid var(--primary); background: var(--surface); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
-.heroCode > span { display: block; margin-bottom: .5rem; font: .6rem var(--font-code); color: var(--text-secondary); letter-spacing: .05em; }
-.heroCode code { font: .75rem/1.8 var(--font-code); overflow-wrap: anywhere; }
-.heroControls, .heroSelectors { display: flex; align-items: center; gap: .5rem; }
-.heroControls { justify-content: space-between; padding-top: .75rem; }
-.heroSelectors button, .heroPlay { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; min-width: 44px; padding: .65rem .75rem; border: 1px solid transparent; border-radius: var(--radius-md); font: .75rem var(--font-code); color: var(--text-secondary); transition: color .15s, background-color .15s, border-color .15s; cursor: pointer; }
-.heroSelectors button:hover, .heroPlay:hover { background: var(--surface-muted); color: var(--foreground); }
-.heroSelectors button[aria-pressed='true'] { background: var(--primary-soft); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 30%, transparent); }
-.heroSelectors button:focus-visible, .heroPlay:focus-visible, .heroDescriptions summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+.heroStageLabel { position: absolute; inset: 0 auto auto 4%; display: grid; gap: .25rem; font: .65rem/1.5 var(--font-code); color: var(--foreground); }
+.heroStageLabel > span:last-child { font-size: .55rem; color: var(--text-secondary); }
+.heroControls { position: absolute; inset: auto 0 0 auto; display: flex; align-items: center; gap: .75rem; }
+.heroIndicators { display: flex; align-items: center; gap: .375rem; }
+.heroIndicators > span { width: 4px; height: 4px; border-radius: 50%; background: var(--border-strong); }
+.heroIndicators > span[data-active='true'] { background: var(--primary); }
+.heroPlay { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; border: 1px solid transparent; border-radius: var(--radius-md); color: var(--text-secondary); transition: color var(--motion-ui), background-color var(--motion-ui); cursor: pointer; }
+.heroPlay:hover { background: var(--surface-muted); color: var(--foreground); }
+.heroPlay:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
 .heroPlay:disabled { cursor: default; opacity: .5; }
-.heroSegment { width: .8rem; height: 2px; background: currentColor; }
-.heroIllustrationNote { margin-top: .65rem; color: var(--text-secondary); font: .6rem/1.6 var(--font-code); }
-.heroDescriptions { margin-top: .5rem; font-size: .75rem; line-height: 1.7; color: var(--text-secondary); }
-.heroDescriptions summary { cursor: pointer; width: fit-content; padding-block: .25rem; }
-.heroDescriptions ul { display: grid; gap: .5rem; padding-block: .75rem; }
-@media (max-width: 430px) { .heroSupport { max-width: 7rem; font-size: .6rem; } .heroIdentity { gap: .4rem; } }
+.heroFigure[data-hero-phase] .heroFloat { animation: hero-float 5s ease-in-out infinite; }
+.heroFigure[data-hero-phase='holding'] [data-hero-scene]:not([data-hero-scene='nano']) [data-hero-lens] { animation: hero-output-pulse 1.3s ease-in-out 2; }
+.heroFigure[data-hero-paused='true'] .heroFloat, .heroFigure[data-hero-paused='true'] [data-hero-lens] { animation-play-state: paused; }
+@keyframes hero-float { 0%, 100% { transform: translateY(0) rotate(.25deg); } 50% { transform: translateY(-5px) rotate(-.25deg); } }
+@keyframes hero-output-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
+@media (prefers-reduced-motion: reduce) {
+  .heroFigure[data-hero-phase] .heroFloat, .heroFigure[data-hero-phase='holding'] [data-hero-lens] { animation: none; }
+  .heroPlay { transition: none; }
+}
 @media (max-width: 430px) {
   :global(html:has([data-home-experience]) [data-home-header] [data-motion-group='nav.logo'] > span) { gap: .375rem; }
   :global(html:has([data-home-experience]) [data-home-header] .brand-logo-icon) { height: 22px !important; }

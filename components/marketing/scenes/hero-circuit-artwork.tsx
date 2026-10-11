@@ -17,7 +17,7 @@ export function HeroCircuitArtwork({ type }: { type: HeroBoard }) {
   return <svg viewBox="0 0 720 480" className={styles.circuitStageArt} aria-hidden="true" data-hero-art={type}>
     <ellipse cx="310" cy="412" rx="210" ry="15" fill="var(--part-outline)" opacity=".12" />
     <g data-hero-circuit>
-      <g transform={`translate(${scene.frame.x} ${scene.frame.y})`} data-hero-board={type}>
+      <g className={styles.heroBoardDepth} transform={`translate(${scene.frame.x} ${scene.frame.y})`} data-hero-board={type}>
         <svg width={scene.frame.width} height={scene.frame.height} viewBox={`0 0 ${layout.width} ${layout.height}`}><BoardArtwork type={type} /></svg>
       </g>
       <g fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
