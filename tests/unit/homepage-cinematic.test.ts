@@ -43,5 +43,6 @@ describe("homepage cinematic contract", () => {
     expect(first.rotation).not.toEqual(second.rotation);
     expect(first.camera).not.toEqual(second.camera);
     expect(first.target).not.toEqual(second.target);
+    for (const axis of [0, 1, 2]) expect(first.position[axis]).not.toBe(second.position[axis]);
   });
 });

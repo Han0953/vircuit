@@ -26,8 +26,9 @@ export function sampleCinematic({ progress, mobile }: CinematicFrame) {
   const drift = Math.sin(local * Math.PI * 2);
   const poses = boardPoses[board];
   const position = mix(mix(poses.enter, poses.focus, smooth(enter)), poses.exit, smooth(leave));
-  position[1] += drift * .06;
-  position[2] += drift * .08 * (mobile ? .65 : 1);
+  position[0] += drift * .1;
+  position[1] += drift * .09;
+  position[2] += drift * .14 * (mobile ? .65 : 1);
   const rotation = mix(mix(poses.rotation, [.06, .15, 0], smooth(enter)), [.1, -.2, -.05], smooth(leave));
   rotation[1] += drift * .12;
   rotation[2] += drift * .025;
@@ -35,7 +36,9 @@ export function sampleCinematic({ progress, mobile }: CinematicFrame) {
   position[0] *= amplitude;
   position[1] *= amplitude;
   const presence = smooth(clamp(local / .12)) * (1 - smooth(clamp((local - .9) / .1)));
-  const camera = mix([.3, 7, 5.2], [.05, 6.2, 4.5], travel);
+  // A lower three-quarter view reveals connector openings and PCB edge layers.
+  const camera = mix([.65, 6.7, 5.7], [.18, 5.7, 5.1], travel);
+  if (board === "uno") camera[0] -= .95 * travel;
   camera[0] += drift * .18 * amplitude;
   camera[1] += mobile ? .6 : 0;
   camera[2] += drift * .1 + (mobile ? .6 : 0);

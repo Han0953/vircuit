@@ -38,6 +38,12 @@ for (const width of [390, 1440]) test(`cinematic ownership, board sequencing and
     await expect(page.locator("canvas")).toHaveCount(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     await page.screenshot({ path: `test-results/cinematic-${width}-${board}.png` });
+    await expect.poll(async () => Number(await page.locator('[data-cinematic-slot="boards"] [data-render-frames]').getAttribute("data-draw-calls"))).toBeGreaterThan(0);
+    const hardware = await page.locator('[data-cinematic-slot="boards"] [data-render-frames]').evaluate((el) => ({ calls: Number(el.getAttribute("data-draw-calls")), triangles: Number(el.getAttribute("data-triangles")) }));
+    expect(hardware.calls).toBeLessThanOrEqual(6);
+    expect(hardware.triangles).toBeLessThan(6000);
+    await info.attach(`${board}-hardware-budget`, { body: JSON.stringify(hardware), contentType: "application/json" });
+    await page.locator("[data-board-stage]").screenshot({ path: `test-results/hardware-${width}-${board}-light.png` });
   }
   await boardSeek(page, .5);
   const performanceSample = await page.evaluate(async () => {
@@ -91,6 +97,23 @@ for (const width of [390, 1440]) test(`cinematic ownership, board sequencing and
   await info.attach("homepage-motion-coverage", { body: JSON.stringify(coverage, null, 2), contentType: "application/json" });
   console.log(JSON.stringify({ width, coverage }));
   expect(errors).toEqual([]);
+});
+
+for (const theme of ["dark", "system"] as const) test(`hardware detail and exclusive rendering in ${theme} theme`, async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.addInitScript((value) => localStorage.setItem("vircuit-theme", value), theme);
+  await page.goto("/");
+  for (const [p, board] of [[.15, "uno"], [.5, "nano"], [.84, "esp32"]] as const) {
+    await boardSeek(page, p);
+    const slot = page.locator('[data-cinematic-slot="boards"]');
+    await expect(slot).toHaveAttribute("data-renderer", "webgl", { timeout: 20000 });
+    await expect(slot.locator("[data-board]")).toHaveAttribute("data-board", board);
+    await expect(page.locator("canvas")).toHaveCount(1);
+    await expect(slot.locator("[data-cinematic-fallback]")).toHaveCSS("visibility", "hidden");
+    await page.locator("[data-board-stage]").screenshot({ path: `test-results/hardware-1440-${board}-${theme}.png` });
+  }
+  await expect(page.locator('[data-home-zone="hero"] canvas')).toHaveCount(0);
 });
 
 test("cinematic context loss, runtime reduced motion and route teardown keep SVG", async ({ page }) => {

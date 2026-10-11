@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { BufferGeometry, CatmullRomCurve3, Group, MeshBasicMaterial, PerspectiveCamera, TubeGeometry, Vector3 } from "three";
 import { primaryTypes } from "../component-motion-registry";
 import { sampleStory, type PrimaryType, type StoryChannel } from "../story-config";
-import { createHardwareResources, HardwareModel } from "./hardware-models";
+import { createHardwareResources, hardwareTokens, HardwareModel } from "./hardware-models";
 import { storyWireRoutes } from "./hardware-layout";
 
 function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HTMLElement; ready: () => void; fail: () => void }) {
@@ -23,7 +23,7 @@ function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HT
       const color = (token: string, fallback: string) => css.getPropertyValue(token).trim() || fallback;
       colors = { wire: color("--primary", colors.wire), diagnostic: color("--destructive", colors.diagnostic), on: color("--part-led-on", colors.on), off: color("--part-led-off", colors.off) };
       for (const [name, material] of Object.entries(resources.materials)) {
-        const token = ({ pcb: "pcb", chip: "chip", metal: "metal", gold: "gold", breadboard: "breadboard", resistor: "resistor", led: "led-on" } as const)[name as keyof typeof resources.materials];
+        const token = hardwareTokens[name as keyof typeof resources.materials];
         material.color.set(color(`--part-${token}`, `#${material.color.getHexString()}`));
       }
       resources.materials.led.emissive.set(colors.on);
@@ -41,7 +41,7 @@ function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HT
       resources.materials.led.color.set(pose.led > .1 ? colors.on : colors.off);
       wires.forEach((geometry) => geometry.setDrawRange(0, Math.floor((geometry.index?.count ?? 0) * pose.wire / 3) * 3));
       wireMaterial.color.set(pose.diagnostic ? colors.diagnostic : colors.wire);
-      if (camera instanceof PerspectiveCamera) setFieldOfView(camera, size.width < 600 ? 31 : 35);
+      if (camera instanceof PerspectiveCamera) setFieldOfView(camera, size.width < 600 ? 31 : 38);
       camera.position.set(...pose.camera); camera.lookAt(...pose.target); camera.updateProjectionMatrix();
       host.setAttribute("data-world-progress", pose.p.toFixed(3)); host.setAttribute("data-camera", pose.camera.join(","));
       if (!state.requested) state.requested = performance.now();
@@ -55,7 +55,7 @@ function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HT
     const visibility = () => apply();
     document.addEventListener("visibilitychange", visibility);
     const off = channel.subscribe(() => apply()); palette(); apply(true);
-    return () => { active = false; cancelAnimationFrame(state.readyFrame); off(); observer.disconnect(); theme.disconnect(); document.removeEventListener("visibilitychange", visibility); gl.domElement.removeEventListener("webglcontextlost", lost); };
+    return () => { active = false; cancelAnimationFrame(state.readyFrame); state.readyFrame = 0; off(); observer.disconnect(); theme.disconnect(); document.removeEventListener("visibilitychange", visibility); gl.domElement.removeEventListener("webglcontextlost", lost); };
   }, [camera, channel, fail, gl, host, invalidate, resources, size.width, wireMaterial, wires]);
   useEffect(() => () => { resources.dispose(); wireMaterial.dispose(); wires.forEach((wire: BufferGeometry) => wire.dispose()); }, [resources, wireMaterial, wires]);
   useFrame(() => {
@@ -67,12 +67,18 @@ function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HT
       else { fail(); return; }
     }
     state.frames++; host.setAttribute("data-render-frames", String(state.frames));
-    host.setAttribute("data-draw-calls", String(gl.info.render.calls)); host.setAttribute("data-triangles", String(gl.info.render.triangles));
-    // A cached route can resume this world after the presentation channel was reset.
-    if (!channel.read().webgl) { cancelAnimationFrame(state.readyFrame); state.readyFrame = requestAnimationFrame(ready); }
+    // Counters belong to the completed render, not the preceding idle frame.
+    if (!state.readyFrame) state.readyFrame = requestAnimationFrame(() => {
+      state.readyFrame = 0;
+      host.setAttribute("data-draw-calls", String(gl.info.render.calls)); host.setAttribute("data-triangles", String(gl.info.render.triangles));
+      // A cached route can resume after the presentation channel was reset.
+      if (!channel.read().webgl) ready();
+    });
   });
   return <>
-    <hemisphereLight args={["#ffffff", "#8090a0", 2]} /><directionalLight position={[-3, 8, 5]} intensity={2.5} />
+    <hemisphereLight args={["#ffffff", "#8090a0", 1.55]} />
+    <directionalLight position={[-4, 7, 3]} intensity={2.8} />
+    <directionalLight position={[4, 3, -5]} intensity={.8} />
     {primaryTypes.map((type) => <HardwareModel key={type} type={type} resources={resources} onGroup={(group) => { if (group) groups.current[type] = group; }} />)}
     {wires.map((geometry, i) => <mesh key={i} geometry={geometry} material={wireMaterial} dispose={null} />)}
   </>;

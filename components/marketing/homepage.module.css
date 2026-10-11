@@ -78,7 +78,10 @@
 .technicalGrid { position: absolute; inset: 2%; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse, black 30%, transparent 72%); transform: rotate(-6deg); }
 .heroDepth { position: absolute; inset: 4%; transform: rotateX(9deg) rotateY(-12deg) rotateZ(-3deg); transform-style: preserve-3d; }
 .heroFloat, .heroAssembly { position: absolute; inset: 0; }
-.heroBoardDepth { filter: drop-shadow(0 3px 0 color-mix(in srgb, var(--part-outline) 60%, transparent)) drop-shadow(0 14px 12px color-mix(in srgb, var(--part-outline) 22%, transparent)); }
+.heroFloat { perspective: 900px; transform-style: preserve-3d; }
+.heroAssembly { transform-style: preserve-3d; }
+.heroBoardDepth { filter: drop-shadow(0 3px 0 color-mix(in srgb, var(--part-outline) 60%, transparent)) drop-shadow(0 14px 12px color-mix(in srgb, var(--part-outline) 22%, transparent)); transition: filter var(--motion-ui); }
+.heroFigure[data-hero-hovered='true'] .heroBoardDepth { filter: drop-shadow(0 4px 0 color-mix(in srgb, var(--part-outline) 60%, transparent)) drop-shadow(0 20px 16px color-mix(in srgb, var(--part-outline) 26%, transparent)); }
 .circuitStageArt { width: 100%; height: 100%; overflow: visible; }
 .circuitLabel { fill: var(--text-secondary); font: 500 24px var(--font-code); }
 .heroStageLabel { position: absolute; inset: 0 auto auto 4%; display: grid; gap: .25rem; font: .65rem/1.5 var(--font-code); color: var(--foreground); }
@@ -98,7 +101,7 @@
 @keyframes hero-output-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
 @media (prefers-reduced-motion: reduce) {
   .heroFigure[data-hero-phase] .heroFloat, .heroFigure[data-hero-phase='holding'] [data-hero-lens] { animation: none; }
-  .heroPlay { transition: none; }
+  .heroPlay, .heroBoardDepth { transition: none; }
 }
 @media (max-width: 430px) {
   :global(html:has([data-home-experience]) [data-home-header] [data-motion-group='nav.logo'] > span) { gap: .375rem; }

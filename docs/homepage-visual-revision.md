@@ -193,3 +193,84 @@ Synthetic loading budgets also pass (4× CPU, 1.6 Mbps, 40ms latency): LCP
 964/1036ms at 390/1440px, CLS 0, maximum observed Event Timing 80/144ms,
 66,043 gzip bytes for the initial motion chunks. These are local lab samples,
 not field INP or physical phone GPU measurements.
+
+### Pointer hover refinement — 2026-10-12
+
+All three hero boards now share a pointer pose: bounded X/Y tilt, slight Z
+rotation, 10px lift, 1.015 scale and a deeper layered shadow. Perspective is
+preserved through the separate float and pointer wrappers, keeping the entire
+board/wires/output plane together. Entry/exit animation still owns the SVG group.
+The last pointer position is reapplied on board activation, so Nano and ESP32
+respond even when the pointer has not left or moved. Leaving returns to neutral
+over 0.55s. Scroll invalidates cached bounds; resize, offscreen, hidden and pointer
+mode changes reset the hover state. Touch does not activate hover, and reduced
+motion clears it immediately.
+
+Validation: `pnpm lint`, `pnpm typecheck`, `pnpm test` (210 passed, 6 opt-in live AI checks
+skipped) and `pnpm build` pass. The three browser suites initially produced
+29/30 passes: a touch assertion expected the CSS literal `none` while the
+neutral transform was an identity matrix. After checking actual matrix identity,
+the complete hero suite passes 11/11; the other 19 homepage/theme/performance
+regression checks passed on the same production build. Evidence: ignored
+`playwright-report/hero-hover-final.json` and `hero-hover-recheck.json`.
+All three hover captures were visually reviewed. Physical-device/Safari QA
+and the full application E2E suite were not run for this change.
+
+### WebGL hardware polish — 2026-10-12
+
+Only learning story and board spotlight hardware are refined. The SVG hero,
+its existing pointer depth and all application domains retain their behavior.
+
+- Uno: stepped PCB outline with actual mounting cutouts, a laminate edge,
+  open USB shell/tongue/contacts, barrel-jack mouth and center contact, open
+  header rims at the canonical story anchors, socketed DIP package and two
+  lead rows, USB controller, capacitors, crystal, regulator and small SMD parts.
+- Nano: 45:18 board proportions, evenly spaced solder pads and through pins,
+  under-board spacers, four-sided QFP leads, Mini-B shell and contacts,
+  crystal, reset switch, auxiliary IC and proportional passives.
+- ESP32: dark DevKit PCB, layered RF daughterboard/shield with lid seam,
+  exposed connected antenna meander, castellated module pads, header rows,
+  Micro-USB shell, two buttons, USB controller and small passives.
+
+Static primitives are baked into one geometry per finish, instead of drawing
+every small lead separately. Geometry and matte materials are shared within
+each world and explicitly disposed on teardown. Existing physical color tokens
+also supply laminate and silkscreen finishes. A softer hemisphere plus key/fill
+directional lights reveal side faces; dark component bases and laminate layers
+give contact depth without shadow maps, postprocessing or external textures.
+
+Spotlight scroll poses now add horizontal drift to vertical/depth travel. A
+lower three-quarter camera and an Uno-specific left view expose the connector
+openings. Desktop story FOV is widened from 35 to 38 degrees to keep its jack
+inside the visual. Mobile story framing stays at 31 degrees. All movement is
+sampled from absolute scroll progress, remains reversible, and requests frames
+only when needed. Exclusive Canvas ownership and atomic SVG fallback stay intact.
+
+Pure tests cover finite bounded geometry, finish batching, through-board
+mounting holes, open canonical sockets and projection of actual connector/pin
+vertices into desktop/mobile spotlight frames. Browser tests check per-board
+budgets, three themes, renderer exclusivity and capture hardware close-ups.
+Draw-call/triangle telemetry is read after the completed render, including the
+first frame of an idle demand-rendered world. Its pending callback is canceled
+and reset when viewport effects or world ownership are cleaned up.
+
+Validation: lint, typecheck, production build and the full Vitest suite pass
+(216 tests, 6 opt-in live AI checks skipped). The first homepage checkpoint
+passed 33/33 browser checks, including hero and loading/theme regressions.
+The stronger first-frame counter assertion then exposed stale pre-render stats
+(12/14 passed); after fixing telemetry, the final production build passes 14/14
+3D/cinematic checks. Ignored evidence: `playwright-report/hardware-polish.json`,
+`hardware-polish-final.json` and `hardware-polish-verified.json`.
+
+Final local Edge samples at 390/1440px: story 32 draw calls / 7,360 triangles;
+Nano spotlight 6 calls / 3,012 triangles; warm scroll rAF p95 16.8ms (spotlight
+16.7/16.8ms); deferred world 250,808 gzip bytes, below the unchanged 256,000-byte
+limit. Every board uses at most six draw calls and fewer than 6,000 triangles.
+Earlier loading samples on this revision: LCP 984/964ms, CLS 0, Event Timing
+maxima 144/160ms, initial motion 66,074 gzip bytes. These are synthetic lab
+samples, not field INP or physical-phone GPU timing. Desktop/mobile hardware
+close-ups, story framing and dark theme renders were visually reviewed.
+
+No dependency, simulator/dashboard/auth, commit or deployment changes.
+Models remain lightweight marketing approximations, not CAD/manufacturing
+assets. Physical-device/Safari QA and full application E2E were not run.

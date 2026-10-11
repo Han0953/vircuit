@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { Group, PerspectiveCamera } from "three";
 import { featuredBoards, sampleCinematic, type CinematicChannel, type FeaturedBoard } from "../homepage-cinematic-config";
-import { createHardwareResources, HardwareModel } from "./hardware-models";
+import { createHardwareResources, hardwareTokens, HardwareModel } from "./hardware-models";
 import { CompactBoard } from "./board-models";
 
 export type CinematicWorldProps = { channel: CinematicChannel; host: HTMLElement; ready: () => void; fail: () => void };
@@ -35,9 +35,8 @@ function Boards({ channel, host, ready, fail }: CinematicWorldProps) {
     };
     const palette = () => {
       const css = getComputedStyle(host);
-      const names = { pcb: "pcb", chip: "chip", metal: "metal", gold: "gold", breadboard: "breadboard", resistor: "resistor", led: "led-on" } as const;
-      for (const name of Object.keys(names) as (keyof typeof names)[]) {
-        const color = css.getPropertyValue(`--part-${names[name]}`).trim();
+      for (const name of Object.keys(hardwareTokens) as (keyof typeof hardwareTokens)[]) {
+        const color = css.getPropertyValue(`--part-${hardwareTokens[name]}`).trim();
         if (color) resources.materials[name].color.set(color);
       }
       apply();
@@ -50,7 +49,7 @@ function Boards({ channel, host, ready, fail }: CinematicWorldProps) {
     const off = channel.subscribe(apply);
     palette();
     const renderState = state.current;
-    return () => { cancelAnimationFrame(renderState.readyFrame); off(); theme.disconnect(); gl.domElement.removeEventListener("webglcontextlost", lost); document.removeEventListener("visibilitychange", apply); };
+    return () => { cancelAnimationFrame(renderState.readyFrame); renderState.readyFrame = 0; off(); theme.disconnect(); gl.domElement.removeEventListener("webglcontextlost", lost); document.removeEventListener("visibilitychange", apply); };
   }, [camera, channel, fail, gl, host, invalidate, resources, size]);
   useEffect(() => () => resources.dispose(), [resources]);
   useFrame(() => {
@@ -63,12 +62,19 @@ function Boards({ channel, host, ready, fail }: CinematicWorldProps) {
       s.low = true; s.slow = 0; setDpr(.75); host.setAttribute("data-quality", "low");
     }
     host.setAttribute("data-render-frames", String(++s.frames));
-    host.setAttribute("data-draw-calls", String(gl.info.render.calls));
-    host.setAttribute("data-triangles", String(gl.info.render.triangles));
-    if (!s.announced) { s.announced = true; cancelAnimationFrame(s.readyFrame); s.readyFrame = requestAnimationFrame(ready); }
+    // useFrame runs before gl.render. Read counters after the completed frame,
+    // including the first demand-rendered frame when the scene then stays idle.
+    if (!s.readyFrame) s.readyFrame = requestAnimationFrame(() => {
+      s.readyFrame = 0;
+      host.setAttribute("data-draw-calls", String(gl.info.render.calls));
+      host.setAttribute("data-triangles", String(gl.info.render.triangles));
+      if (!s.announced) { s.announced = true; ready(); }
+    });
   });
   return <>
-    <hemisphereLight args={["#ffffff", "#8090a0", 2]} /><directionalLight position={[-3, 8, 5]} intensity={2.5} />
+    <hemisphereLight args={["#ffffff", "#8090a0", 1.55]} />
+    <directionalLight position={[-4, 7, 3]} intensity={2.8} />
+    <directionalLight position={[4, 3, -5]} intensity={.8} />
     <HardwareModel type="uno" resources={resources} onGroup={(group) => { if (group) groups.current.uno = group; }} />
     {(["nano", "esp32"] as const).map((type) => <group key={type} ref={(group) => { if (group) groups.current[type] = group; }} dispose={null}><CompactBoard type={type} resources={resources} /></group>)}
   </>;

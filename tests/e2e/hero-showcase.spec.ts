@@ -125,5 +125,45 @@ test("touch hero cycles through all boards without overflow or hover controls", 
   }
   await hero.getByRole("button", { name: "Jeda pergantian board" }).tap();
   await expect(hero).toHaveAttribute("data-hero-paused", "true");
+  await expect(hero).not.toHaveAttribute("data-hero-hovered", "true");
+  await expect.poll(() => hero.locator("[data-hero-scene]:visible [data-hero-tilt]").evaluate((el) => new DOMMatrixReadOnly(getComputedStyle(el).transform).isIdentity)).toBe(true);
   await context.close();
+});
+
+test("Uno, Nano and ESP32 follow the pointer in 3D across automatic transitions", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const hero = page.locator("[data-hero-2d]");
+  const tilt = hero.locator("[data-hero-scene]:visible [data-hero-tilt]");
+  const matrix = () => tilt.evaluate((el) => {
+    const value = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+    return { x: value.m13, y: value.m23, depth: value.m43, offsetX: value.m41 };
+  });
+  for (const board of ["uno", "nano", "esp32"]) {
+    await expect(hero).toHaveAttribute("data-hero-active", board, { timeout: 6500 });
+    await expect(hero).toHaveAttribute("data-hero-phase", "holding");
+    // No new pointer event is needed to retain the pose on the next board.
+    if (board !== "uno") {
+      await expect(hero).toHaveAttribute("data-hero-hovered", "true");
+      expect(Math.abs((await matrix()).x)).toBeGreaterThan(.04);
+    }
+    const bounds = (await hero.boundingBox())!;
+    await page.mouse.move(bounds.x + bounds.width * .15, bounds.y + bounds.height * .2);
+    await expect(hero).toHaveAttribute("data-hero-hovered", "true");
+    await expect.poll(async () => (await matrix()).offsetX).toBeLessThan(-4);
+    const left = await matrix();
+    expect(Math.abs(left.x)).toBeGreaterThan(.04);
+    expect(left.depth).toBeGreaterThan(5);
+    await page.mouse.move(bounds.x + bounds.width * .85, bounds.y + bounds.height * .8);
+    await expect.poll(async () => (await matrix()).offsetX).toBeGreaterThan(4);
+    const right = await matrix();
+    expect(left.x * right.x).toBeLessThan(0);
+    expect(left.y * right.y).toBeLessThan(0);
+    await hero.screenshot({ path: `test-results/hero-hover-${board}.png` });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  }
+  await page.mouse.move(0, 0);
+  await expect(hero).not.toHaveAttribute("data-hero-hovered", "true");
+  await expect.poll(async () => (await matrix()).offsetX).toBe(0);
+  expect((await matrix()).depth).toBe(0);
 });

@@ -1,22 +1,26 @@
 import { useLayoutEffect, useRef } from "react";
-import { BoxGeometry, CylinderGeometry, ExtrudeGeometry, Group, InstancedMesh, Matrix4, MeshStandardMaterial, Shape, SphereGeometry } from "three";
+import { BoxGeometry, CylinderGeometry, Group, InstancedMesh, Matrix4, MeshStandardMaterial, SphereGeometry } from "three";
 import type { PrimaryType, Vector } from "../story-config";
-import { unoHeaderPads } from "./hardware-layout";
+import type { FeaturedBoard } from "../homepage-cinematic-config";
+import { createBoardGeometry } from "./board-geometry";
+
+export const hardwareTokens = { pcb: "pcb", substrate: "pcb-dark", chip: "chip", metal: "metal", gold: "gold", silkscreen: "silkscreen", breadboard: "breadboard", resistor: "resistor", led: "led-on" } as const;
 
 export function createHardwareResources() {
-  const shape = new Shape(); shape.moveTo(-1.69, -1.333); shape.lineTo(1.365, -1.333); shape.lineTo(1.69, -1.118); shape.lineTo(1.69, 1.075); shape.lineTo(1.365, 1.333); shape.lineTo(-1.69, 1.333); shape.closePath();
-  const board = new ExtrudeGeometry(shape, { depth: .08, bevelEnabled: false }); board.rotateX(-Math.PI / 2);
   const materials = {
-    pcb: new MeshStandardMaterial({ color: "#1b7598", roughness: .7 }),
+    pcb: new MeshStandardMaterial({ color: "#1b7598", roughness: .78 }),
+    substrate: new MeshStandardMaterial({ color: "#244343", roughness: .88 }),
     chip: new MeshStandardMaterial({ color: "#25282b", roughness: .85 }),
-    metal: new MeshStandardMaterial({ color: "#bdc6c9", metalness: .65, roughness: .32 }),
-    gold: new MeshStandardMaterial({ color: "#d8b971", metalness: .5, roughness: .4 }),
+    metal: new MeshStandardMaterial({ color: "#bdc6c9", metalness: .58, roughness: .5 }),
+    gold: new MeshStandardMaterial({ color: "#d8b971", metalness: .48, roughness: .53 }),
+    silkscreen: new MeshStandardMaterial({ color: "#f1f4ed", roughness: .9 }),
     breadboard: new MeshStandardMaterial({ color: "#e6e5df", roughness: .8 }),
     resistor: new MeshStandardMaterial({ color: "#dbc99d", roughness: .7 }),
     led: new MeshStandardMaterial({ color: "#ff5a51", emissive: "#ff5a51", emissiveIntensity: 0, roughness: .35 }),
   };
-  const geometry = { box: new BoxGeometry(), cylinder: new CylinderGeometry(1, 1, 1, 12), dome: new SphereGeometry(1, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), board };
-  return { materials, geometry, dispose() { Object.values(materials).forEach((m) => m.dispose()); Object.values(geometry).forEach((g) => g.dispose()); } };
+  const geometry = { box: new BoxGeometry(), cylinder: new CylinderGeometry(1, 1, 1, 12), dome: new SphereGeometry(1, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2) };
+  const boards = { uno: createBoardGeometry("uno"), nano: createBoardGeometry("nano"), esp32: createBoardGeometry("esp32") };
+  return { materials, geometry, boards, dispose() { Object.values(materials).forEach((m) => m.dispose()); Object.values(geometry).forEach((g) => g.dispose()); Object.values(boards).flat().forEach(({ geometry: g }) => g.dispose()); } };
 }
 export type HardwareResources = ReturnType<typeof createHardwareResources>;
 type MaterialName = keyof HardwareResources["materials"];
@@ -32,27 +36,10 @@ export function Pieces({ resources: r, positions, size, sizes, material = "metal
 export function Part({ r, position = [0, 0, 0], scale, material, cylinder = false, rotation = [0, 0, 0] }: { r: HardwareResources; position?: Vector; scale: Vector; material: MaterialName; cylinder?: boolean; rotation?: Vector }) {
   return <mesh geometry={cylinder ? r.geometry.cylinder : r.geometry.box} material={r.materials[material]} position={position} scale={scale} rotation={rotation} dispose={null} />;
 }
-function Uno({ r }: { r: HardwareResources }) {
-  return <>
-    <mesh geometry={r.geometry.board} material={r.materials.pcb} dispose={null} />
-    <Part r={r} position={[.45, .2, .3]} scale={[.72, .25, 1.16]} material="chip" />
-    <Part r={r} position={[-1.56, .25, -.6]} scale={[.78, .4, .56]} material="metal" />
-    <Part r={r} position={[-1.955, .25, -.6]} scale={[.018, .22, .38]} material="chip" />
-    <Part r={r} position={[-1.68, .28, .73]} scale={[.23, .66, .23]} rotation={[0, 0, Math.PI / 2]} material="chip" cylinder />
-    <Part r={r} position={[-2.015, .28, .73]} scale={[.16, .014, .16]} rotation={[0, 0, Math.PI / 2]} material="metal" cylinder />
-    <Part r={r} position={[-.46, .16, -.47]} scale={[.58, .2, .39]} material="chip" />
-    <Part r={r} position={[-.49, .115, .24]} scale={[.46, .07, .14]} material="metal" />
-    <Part r={r} position={[-1.04, .12, -.9]} scale={[.31, .12, .17]} material="metal" />
-    <Part r={r} position={[-1.04, .19, -.9]} scale={[.16, .02, .09]} material="chip" />
-    <Pieces resources={r} positions={[-.12, 1.03].flatMap((x) => Array.from({ length: 14 }, (_, i): Vector => [x, .14, -.224 + i * .077]))} size={[.16, .04, .03]} />
-    <Pieces resources={r} positions={[-.98, -.65, .26, .59, .91].map((x): Vector => [x, .09, -.99])} size={[.16, .025, .025]} material="breadboard" />
-    <Pieces resources={r} positions={[-1.04, -.39, .39, 1.04].flatMap((x) => [-.82, .82].map((z): Vector => [x, .085, z]))} size={[.018, .008, .33]} material="gold" />
-    <Part r={r} position={[-.17, .11, .79]} scale={[.1, .05, .09]} material="led" />
-    <Pieces resources={r} positions={[[.86, .16, -1.206], [-.17, .16, -1.206], [.96, .16, 1.206], [-.19, .16, 1.206]]} size={[1, .2, .19]} sizes={[1.1, .85, .8, .44].map((width): Vector => [width, .2, .19])} material="chip" />
-    <Pieces resources={r} positions={unoHeaderPads} size={[.07, .025, .07]} material="gold" />
-    <Pieces resources={r} positions={[[-.78, .25, .65], [-.78, .25, .9]]} size={[.15, .3, .15]} material="metal" />
-  </>;
+export function BoardModel({ type, resources: r }: { type: FeaturedBoard; resources: HardwareResources }) {
+  return <group name={`board-${type}`} dispose={null}>{r.boards[type].map(({ finish, geometry }) => <mesh key={finish} name={`${type}-${finish}`} geometry={geometry} material={r.materials[finish]} dispose={null} />)}</group>;
 }
+function Uno({ r }: { r: HardwareResources }) { return <BoardModel type="uno" resources={r} />; }
 function Breadboard({ r }: { r: HardwareResources }) {
   const holes = Array.from({ length: 17 }, (_, row) => Array.from({ length: 10 }, (_, col): Vector => [-1 + col * .19 + (col >= 5 ? .2 : 0), .19, -1.3 + row * .16])).flat();
   return <>

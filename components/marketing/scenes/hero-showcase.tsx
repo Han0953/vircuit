@@ -20,6 +20,41 @@ export function HeroShowcase({ scenes }: { scenes: ReactNode[] }) {
     let current = panels[0];
     let tilt: gsap.core.Tween | undefined;
     let box: DOMRect | undefined;
+    let pointer: { x: number; y: number } | undefined;
+    const applyTilt = () => {
+      if (!pointer || reduce.matches || !fine.matches) return;
+      box ??= element.getBoundingClientRect();
+      if (!box.width || !box.height) return;
+      const x = gsap.utils.clamp(-.5, .5, (pointer.x - box.left) / box.width - .5);
+      const y = gsap.utils.clamp(-.5, .5, (pointer.y - box.top) / box.height - .5);
+      const amplitude = innerWidth < 1024 ? .65 : 1;
+      element.dataset.heroHovered = "true";
+      tilt?.kill();
+      tilt = gsap.to(current.querySelector("[data-hero-tilt]"), {
+        x: x * 16 * amplitude, y: y * 12 * amplitude, z: 10,
+        rotationY: x * 18 * amplitude, rotationX: -y * 14 * amplitude,
+        rotationZ: x * 2 * amplitude, scale: 1.015, duration: .45,
+        ease: "power2.out", overwrite: true,
+      });
+    };
+    const resetTilt = () => {
+      tilt?.kill();
+      if (reduce.matches || document.hidden) gsap.set(current.querySelector("[data-hero-tilt]"), { clearProps: "transform" });
+      else tilt = gsap.to(current.querySelector("[data-hero-tilt]"), {
+        x: 0, y: 0, z: 0, rotationX: 0, rotationY: 0, rotationZ: 0, scale: 1,
+        duration: .55, ease: "power2.out", overwrite: true,
+      });
+    };
+    const leave = () => {
+      pointer = undefined; box = undefined;
+      delete element.dataset.heroHovered;
+      resetTilt();
+    };
+    const move = (event: PointerEvent) => {
+      if (reduce.matches || !fine.matches || event.pointerType === "touch") return;
+      pointer = { x: event.clientX, y: event.clientY };
+      applyTilt();
+    };
     const settle = () => {
       gsap.set(current.querySelectorAll("[data-hero-circuit],[data-hero-info],[data-hero-resistor],[data-hero-led],[data-hero-pin]"), { clearProps: "transform,opacity,visibility" });
       gsap.set(current.querySelectorAll("[data-hero-wire]"), { strokeDashoffset: 0, opacity: 1 });
@@ -27,11 +62,13 @@ export function HeroShowcase({ scenes }: { scenes: ReactNode[] }) {
     };
     const controller = createHeroPlayback({
       activate(index) {
-        tilt?.kill(); box = undefined;
+        tilt?.kill();
         panels.forEach((panel, i) => { panel.hidden = i !== index; });
         current = panels[index];
         gsap.set(element.querySelectorAll("[data-hero-tilt]"), { clearProps: "transform" });
         settle();
+        // Keep following a stationary pointer when autoplay changes the board.
+        applyTilt();
       },
       enter(index, done, initial) {
         const scene = heroScenes[heroBoards[index]];
@@ -71,42 +108,40 @@ export function HeroShowcase({ scenes }: { scenes: ReactNode[] }) {
     playback.current = controller;
     const reduced = () => {
       if (reduce.matches) {
-        tilt?.kill(); box = undefined;
+        leave();
         gsap.set(element.querySelectorAll("[data-hero-tilt]"), { clearProps: "transform" });
       }
       controller.reduce(reduce.matches);
     };
-    const visibility = () => controller.block("hidden", document.hidden);
-    const observer = new IntersectionObserver(([entry]) => controller.block("offscreen", !entry.isIntersecting || entry.intersectionRatio < .25), { threshold: [0, .25] });
+    const visibility = () => { controller.block("hidden", document.hidden); if (document.hidden) leave(); };
+    const observer = new IntersectionObserver(([entry]) => {
+      const offscreen = !entry.isIntersecting || entry.intersectionRatio < .25;
+      controller.block("offscreen", offscreen);
+      if (offscreen) leave();
+    }, { threshold: [0, .25] });
     observer.observe(element);
-    const hover = () => { if (fine.matches) box = element.getBoundingClientRect(); };
-    const resetTilt = () => {
-      tilt?.kill();
-      if (reduce.matches) gsap.set(current.querySelector("[data-hero-tilt]"), { clearProps: "transform" });
-      else tilt = gsap.to(current.querySelector("[data-hero-tilt]"), { x: 0, y: 0, rotationX: 0, rotationY: 0, duration: .4 });
-    };
-    const leave = () => resetTilt();
-    const move = (event: PointerEvent) => {
-      if (reduce.matches || !fine.matches || event.pointerType === "touch" || !box) return;
-      const x = (event.clientX - box.left) / box.width - .5, y = (event.clientY - box.top) / box.height - .5;
-      tilt?.kill();
-      tilt = gsap.to(current.querySelector("[data-hero-tilt]"), { x: x * 8, y: y * 6, rotationY: x * 4, rotationX: -y * 4, duration: .5, overwrite: true });
-    };
-    const resize = () => { box = undefined; resetTilt(); };
+    const scroll = () => { box = undefined; };
+    const pointerMode = () => { if (!fine.matches) leave(); };
     reduce.addEventListener("change", reduced);
+    fine.addEventListener("change", pointerMode);
     document.addEventListener("visibilitychange", visibility);
-    element.addEventListener("pointerenter", hover);
+    element.addEventListener("pointerenter", move);
     element.addEventListener("pointerleave", leave);
+    element.addEventListener("pointercancel", leave);
     element.addEventListener("pointermove", move);
-    window.addEventListener("resize", resize, { passive: true });
+    window.addEventListener("resize", leave, { passive: true });
+    window.addEventListener("scroll", scroll, { passive: true });
     visibility(); reduced(); controller.start();
     return () => {
       controller.dispose(); playback.current = null; observer.disconnect(); tilt?.kill();
       reduce.removeEventListener("change", reduced);
+      fine.removeEventListener("change", pointerMode);
       document.removeEventListener("visibilitychange", visibility);
-      element.removeEventListener("pointerenter", hover); element.removeEventListener("pointerleave", leave);
+      element.removeEventListener("pointerenter", move); element.removeEventListener("pointerleave", leave);
+      element.removeEventListener("pointercancel", leave);
       element.removeEventListener("pointermove", move);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", leave);
+      window.removeEventListener("scroll", scroll);
     };
   }, []);
 
