@@ -9,6 +9,11 @@ export const metadata: Metadata = {
     template: "%s · Vircuit",
   },
   description: "Virtual Circuit Learning & Simulation Platform.",
+  icons: {
+    icon: "/Logo.webp",
+    shortcut: "/Logo.webp",
+    apple: "/Logo.webp",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

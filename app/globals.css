@@ -24,6 +24,23 @@
 .workspace-divider:hover, .workspace-divider:focus-visible { background: var(--primary); outline: 2px solid var(--ring); }
 .workspace-divider[data-separator='active'] { background: var(--primary); }
 
+/* Brand logo theme adaptation: In light theme, adapt white wordmark to dark with preserved blue accents, and subtle shadow for icon */
+.brand-logo-icon {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
+}
+:is(.dark *) .brand-logo-icon,
+.dark .brand-logo-icon {
+  filter: none;
+}
+
+.brand-logo-text {
+  filter: invert(1) hue-rotate(180deg);
+}
+:is(.dark *) .brand-logo-text,
+.dark .brand-logo-text {
+  filter: none;
+}
+
 .cirra-chat { container-type: inline-size; }
 .cirra-composer textarea { field-sizing: content; max-height: min(8rem, calc(var(--cirra-visible-height, 100dvh) * 0.24)); }
 .cirra-typing span { width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: cirra-dot 1.2s ease-in-out infinite; }

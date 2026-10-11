@@ -1,6 +1,6 @@
 import { PublicMotion } from "./scenes/public-motion-page";
 import Link from "next/link";
-import { CircuitBoard } from "lucide-react";
+import { BrandLogo } from "@/components/shared/brand-logo";
 import { Button } from "@/components/ui/button";
 import { marketingRoutes } from "./marketing-routes";
 
@@ -23,10 +23,10 @@ export function PublicFooter() {
           <div className="max-w-sm">
             <Link prefetch={false} data-motion-group="footer.logo" data-motion="identity"
               href={marketingRoutes.home}
-              className="inline-flex min-h-11 items-center gap-2 rounded-sm text-xl font-bold outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="Vircuit — Beranda"
+              className="inline-flex min-h-11 items-center rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <CircuitBoard className="size-7 text-primary" aria-hidden="true" />
-              Vircuit
+              <BrandLogo size="default" />
             </Link>
             <p data-motion-group="footer.description" data-motion="text" className="mt-3 text-sm leading-relaxed text-text-secondary">
               Belajar IoT melalui rangkaian, eksperimen, dan pemahaman.

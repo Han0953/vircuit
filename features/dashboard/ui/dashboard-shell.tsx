@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { BookOpen, CircuitBoard, FolderOpen, LayoutDashboard, Menu, ListChecks, ChartNoAxesColumn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { BrandLogo } from "@/components/shared/brand-logo";
 import { cloudRequest } from "@/features/projects/cloud/request";
 import { clearPrivateState } from "@/features/projects/local/controller";
 import { UserMenu, type DashboardIdentity } from "./user-menu";
@@ -36,10 +37,10 @@ export function DashboardShell({ user, children }: { user: DashboardIdentity; ch
   const nav = <nav aria-label="Navigasi dashboard" className="space-y-1">{links.map(({ href, label, icon: Icon }) => <Link key={href} href={href} onClick={() => setMobileOpen(false)} aria-current={(pathname === href || (href === "/dashboard/learn" && pathname.startsWith(href + "/"))) ? "page" : undefined} className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring ${(pathname === href || (href === "/dashboard/learn" && pathname.startsWith(href + "/"))) ? "bg-primary-soft text-primary" : "text-text-secondary hover:bg-surface-muted hover:text-foreground"}`}><Icon aria-hidden className="size-5" />{label}</Link>)}</nav>;
   return <div className="min-h-dvh bg-background">
     <a href="#dashboard-main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-surface focus:p-3">Lewati navigasi</a>
-    <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r bg-surface p-5 lg:flex"><Link href="/dashboard" className="mb-10 flex min-h-11 items-center gap-2 text-lg font-semibold focus-visible:ring-2 focus-visible:ring-ring"><CircuitBoard aria-hidden className="text-primary" />Vircuit</Link>{nav}<p className="mt-auto border-t pt-4 text-xs leading-relaxed text-text-secondary">Ruang untuk membangun dan mengembangkan proyek IoT.</p></aside>
+    <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r bg-surface p-5 lg:flex"><Link href="/dashboard" className="mb-10 flex min-h-11 items-center focus-visible:ring-2 focus-visible:ring-ring"><BrandLogo size="sm" /></Link>{nav}<p className="mt-auto border-t pt-4 text-xs leading-relaxed text-text-secondary">Ruang untuk membangun dan mengembangkan proyek IoT.</p></aside>
     <div className="min-w-0 lg:pl-60">
       <header className="flex min-h-16 items-center justify-between gap-3 border-b bg-surface px-4 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-2"><Sheet open={mobileOpen} onOpenChange={setMobileOpen}><SheetTrigger asChild><Button variant="ghost" size="icon" className="lg:hidden" aria-label="Buka navigasi"><Menu aria-hidden /></Button></SheetTrigger><SheetContent side="left" className="w-72 max-w-[85vw] p-5"><SheetHeader className="px-0"><SheetTitle>Vircuit</SheetTitle><SheetDescription>Ruang proyek</SheetDescription></SheetHeader>{nav}</SheetContent></Sheet><p className="truncate text-sm font-medium">Ruang proyek</p></div>
+        <div className="flex min-w-0 items-center gap-2"><Sheet open={mobileOpen} onOpenChange={setMobileOpen}><SheetTrigger asChild><Button variant="ghost" size="icon" className="lg:hidden" aria-label="Buka navigasi"><Menu aria-hidden /></Button></SheetTrigger><SheetContent side="left" className="w-72 max-w-[85vw] p-5"><SheetHeader className="px-0"><SheetTitle><BrandLogo size="sm" /></SheetTitle><SheetDescription>Ruang proyek</SheetDescription></SheetHeader>{nav}</SheetContent></Sheet><p className="truncate text-sm font-medium">Ruang proyek</p></div>
         <UserMenu user={user} />
       </header>
       <main id="dashboard-main" tabIndex={-1} className="relative mx-auto max-w-7xl space-y-8 px-4 py-8 outline-none sm:px-6 lg:px-8 lg:py-10">

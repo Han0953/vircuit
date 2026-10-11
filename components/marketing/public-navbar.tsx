@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, CircuitBoard, Menu } from "lucide-react";
+import { ArrowUpRight, Menu } from "lucide-react";
+import { BrandLogo } from "@/components/shared/brand-logo";
 import { MarketingThemeToggle } from "./marketing-theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,8 +65,7 @@ export function PublicNavbar() {
           aria-label="Vircuit — Beranda"
           data-motion-group="nav.logo" data-motion="control" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-sm text-xl font-bold tracking-tight outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <CircuitBoard aria-hidden="true" className="size-7 text-primary" strokeWidth={1.75} />
-          Vircuit<span className="text-primary" aria-hidden="true">.</span>
+          <BrandLogo size="default" />
         </Link>
 
         <nav aria-label="Navigasi utama" className={cn("hidden items-center gap-1 lg:flex", styles.desktopNav)}>
@@ -113,7 +113,7 @@ export function PublicNavbar() {
             </SheetTrigger>
             <SheetContent data-motion-group="nav.sheet" data-motion="control" className={styles.mobileMenu}>
               <SheetHeader className="border-b p-6 pr-16 text-left">
-                <SheetTitle className="flex items-center gap-2 text-xl"><CircuitBoard aria-hidden="true" className="size-6 text-primary" />Vircuit</SheetTitle>
+                <SheetTitle className="flex items-center gap-2 text-xl"><BrandLogo size="sm" /></SheetTitle>
                 <SheetDescription>Belajar IoT lewat praktik.</SheetDescription>
               </SheetHeader>
               <nav aria-label="Navigasi mobile" className={styles.mobileLinks}>
