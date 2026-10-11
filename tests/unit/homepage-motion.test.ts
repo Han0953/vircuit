@@ -2,7 +2,18 @@ import { describe, expect, it } from "vitest";
 import { catalog } from "@/features/simulator/catalog/registry";
 import { componentMotion, primaryTypes } from "@/components/marketing/scenes/component-motion-registry";
 import { assembled, createStoryChannel, sampleStory, storySegments } from "@/components/marketing/scenes/story-config";
+import { storyWireRoutes, unoHeaderPads, unoPins } from "@/components/marketing/scenes/three/hardware-layout";
 describe("homepage motion contract", () => {
+  it("attaches story wire endpoints to the same canonical Uno pads used by the model", () => {
+    expect(storyWireRoutes).toHaveLength(8);
+    for (const anchor of Object.values(unoPins)) expect(unoHeaderPads).toContainEqual(anchor);
+    expect(storyWireRoutes[0][0]).toEqual(unoPins.D3.map((value, axis) => value + assembled.uno[axis]));
+    expect(storyWireRoutes[2].at(-1)).toEqual(unoPins.GND.map((value, axis) => value + assembled.uno[axis]));
+    for (const p of [.15, .3, .5, .7, .9]) {
+      const before = sampleStory(p - .00001), after = sampleStory(p + .00001);
+      expect(Math.max(...before.camera.map((value, axis) => Math.abs(value - after.camera[axis])))).toBeLessThan(.001);
+    }
+  });
   it("covers the actual catalog with accessible fallback and valid motion ranges", () => {
     expect(Object.keys(componentMotion).sort()).toEqual(catalog.map((c) => c.key).sort());
     expect(Object.values(componentMotion).filter((c) => c.renderer === "webgl")).toHaveLength(6);

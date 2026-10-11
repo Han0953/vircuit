@@ -110,6 +110,16 @@ export function DashboardShell({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Hide scrollbar on dashboard while preserving smooth scrolling
+  useEffect(() => {
+    document.documentElement.classList.add("no-scrollbar");
+    document.body.classList.add("no-scrollbar");
+    return () => {
+      document.documentElement.classList.remove("no-scrollbar");
+      document.body.classList.remove("no-scrollbar");
+    };
+  }, []);
+
   // Determine current active page label for header breadcrumb
   const currentLink = navLinks.find(
     (item) =>
@@ -244,7 +254,7 @@ export function DashboardShell({
   );
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div data-dashboard-shell className="min-h-dvh bg-background no-scrollbar">
       <a
         href="#dashboard-main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-60 focus:rounded-md focus:bg-primary focus:p-3 focus:text-primary-foreground focus:shadow-lg"
@@ -262,7 +272,7 @@ export function DashboardShell({
           <BrandLogo size="default" />
         </Link>
 
-        <div className="flex-1 overflow-y-auto pr-1">
+        <div className="flex-1 overflow-y-auto pr-1 no-scrollbar">
           {renderNavigation()}
         </div>
 
@@ -311,7 +321,7 @@ export function DashboardShell({
                   </SheetTitle>
                   <SheetDescription>Command Center Edukasi IoT</SheetDescription>
                 </SheetHeader>
-                <div className="mt-4 overflow-y-auto">
+                <div className="mt-4 overflow-y-auto no-scrollbar">
                   {renderNavigation(() => setMobileOpen(false))}
                 </div>
               </SheetContent>

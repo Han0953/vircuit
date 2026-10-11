@@ -5,22 +5,13 @@ import { BufferGeometry, CatmullRomCurve3, Group, MeshBasicMaterial, Perspective
 import { primaryTypes } from "../component-motion-registry";
 import { sampleStory, type PrimaryType, type StoryChannel } from "../story-config";
 import { createHardwareResources, HardwareModel } from "./hardware-models";
+import { storyWireRoutes } from "./hardware-layout";
 
-const routes = [
-  [[-1.15, .28, -1.38], [-.55, .36, -1.38], [-.2, .36, .15], [.63, .3, .15]],
-  [[1.57, .3, .15], [1.9, .35, .15], [1.9, .35, -.72], [.62, .28, -.72]],
-  [[.78, .28, -.72], [.78, .35, -1.8], [-.7, .35, -1.8], [-1.15, .28, 1.38]],
-  [[1.4, .32, .85], [.8, .4, 1.8], [-.8, .4, 1.8], [-1.35, .28, -1.38]],
-  [[2, .32, .85], [2.2, .35, 1.55], [-.9, .35, 1.55], [-1.15, .28, 1.38]],
-  [[3, .3, .62], [3.3, .35, 1.8], [-.2, .35, 2], [-1.8, .28, 1.38]],
-  [[2.8, .3, .62], [2.8, .35, 2.2], [-2.65, .35, 2.2], [-2.65, .28, 1.38]],
-  [[3.2, .3, .62], [3.5, .35, 2.4], [-1.15, .35, 2.4], [-1.15, .28, 1.38]],
-];
 function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HTMLElement; ready: () => void; fail: () => void }) {
   const { camera, gl, invalidate, size, setDpr } = useThree();
   const groups = useRef<Partial<Record<PrimaryType, Group>>>({});
   const resources = useMemo(() => createHardwareResources(), []);
-  const wires = useMemo(() => routes.map((route) => new TubeGeometry(new CatmullRomCurve3(route.map((point) => new Vector3(...point)), false, "centripetal"), 32, .017, 4, false)), []);
+  const wires = useMemo(() => storyWireRoutes.map((route) => new TubeGeometry(new CatmullRomCurve3(route.map((point) => new Vector3(...point)), false, "centripetal"), 32, .017, 4, false)), []);
   const wireMaterial = useMemo(() => new MeshBasicMaterial({ color: "#2563eb" }), []);
   const renderState = useRef({ visible: false, requested: 0, slow: 0, downgraded: false, frames: 0, readyFrame: 0 });
   useEffect(() => {

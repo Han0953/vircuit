@@ -96,3 +96,30 @@
   background: color-mix(in srgb, var(--primary) 25%, transparent);
   border-color: var(--primary); outline: 2px solid var(--ring); outline-offset: 1px;
 }
+
+/* Hide scrollbars across dashboard while preserving smooth scrolling behavior */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+  width: 0;
+  height: 0;
+}
+
+/* Scoped selector for authenticated dashboard container and document root */
+html:has([data-dashboard-shell]),
+body:has([data-dashboard-shell]),
+[data-dashboard-shell] {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+html:has([data-dashboard-shell])::-webkit-scrollbar,
+body:has([data-dashboard-shell])::-webkit-scrollbar,
+[data-dashboard-shell]::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+

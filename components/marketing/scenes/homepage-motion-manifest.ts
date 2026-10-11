@@ -2,7 +2,7 @@
 export const homepageSections = ["hero", "problem", "story", "boards", "workspace", "cirra", "challenge", "projects", "access", "closing"] as const;
 export const homeMotion = { entrance: .4, stagger: .08, mobileStagger: .05, desktopTravel: 16, mobileTravel: 8 };
 export const meaningfulCopy = "h1,h2,h3,h4,p,a,button,summary,figcaption,blockquote,li,header,strong,[data-home-item]";
-export const sceneOwned = "[data-home-zone='hero'] h1,[data-home-zone='hero'] h1 + p,[data-home-zone='hero'] h1 + p + div,[data-hero-board],[data-question],[data-context],[data-reply],[data-next],[data-requirement],[data-attempt],[data-correction],[data-result],[data-frame],[data-code],[data-output],[data-code-line],[data-serial]";
+export const sceneOwned = "[data-hero-copy],[data-hero-2d],[data-hero-board],[data-question],[data-context],[data-reply],[data-next],[data-requirement],[data-attempt],[data-correction],[data-result],[data-frame],[data-code],[data-output],[data-code-line],[data-serial]";
 
 export function collectHomeTargets(root: HTMLElement) {
   return Array.from(root.querySelectorAll<HTMLElement>(meaningfulCopy)).filter((element) => {

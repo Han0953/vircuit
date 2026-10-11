@@ -32,7 +32,9 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
   const failed = useRef(false);
   const currentSlot = useRef<HTMLElement | null>(null);
   const activeOwner = useRef<Owner>("none");
-  const ready = useCallback(() => { if (!failed.current) setSlotRenderer(currentSlot.current, "webgl", portal); }, [portal]);
+  const ready = useCallback(() => {
+    if (!failed.current && activeOwner.current === "boards" && currentSlot.current?.dataset.cinematicSlot === "boards" && !document.hidden && !matchMedia("(prefers-reduced-motion: reduce)").matches) setSlotRenderer(currentSlot.current, "webgl", portal);
+  }, [portal]);
   const fail = useCallback(() => {
     failed.current = true;
     setSlotRenderer(currentSlot.current, "svg");

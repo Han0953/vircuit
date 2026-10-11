@@ -18,7 +18,7 @@ test("homepage copy, destinations, FAQ and semantic fallback without JS", async 
   const page = await context.newPage();
   await page.goto("/");
   const icon = await page.locator('link[rel="icon"]').getAttribute("href");
-  expect(icon).toMatch(/^\/icon\.svg/);
+  expect(icon).toBe("/Logo.webp");
   expect((await page.request.get(icon!)).ok()).toBe(true);
   await page.screenshot({ path: "test-results/home-no-js-hero.png" });
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
@@ -45,7 +45,7 @@ for (const width of [360, 390, 430, 768, 1280, 1440, 1920]) {
     await expect(page.locator('[data-scene="hero"]')).toHaveAttribute("data-motion", "hero");
     await expect(page.locator('[data-scene="hero"] [data-hero-board]')).toHaveCount(3);
     await expect(page.locator('[data-scene="hero"] canvas')).toHaveCount(0);
-    await expect(page.locator('[data-hero-output]')).toHaveCSS("opacity", "1");
+    await expect(page.locator('[data-hero-scene]:visible')).toHaveCount(1);
     await expect(page.locator('[data-scene="story"]')).toHaveAttribute("data-motion", "story");
     await overflow(page);
     if ([390, 1440].includes(width)) await page.screenshot({ path: `test-results/home-${width}-hero.png` });

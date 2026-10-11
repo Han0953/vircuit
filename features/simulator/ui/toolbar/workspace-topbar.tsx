@@ -18,9 +18,30 @@ export function WorkspaceTopbar({ onOpenAI }: { onOpenAI: (trigger: HTMLButtonEl
   return (
     <header className="shrink-0 border-b bg-surface">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 lg:flex-nowrap lg:px-4">
-        <Button variant="ghost" size="icon" aria-label={userId ? "Kembali ke dashboard" : "Kembali ke beranda"} onClick={() => {
-          void flushDraft().then(() => router.push(userId ? "/dashboard" : "/")).catch((cause: unknown) => usePersistence.setState({ error: cause instanceof Error ? cause.message : "Draft belum tersimpan." }));
-        }}><ArrowLeft aria-hidden="true" /></Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={userId ? "Kembali ke dashboard" : "Kembali ke beranda"}
+          title="Kembali"
+          onClick={() => {
+            void flushDraft()
+              .then(() => {
+                if (typeof window !== "undefined" && window.history.length > 1) {
+                  router.back();
+                } else {
+                  router.push(userId ? "/dashboard" : "/");
+                }
+              })
+              .catch((cause: unknown) =>
+                usePersistence.setState({
+                  error:
+                    cause instanceof Error ? cause.message : "Draft belum tersimpan.",
+                })
+              );
+          }}
+        >
+          <ArrowLeft aria-hidden="true" />
+        </Button>
         <div className="min-w-0 flex-1">
           <p className="text-xs text-text-secondary">Virtual Lab</p>
           <h1 className="truncate text-sm font-semibold">{name}</h1>

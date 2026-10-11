@@ -9,34 +9,15 @@ function wires(root: HTMLElement) {
   return paths;
 }
 
-function hero(root: HTMLElement, fine: boolean, desktop: boolean) {
+function hero(root: HTMLElement) {
   const q = gsap.utils.selector(root);
   const section = root.closest<HTMLElement>("[data-home-zone='hero']")!;
-  const copy = section.querySelectorAll("h1, h1 + p, h1 + p + div");
-  const boards = q("[data-hero-board]");
-  const layers = q("[data-board-motion]");
-  const assembly = q("[data-assembly]")[0] as HTMLElement;
+  const copy = section.querySelectorAll("[data-hero-copy]");
   const intro = gsap.timeline({ defaults: { ease: "power2.out" }, scrollTrigger: { id: "home-hero", trigger: section, start: "top bottom", toggleActions: "play pause resume pause" } });
   intro.from(q("[data-grid]"), { opacity: 0, duration: .5 })
     // SSR copy remains opaque for LCP; reveal its position, not its availability.
     .from(copy, { y: 10, stagger: .08, duration: .55 }, 0)
-    .from(boards, { y: desktop ? 32 : 16, opacity: .15, stagger: .12, duration: .7 }, .08)
-    .from(q("[data-code]"), { x: 12, opacity: 0, duration: .45 }, .55)
-    .from(q("[data-hero-output]"), { y: 8, opacity: 0, duration: .4 }, .8);
-  gsap.to(layers, { y: (i) => (i % 2 ? 18 : -18) * (desktop ? 1 : .4), rotation: (i) => i % 2 ? 3 : -3, ease: "none", scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: .25 } });
-  if (!fine) return;
-  const moveX = gsap.quickTo(assembly, "x", { duration: .6, ease: "power2.out" });
-  const moveY = gsap.quickTo(assembly, "y", { duration: .6, ease: "power2.out" });
-  const move = (event: PointerEvent) => {
-    if (intro.isActive() || event.pointerType === "touch") return;
-    const box = root.getBoundingClientRect();
-    moveX(((event.clientX - box.left) / box.width - .5) * 12);
-    moveY(((event.clientY - box.top) / box.height - .5) * 10);
-  };
-  const reset = () => { moveX(0); moveY(0); };
-  root.addEventListener("pointermove", move);
-  root.addEventListener("pointerleave", reset);
-  return () => { root.removeEventListener("pointermove", move); root.removeEventListener("pointerleave", reset); };
+    .from(q("[data-hero-controls]"), { y: 6, duration: .3 }, .4);
 }
 
 function story(root: HTMLElement, desktop: boolean, tall: boolean, channel: StoryChannel | null) {
@@ -76,7 +57,7 @@ function story(root: HTMLElement, desktop: boolean, tall: boolean, channel: Stor
 
 export function animateScene(kind: SceneKind, root: HTMLElement, conditions: Record<string, boolean>, channel: StoryChannel | null = null) {
   gsap.set(root, { attr: { "data-motion": kind } });
-  if (kind === "hero") return hero(root, conditions.fine, conditions.desktop);
+  if (kind === "hero") return hero(root);
   if (kind === "story") return story(root, conditions.desktop, conditions.tall, channel);
   if (kind === "catalog") {
     root.querySelectorAll<HTMLElement>("[data-catalog-type]").forEach((item) => {

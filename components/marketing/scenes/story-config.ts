@@ -6,6 +6,13 @@ export const storyNames = ["Discover", "Explore", "Build", "Code / Run", "Debug 
 export const clamp = (value: number) => Math.max(0, Math.min(1, value));
 export const range = (p: number, from: number, to: number) => clamp((p - from) / (to - from));
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
+const cameraFrames: Vector[] = [[.6, 7.5, 8.8], [.4, 7.2, 8.6], [.15, 6.4, 8], [.35, 6.2, 7.8], [.1, 6.5, 8], [.15, 6.4, 8], [.15, 6.4, 8]];
+function storyCamera(p: number, mobile: boolean): Vector {
+  const index = Math.min(5, storySegments.filter((edge) => p >= edge).length - 1);
+  const t = range(p, storySegments[index], storySegments[index + 1]);
+  const eased = t * t * (3 - 2 * t);
+  return cameraFrames[index].map((n, axis) => mix(n, cameraFrames[index + 1][axis], eased) + (mobile ? axis === 1 ? 1.1 : axis === 2 ? 2 : 0 : 0)) as Vector;
+}
 export const assembled: Record<PrimaryType, Vector> = {
   uno: [-2.15, 0, 0], "breadboard-mini": [1.25, -.1, 0], led: [.7, .28, -.72],
   resistor: [1.1, .3, .15], button: [1.7, .34, .85], pot: [3, .35, .2],
@@ -24,7 +31,7 @@ export function sampleStory(raw: number, mobile = false) {
   return { p, objects, build, wire: range(p, .45, .50), diagnostic,
     led: diagnostic ? .03 : p >= .50 ? mix(.2, 1, range(p, .52, .68)) : 0,
     press: Math.sin(range(p, .50, .62) * Math.PI), knob: mix(-1.8, 1.8, range(p, .55, .70)),
-    camera: [mix(.6, .15, range(p, 0, .5)), mix(mobile ? 8.5 : 7.5, mobile ? 7.8 : 6.4, build), mix(mobile ? 10.8 : 8.8, mobile ? 10 : 8, build)] as Vector,
+    camera: storyCamera(p, mobile),
     target: [mix(-1, .2, range(p, 0, .35)), mobile ? -.5 : 0, 0] as Vector,
     segment: Math.min(5, storySegments.filter((edge) => p >= edge).length - 1),
   };

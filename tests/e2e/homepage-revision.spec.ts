@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("hero stays 2D with three distinct boards and no deferred WebGL at the top", async ({ page }) => {
+test("hero stays 2D with one active board and pin-specific wiring", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.locator('[data-scene="hero"]')).toHaveAttribute("data-motion", "hero");
@@ -8,11 +8,15 @@ test("hero stays 2D with three distinct boards and no deferred WebGL at the top"
   await page.waitForTimeout(1800);
   await expect(page.locator("canvas")).toHaveCount(0);
   for (const type of ["uno", "nano", "esp32"]) {
-    await expect(page.locator(`[data-hero-board="${type}"] svg`)).toBeVisible();
-    await expect(page.locator(`[data-hero-board="${type}"]`)).toHaveCSS("opacity", "1");
+    await page.getByRole("button", { name: type === "esp32" ? "ESP32" : type === "nano" ? "Nano" : "Uno", exact: true }).click();
+    await expect(page.locator("[data-hero-2d]")).toHaveAttribute("data-hero-active", type);
+    await expect(page.locator("[data-hero-2d]")).toHaveAttribute("data-hero-phase", "holding");
+    await expect(page.locator('[data-hero-scene]:visible')).toHaveCount(1);
+    await expect(page.locator(`[data-hero-scene="${type}"] [data-from-pin]`)).toHaveAttribute("data-from-pin", type === "esp32" ? "GPIO23" : "D3");
+    await expect(page.locator(`[data-hero-scene="${type}"] [data-to-pin]`)).toHaveAttribute("data-to-pin", "GND");
   }
   await expect(page.locator('[data-home-zone="hero"] [data-cinematic-slot]')).toHaveCount(0);
-  expect(await page.locator('[data-hero-board="uno"] svg').getAttribute("viewBox")).not.toBe(await page.locator('[data-hero-board="nano"] svg').getAttribute("viewBox"));
+  expect(await page.locator('[data-hero-board="uno"] > svg').getAttribute("viewBox")).not.toBe(await page.locator('[data-hero-board="nano"] > svg').getAttribute("viewBox"));
 });
 
 test("icon-only theme picker supports hover, click, keyboard and reduced motion", async ({ page }) => {

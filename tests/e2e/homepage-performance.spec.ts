@@ -54,7 +54,9 @@ for (const width of [390, 1440]) {
       await page.addInitScript((value) => localStorage.setItem("vircuit-theme", value), theme);
       await page.goto("/");
       await expect(page.locator('[data-scene="hero"]')).toHaveAttribute("data-motion", "hero");
-      await expect(page.locator('[data-hero-output]')).toHaveCSS("opacity", "1");
+      await expect(page.locator('[data-hero-2d]')).toHaveAttribute("data-hero-phase", "holding");
+      await expect(page.locator('[data-hero-scene]:visible')).toHaveCount(1);
+      await expect(page.locator('[data-hero-scene]:visible [data-hero-led]')).toHaveCSS("opacity", "1");
       await page.screenshot({ path: `test-results/home-${width}-${theme}-hero.png` });
       for (const [kind, selector] of [["simulator", "[data-serial]"], ["cirra", "[data-next]"], ["challenge", "[data-result]"]]) {
         const scene = page.locator(`[data-scene="${kind}"]`);

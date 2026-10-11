@@ -15,10 +15,10 @@
 @keyframes home-copy-enter { from { opacity: var(--home-reveal-opacity, .15); translate: 0 var(--home-reveal-travel, 8px); } to { opacity: 1; translate: 0 0; } }
 .cinematicSlot { position: relative; min-width: 0; pointer-events: none; }
 .cinematicFallback, .cinematicCanvas { position: absolute; inset: 0; }
-.cinematicFallback { opacity: 1; transition: opacity .18s ease; }
+.cinematicFallback { opacity: 1; }
 .cinematicFallback > svg { width: 100%; height: 100%; }
 .cinematicSlot[data-renderer='webgl'] > .cinematicFallback { opacity: 0; visibility: hidden; }
-.cinematicCanvas { opacity: 0; pointer-events: none; transition: opacity .18s ease; }
+.cinematicCanvas { opacity: 0; pointer-events: none; }
 .cinematicSlot[data-renderer='webgl'] > .cinematicCanvas { opacity: 1; }
 .workspaceBoard { height: 4rem; margin: -.5rem -.1rem .5rem; }
 .workspaceBoard > svg { width: 100%; height: 100%; margin: 0; }
@@ -73,18 +73,38 @@
 .hero::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 85% 30%, var(--primary-soft), transparent 65%); opacity: .6; z-index: -1; }
 .heroTitle { max-width: 16ch; font-size: clamp(2.5rem, 5.5vw, 5.1rem); line-height: 1.06; font-weight: 600; letter-spacing: -.055em; text-wrap: balance; }
 .scene { min-width: 0; }
-.heroFigure { margin: 0; }
-.heroStage { position: relative; aspect-ratio: 1.05; }
+.heroFigure { margin: 0; max-width: 42rem; width: 100%; margin-inline: auto; }
+.heroStage { position: relative; aspect-ratio: 1.5; perspective: 1000px; }
 .technicalGrid { position: absolute; inset: 2%; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse, black 30%, transparent 72%); transform: rotate(-6deg); }
 .heroAssembly { position: absolute; inset: 0; }
-.heroBoard { position: absolute; border: 1px solid var(--border-strong); background: var(--surface); border-radius: var(--radius-lg); padding: .65rem; box-shadow: var(--shadow-panel); }
-.heroBoard [data-board-motion] { height: calc(100% - 2rem); }
-.heroBoard svg { width: 100%; height: 100%; }
-.heroBoard p { font: clamp(.5rem, 1.2vw, .65rem)/1.6 var(--font-code); color: var(--foreground); }
-.heroBoard p span { display: block; font-size: .5rem; letter-spacing: .05em; color: var(--text-secondary); }
-.heroUno { left: 1%; top: 14%; width: 57%; height: 53%; rotate: -8deg; z-index: 2; }
-.heroNano { right: 1%; top: 0; width: 30%; height: 51%; rotate: 9deg; }
-.heroEsp { right: 3%; bottom: 8%; width: 34%; height: 45%; rotate: -5deg; z-index: 3; }
+.circuitStageArt { width: 100%; height: 100%; overflow: visible; }
+.circuitLabel { fill: var(--text-secondary); font: 500 24px var(--font-code); }
+.heroIdentity { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 4.5rem; border-top: 1px solid var(--border-strong); }
+.heroIdentity h2 { font-size: clamp(1.15rem, 2vw, 1.5rem); font-weight: 600; letter-spacing: -.025em; }
+.heroIndex { display: block; margin-bottom: .25rem; font: .62rem var(--font-code); color: var(--text-secondary); letter-spacing: .08em; }
+.heroSupport { flex-shrink: 0; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: .4rem .5rem; font: .62rem var(--font-code); color: var(--text-secondary); }
+.heroExplanation { min-height: 3rem; font-size: .85rem; line-height: 1.65; color: var(--text-secondary); }
+.heroCode { min-height: 6.2rem; padding: .8rem 1rem; border-left: 2px solid var(--primary); background: var(--surface); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+.heroCode > span { display: block; margin-bottom: .5rem; font: .6rem var(--font-code); color: var(--text-secondary); letter-spacing: .05em; }
+.heroCode code { font: .75rem/1.8 var(--font-code); overflow-wrap: anywhere; }
+.heroControls, .heroSelectors { display: flex; align-items: center; gap: .5rem; }
+.heroControls { justify-content: space-between; padding-top: .75rem; }
+.heroSelectors button, .heroPlay { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; min-width: 44px; padding: .65rem .75rem; border: 1px solid transparent; border-radius: var(--radius-md); font: .75rem var(--font-code); color: var(--text-secondary); transition: color .15s, background-color .15s, border-color .15s; cursor: pointer; }
+.heroSelectors button:hover, .heroPlay:hover { background: var(--surface-muted); color: var(--foreground); }
+.heroSelectors button[aria-pressed='true'] { background: var(--primary-soft); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 30%, transparent); }
+.heroSelectors button:focus-visible, .heroPlay:focus-visible, .heroDescriptions summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+.heroPlay:disabled { cursor: default; opacity: .5; }
+.heroSegment { width: .8rem; height: 2px; background: currentColor; }
+.heroIllustrationNote { margin-top: .65rem; color: var(--text-secondary); font: .6rem/1.6 var(--font-code); }
+.heroDescriptions { margin-top: .5rem; font-size: .75rem; line-height: 1.7; color: var(--text-secondary); }
+.heroDescriptions summary { cursor: pointer; width: fit-content; padding-block: .25rem; }
+.heroDescriptions ul { display: grid; gap: .5rem; padding-block: .75rem; }
+@media (max-width: 430px) { .heroSupport { max-width: 7rem; font-size: .6rem; } .heroIdentity { gap: .4rem; } }
+@media (max-width: 430px) {
+  :global(html:has([data-home-experience]) [data-home-header] [data-motion-group='nav.logo'] > span) { gap: .375rem; }
+  :global(html:has([data-home-experience]) [data-home-header] .brand-logo-icon) { height: 22px !important; }
+  :global(html:has([data-home-experience]) [data-home-header] .brand-logo-text) { height: 15px !important; }
+}
 .artwork { width: 100%; height: 100%; overflow: visible; }
 .codeLayer { position: absolute; bottom: 13%; left: 0; z-index: 4; padding: .65rem .8rem; border: 1px solid var(--border-strong); border-left: 3px solid var(--primary); border-radius: var(--radius-md); background: var(--surface-elevated); box-shadow: var(--shadow-overlay); font: clamp(.55rem, 1vw, .7rem)/1.8 var(--font-code); }
 .codeLayer small { display: block; color: var(--text-secondary); font-size: .62rem; margin-bottom: .25rem; }

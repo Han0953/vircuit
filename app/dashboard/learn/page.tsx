@@ -56,6 +56,9 @@ export default async function LearningPage() {
               <Cpu className="size-3 text-primary" aria-hidden="true" />
               Arduino Uno R3
             </Badge>
+            <span role="heading" aria-level={2} className="text-xs text-text-tertiary">
+              · Belajar dengan praktik
+            </span>
           </div>
 
           <h1
