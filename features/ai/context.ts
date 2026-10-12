@@ -57,6 +57,6 @@ export function buildContext(input: CirraRequest, facts: ContextFacts = {}, budg
   if (JSON.stringify(context).length > budget && context.runtime) { context.runtime.serial = "[TRUNCATED: Serial omis untuk batas konteks]"; truncated.push("Serial"); }
   if (JSON.stringify(context).length > budget && context.code) { context.code.numbered = boundedText(context.code.numbered, 3500); context.code.truncated = true; truncated.push("code"); }
   if (JSON.stringify(context).length > budget && context.circuit) { context.circuit.nets = []; truncated.push("expanded nets; direct connections retained"); }
-  if (JSON.stringify(context).length > budget) throw new RequestError("Konteks project belum muat dalam batas Cirra. Kurangi rangkaian atau ajukan pertanyaan yang lebih spesifik.", 413);
+  if (JSON.stringify(context).length > budget) throw new RequestError("Konteks proyek belum muat dalam batas Cirra. Kurangi rangkaian atau ajukan pertanyaan yang lebih spesifik.", 413);
   return { context, meta: { sources, truncated: [...new Set(truncated)], challengeActive: Boolean(active), hintLevel: input.hintLevel, ...(facts.evaluation ? { fingerprint: facts.evaluation.fingerprint } : {}) } };
 }

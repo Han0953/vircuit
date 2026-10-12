@@ -19,7 +19,7 @@ export async function submitChallenge(request: Request) {
   if (!challenge || challenge.version !== input.version) throw new RequestError("Versi tantangan tidak tersedia.", 409);
   if (input.projectId) {
     const { data, error } = await client.from("projects").select("id").eq("id", input.projectId).eq("user_id", user.id).maybeSingle();
-    if (error || !data) throw new RequestError("Project tidak ditemukan atau bukan milikmu.", 404);
+    if (error || !data) throw new RequestError("Proyek tidak ditemukan atau bukan milikmu.", 404);
   }
   const writer = progressWriter();
   // Yield before bounded CPU work so pending I/O can finish on the server.
@@ -36,7 +36,7 @@ export async function submitChallenge(request: Request) {
     p_passed: result.passed, p_project_id: input.projectId,
   });
   if (error?.code === "40001") throw new RequestError("Submission ID sudah dipakai untuk snapshot lain. Evaluasi ulang.", 409);
-  if (error?.code === "42501") throw new RequestError("Project tidak ditemukan atau akses ditolak.", 404);
+  if (error?.code === "42501") throw new RequestError("Proyek tidak ditemukan atau akses ditolak.", 404);
   if (error?.code === "P0001") throw new RequestError("Terlalu banyak percobaan. Coba lagi nanti.", 429);
   if (error) throw new RequestError("Hasil belum tersinkronisasi. Hasil evaluasi dan draft lokal tetap tersedia.", 503);
   const attempt = z.object({ id: z.uuid(), passed: z.boolean(), fingerprint: z.string(), user_id: z.uuid() }).parse(data);

@@ -52,7 +52,7 @@ export function UserMenu({ user }: { user: DashboardIdentity }) {
       </DropdownMenuContent>
     </DropdownMenu>
     <Dialog open={open} onOpenChange={(value) => { if (!pending) setOpen(value); }}><DialogContent className="max-h-[90dvh] overflow-y-auto">
-      <DialogHeader><DialogTitle>Keluar dari akun?</DialogTitle><DialogDescription>Cache proyek akun di perangkat ini akan dibersihkan. Proyek cloud dan draft tamu tetap tersimpan.</DialogDescription></DialogHeader>
+      <DialogHeader><DialogTitle>Keluar dari akun?</DialogTitle><DialogDescription>Cache proyek akun di perangkat ini akan dibersihkan. Proyek cloud dan draft lokal tetap tersimpan.</DialogDescription></DialogHeader>
       {pendingResults > 0 && <p role="status" className="text-sm">{pendingResults} hasil tantangan belum tersinkronisasi. Keluar akan menghapus antrean lokal akun ini. Pilih Batal dan sinkronkan melalui dashboard jika hasilnya masih diperlukan.</p>}
       {drafts.length > 0 && <div className="space-y-2"><p className="text-sm">Unduh cadangan draft dan arsip yang masih diperlukan sebelum keluar.</p>{drafts.map((draft) => <Button key={draft.scope} variant="outline" className="w-full justify-start" onClick={() => download(draft)}><Download aria-hidden /><span className="truncate">{draft.project.metadata.name}</span></Button>)}</div>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}

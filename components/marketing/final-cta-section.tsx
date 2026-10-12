@@ -80,9 +80,9 @@ export function FinalCtaSection() {
       <CtaSection
       id="final-cta-heading"
       eyebrow="Langkah berikutnya / giliran kamu"
-      title="Rangkaian pertamamu dimulai dari satu percobaan."
+      title="Rangkaian pertamamu dimulai dari satu eksperimen."
       description="Mulai dari LED sederhana. Temukan hubungan antara rangkaian, kode, dan hasil yang kamu amati."
-      note="Coba sebagai tamu. Login saat ingin menyimpan project ke akun."
+      note="Gunakan langsung tanpa login. Masuk saat ingin menyimpan proyek ke akun."
       actions={
         <>
           <SimulatorCtaButton />

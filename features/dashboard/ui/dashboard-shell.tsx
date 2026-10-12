@@ -355,7 +355,7 @@ export function DashboardShell({
               role="alert"
               className="relative rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
             >
-              Session belum dapat diperiksa secara daring.{" "}
+              Sesi belum dapat diperiksa secara daring.{" "}
               <button
                 className="font-medium underline hover:text-destructive/80"
                 onClick={() => window.location.reload()}

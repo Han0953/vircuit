@@ -44,7 +44,7 @@ export async function saveProject(request: Request) {
   requireSameOrigin(request);
   const { client } = await authenticatedClient();
   const input = saveRequestSchema.safeParse(await limitedJson(request, 2_000_000));
-  if (!input.success) throw new RequestError("Snapshot, ID, judul, atau revision tidak valid.", 400);
+  if (!input.success) throw new RequestError("Snapshot, ID, judul, atau revisi tidak valid.", 400);
   return saveSnapshot(client, input.data);
 }
 export async function loadProject(id: string) {
@@ -64,14 +64,14 @@ export async function deleteProject(request: Request, id: string) {
   if (!z.uuid().safeParse(id).success) throw new RequestError("ID proyek tidak valid.", 400);
   const { client } = await authenticatedClient();
   const input = z.object({ expectedRevision: z.number().int().positive() }).strict().safeParse(await limitedJson(request, 1024));
-  if (!input.success) throw new RequestError("Revision tidak valid.", 400);
+  if (!input.success) throw new RequestError("Revisi tidak valid.", 400);
   const { error } = await client.rpc("delete_project", { p_project_id: id, p_expected_revision: input.data.expectedRevision });
   databaseError(error); return { ok: true };
 }
 export async function renameProject(request: Request, id: string) {
   requireSameOrigin(request);
   const input = z.object({ title: titleSchema, expectedRevision: z.number().int().positive(), operationId: z.uuid(), draftId: z.uuid() }).strict().safeParse(await limitedJson(request, 2048));
-  if (!input.success) throw new RequestError("Judul atau revision tidak valid.", 400);
+  if (!input.success) throw new RequestError("Judul atau revisi tidak valid.", 400);
   const loaded = await loadProject(id);
   const { client } = await authenticatedClient();
   return saveSnapshot(client, { id, draftId: input.data.draftId, expectedRevision: input.data.expectedRevision, operationId: input.data.operationId, payload: { ...loaded.payload, metadata: { name: input.data.title } } });

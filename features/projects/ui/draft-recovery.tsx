@@ -25,7 +25,7 @@ export function DraftRecovery({ children }: { children: ReactNode }) {
     <Suspense><WorkspaceProjectHandoff verified={verified} /></Suspense>
     <Suspense><PracticeHandoff verified={verified} /></Suspense>
     {!ready ? <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
-      <p role={error || sessionError ? "alert" : "status"}>{error ?? (sessionError ? "Session belum dapat diverifikasi. Draft tidak diubah." : "Memulihkan draft lokal…")}</p>
+      <p role={error || sessionError ? "alert" : "status"}>{error ?? (sessionError ? "Sesi belum dapat diverifikasi. Draft tidak diubah." : "Memulihkan draft lokal…")}</p>
       {(error || sessionError) && <Button onClick={start}>Coba lagi</Button>}
       {sessionError && <Button variant="outline" onClick={() => { usePersistence.setState({ userId: null }); void recoverDraft("guest"); }}>Lanjutkan sebagai tamu</Button>}
     </main> : <div className="flex h-dvh min-h-0 flex-col">

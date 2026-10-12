@@ -63,7 +63,7 @@ export async function openCloudProject(id: string) {
   const parsed = loadResultSchema.safeParse(await cloudRequest(`/api/projects/${id}`));
   if (!parsed.success) throw new Error("Snapshot cloud tidak valid. Proyek aktif tidak diubah.");
   const loaded = parsed.data;
-  if (usePersistence.getState().userId !== owner) throw new Error("Session berubah.");
+  if (usePersistence.getState().userId !== owner) throw new Error("Sesi berubah.");
   const draft = { ...newDraft(`user:${owner}`, loaded.payload), cloud: { id, revision: loaded.revision, owner }, savedLocalRevision: 0 };
   // Validation and local backup complete before replacing the live simulator.
   await replaceDraft(draft);

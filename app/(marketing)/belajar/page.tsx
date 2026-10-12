@@ -306,7 +306,7 @@ export function BelajarPage() {
         id="belajar-cta-heading"
         eyebrow="Mulai Praktik Pertama"
         title="Siap memulai langkah pertama belajarmu?"
-        description="Uji coba rangkaian sederhana pada Virtual Lab atau daftarkan akun untuk menyimpan riwayat belajarmu."
+        description="Rancang dan jalankan rangkaian pada Virtual Lab atau daftarkan akun untuk menyimpan riwayat belajarmu."
         actions={
           <>
             <SimulatorCtaButton label="Buka Virtual Lab" />

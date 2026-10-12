@@ -46,7 +46,7 @@ const featureGroups = [
           "Satu lingkungan terpadu yang menyatukan kanvas rangkaian, editor kode, monitor serial, dan simulasi tanpa memerlukan instalasi software rumit atau hardware fisik di tahap awal.",
         highlights: [
           "Akses fleksibel dari desktop maupun perangkat mobile",
-          "Mode tamu langsung pakai tanpa wajib login",
+          "Akses langsung tanpa perlu login",
           "Workspace terstruktur dengan kanvas bebas dan panel adaptif",
         ],
       },
@@ -287,7 +287,7 @@ export function FiturPage() {
       <CtaSection
         background="features-closing"
         id="fitur-cta-heading"
-        eyebrow="Uji Coba Langsung"
+        eyebrow="Akses Langsung"
         title="Ingin merasakan langsung kanvas Virtual Lab?"
         description="Mulai dari papan microcontroller, hubungkan kabel pertamamu, dan jalankan kode simulasi tanpa perlu membuat akun terlebih dahulu."
         actions={
@@ -301,7 +301,7 @@ export function FiturPage() {
             </Button>
           </>
         }
-        note="Simulator inti dapat diakses langsung oleh mode tamu."
+        note="Simulator inti dapat diakses langsung tanpa registrasi."
       />
     </PublicMotion>
   );

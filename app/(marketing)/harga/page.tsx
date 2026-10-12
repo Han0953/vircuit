@@ -20,8 +20,8 @@ export const metadata: Metadata = {
 
 const freeFeatures = [
   "Core Virtual Lab tanpa batas waktu penggunaan",
-  "Akses mode tamu langsung pakai tanpa login",
-  "Draft lokal untuk tamu; penyimpanan akun setelah login",
+  "Akses langsung tanpa perlu login",
+  "Draft lokal di browser; penyimpanan akun setelah login",
   "Arduino Uno dan ESP32; Nano visual-only",
   "Koleksi breadboard, komponen dasar, sensor & aktuator inti",
   "Editor kode Arduino-style subset dengan Serial Monitor",
@@ -40,7 +40,7 @@ const premiumFeatures = [
 
 const comparisonRows = [
   { item: "Akses Virtual Lab & Simulator Inti", free: "Ya, penuh", premium: "Ya, penuh" },
-  { item: "Akses Tamu (Tanpa Login)", free: "Ya", premium: "Ya" },
+  { item: "Akses Tanpa Login", free: "Ya", premium: "Ya" },
   { item: "Penyimpanan Proyek ke Akun", free: "Tersedia", premium: "Tersedia" },
   { item: "Dukungan board inti (Nano visual-only)", free: "Tersedia", premium: "Tersedia" },
   { item: "Code Editor & Serial Monitor", free: "Tersedia", premium: "Tersedia" },

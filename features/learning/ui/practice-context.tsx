@@ -15,7 +15,7 @@ export function PracticeContextPanel() {
   if (!context) return null;
   const found = findLesson(context.lessonId);
   const practice = found?.lesson.practice;
-  if (!found || !practice || practice.id !== context.practiceId || practice.version !== context.templateVersion) return <p className="border-b p-3 text-sm">Materi praktik ini sudah berubah. Project lokal tetap tersedia.</p>;
+  if (!found || !practice || practice.id !== context.practiceId || practice.version !== context.templateVersion) return <p className="border-b p-3 text-sm">Materi praktik ini sudah berubah. Proyek lokal tetap tersedia.</p>;
   return <section aria-label="Konteks praktik" className="shrink-0 border-b bg-surface px-3 py-2 text-sm">
     <div className="flex flex-wrap items-center justify-between gap-2"><p className="flex min-w-0 items-center gap-2"><BookOpen aria-hidden className="size-4 shrink-0 text-primary" /><span className="truncate" title={found.lesson.title}>{found.lesson.title}</span></p><Button variant="outline" disabled={busy} onClick={() => {
       void flushDraft().then(() => { stopSimulation(); router.push(lessonHref(found.course, found.lesson)); }).catch((cause: unknown) => usePersistence.setState({ error: cause instanceof Error ? cause.message : "Draft belum tersimpan." }));

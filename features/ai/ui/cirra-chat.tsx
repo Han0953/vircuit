@@ -26,7 +26,7 @@ function referenceLabel(value: string) {
   if (/problem|diagnostic/.test(value)) return "Diagnostik rangkaian";
   if (/catalog/.test(value)) return "Katalog komponen";
   if (/code|parser/.test(value)) return "Kode dan pemeriksaan";
-  return "Rangkaian project";
+  return "Rangkaian proyek";
 }
 export function CirraChat({ owner, scope, contextLabel, initialMode = "tutor", active = true, getContext }: { owner: string; scope: string; contextLabel: string; initialMode?: CirraMode; active?: boolean; getContext: () => Partial<CirraRequest> }) {
   const id = useId();
@@ -42,7 +42,7 @@ export function CirraChat({ owner, scope, contextLabel, initialMode = "tutor", a
   return <section aria-label="Percakapan Cirra" className="cirra-chat flex h-full min-h-0 min-w-0 flex-col bg-background">
     <p className="sr-only">Konteks: {contextLabel}</p>
     <div ref={logRef} onScroll={remember} aria-label="Riwayat percakapan" role="log" aria-live="off" aria-busy={chat.pending} className="relative min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-3">
-      {!chat.messages.length && <div data-cirra-greeting className="flex w-fit max-w-full items-start gap-2"><MessageSurface role="assistant"><p className="text-xs font-medium text-text-secondary">Cirra</p><p>Aku Cirra, AI pendamping belajar kamu. Mau bertanya konsep, memeriksa rangkaian, atau merencanakan project?</p></MessageSurface></div>}
+      {!chat.messages.length && <div data-cirra-greeting className="flex w-fit max-w-full items-start gap-2"><MessageSurface role="assistant"><p className="text-xs font-medium text-text-secondary">Cirra</p><p>Aku Cirra, AI pendamping belajar kamu. Mau bertanya konsep, memeriksa rangkaian, atau merencanakan proyek?</p></MessageSurface></div>}
       {chat.messages.map((message) => <ChatBubble key={message.id} message={message} fresh={message.createdAt !== undefined && !restored.has(message.id)} active={active}>
         <p className="text-xs font-medium text-text-secondary">{message.role === "user" ? "Kamu" : "Cirra"}</p>
         {message.role === "assistant" ? <ReplyText text={message.text} fresh={message.createdAt !== undefined && !restored.has(message.id)} active={active}>
@@ -70,7 +70,7 @@ export function CirraChat({ owner, scope, contextLabel, initialMode = "tutor", a
             { value: "debugger", label: labels.debugger, description: "Bahas kode dan diagnostik rangkaian.", icon: <Bug aria-hidden /> },
             { value: "project-assistant", label: labels["project-assistant"], description: "Susun ide dan kebutuhan proyek.", icon: <Lightbulb aria-hidden /> },
           ]} />
-          <DropdownMenu modal={false}><DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label="Opsi percakapan" disabled={chat.pending}><Ellipsis aria-hidden /></Button></DropdownMenuTrigger><DropdownMenuContent data-cirra-options side="top" align="start" className="max-w-72" onEscapeKeyDown={(event) => event.stopPropagation()}><p className="px-2 py-2 text-xs leading-relaxed text-text-secondary">Konteks terkait digunakan untuk menjawab. Hindari membagikan secret; chat tersimpan selama session ini.</p><DropdownMenuItem disabled={chat.pending} onSelect={chat.clear}><Trash2 aria-hidden />Bersihkan</DropdownMenuItem><DropdownMenuItem disabled={session.hintLevel === 3 || chat.pending} onSelect={() => updateSession(chat.key, { hintLevel: Math.min(3, session.hintLevel + 1) })}>Petunjuk level {session.hintLevel}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>
+          <DropdownMenu modal={false}><DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label="Opsi percakapan" disabled={chat.pending}><Ellipsis aria-hidden /></Button></DropdownMenuTrigger><DropdownMenuContent data-cirra-options side="top" align="start" className="max-w-72" onEscapeKeyDown={(event) => event.stopPropagation()}><p className="px-2 py-2 text-xs leading-relaxed text-text-secondary">Konteks terkait digunakan untuk menjawab. Hindari membagikan data sensitif; percakapan tersimpan selama sesi ini.</p><DropdownMenuItem disabled={chat.pending} onSelect={chat.clear}><Trash2 aria-hidden />Bersihkan</DropdownMenuItem><DropdownMenuItem disabled={session.hintLevel === 3 || chat.pending} onSelect={() => updateSession(chat.key, { hintLevel: Math.min(3, session.hintLevel + 1) })}>Petunjuk level {session.hintLevel}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>
           {chat.pending ? <Button type="button" size="icon" aria-label="Hentikan" title="Hentikan jawaban" onClick={chat.cancel}><Square aria-hidden /></Button> : <Button type="submit" size="icon" disabled={!session.draft.trim()} aria-label="Kirim" title="Kirim pertanyaan"><Send aria-hidden /></Button>}
         </div>
       </div>
