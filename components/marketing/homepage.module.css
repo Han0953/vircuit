@@ -200,7 +200,7 @@
 }
 @media (min-width: 1024px) {
   .section { padding-block: 6rem; }
-  .hero { padding-top: calc(var(--home-header-height, 64px) + 1.5rem); padding-bottom: 2.5rem; }
+  .hero { display: grid; padding-top: calc(var(--home-header-height, 64px) + 2.5rem); padding-bottom: 3.5rem; }
   .split { grid-template-columns: 1fr 1fr; gap: 5rem; }
   .storyGrid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 5rem; }
   .storyStage { aspect-ratio: 1.2; }
