@@ -3,6 +3,7 @@ import { BoxGeometry, CylinderGeometry, Group, InstancedMesh, Matrix4, MeshStand
 import type { PrimaryType, Vector } from "../story-config";
 import type { FeaturedBoard } from "../homepage-cinematic-config";
 import { createBoardGeometry } from "./board-geometry";
+import { createBoardLettering } from "./board-lettering";
 
 export const hardwareTokens = { pcb: "pcb", substrate: "pcb-dark", chip: "chip", metal: "metal", gold: "gold", silkscreen: "silkscreen", breadboard: "breadboard", resistor: "resistor", led: "led-on" } as const;
 
@@ -20,7 +21,8 @@ export function createHardwareResources() {
   };
   const geometry = { box: new BoxGeometry(), cylinder: new CylinderGeometry(1, 1, 1, 12), dome: new SphereGeometry(1, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2) };
   const boards = { uno: createBoardGeometry("uno"), nano: createBoardGeometry("nano"), esp32: createBoardGeometry("esp32") };
-  return { materials, geometry, boards, dispose() { Object.values(materials).forEach((m) => m.dispose()); Object.values(geometry).forEach((g) => g.dispose()); Object.values(boards).flat().forEach(({ geometry: g }) => g.dispose()); } };
+  const lettering = { uno: createBoardLettering("uno"), nano: createBoardLettering("nano"), esp32: createBoardLettering("esp32") };
+  return { materials, geometry, boards, lettering, dispose() { Object.values(materials).forEach((m) => m.dispose()); Object.values(geometry).forEach((g) => g.dispose()); Object.values(boards).flat().forEach(({ geometry: g }) => g.dispose()); Object.values(lettering).forEach((print) => print?.dispose()); } };
 }
 export type HardwareResources = ReturnType<typeof createHardwareResources>;
 type MaterialName = keyof HardwareResources["materials"];
@@ -37,7 +39,8 @@ export function Part({ r, position = [0, 0, 0], scale, material, cylinder = fals
   return <mesh geometry={cylinder ? r.geometry.cylinder : r.geometry.box} material={r.materials[material]} position={position} scale={scale} rotation={rotation} dispose={null} />;
 }
 export function BoardModel({ type, resources: r }: { type: FeaturedBoard; resources: HardwareResources }) {
-  return <group name={`board-${type}`} dispose={null}>{r.boards[type].map(({ finish, geometry }) => <mesh key={finish} name={`${type}-${finish}`} geometry={geometry} material={r.materials[finish]} dispose={null} />)}</group>;
+  const print = r.lettering[type];
+  return <group name={`board-${type}`} dispose={null}>{r.boards[type].map(({ finish, geometry }) => <mesh key={finish} name={`${type}-${finish}`} geometry={geometry} material={r.materials[finish]} dispose={null} />)}{print && <mesh name={`${type}-lettering`} geometry={print.geometry} material={print.material} dispose={null} />}</group>;
 }
 function Uno({ r }: { r: HardwareResources }) { return <BoardModel type="uno" resources={r} />; }
 function Breadboard({ r }: { r: HardwareResources }) {

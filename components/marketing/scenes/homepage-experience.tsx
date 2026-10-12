@@ -37,6 +37,7 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
   }, [portal]);
   const fail = useCallback(() => {
     failed.current = true;
+    root.current?.querySelectorAll<HTMLElement>("[data-cinematic-slot]").forEach((slot) => { slot.dataset.webglFailed = "true"; });
     setSlotRenderer(currentSlot.current, "svg");
     setRenderer(null);
   }, []);
@@ -60,6 +61,7 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
       const { reduced, desktop, tall } = context.conditions!;
       page.dataset.homeMotion = reduced ? "reduced" : "full";
       page.dataset.boardsSticky = !reduced && tall ? "true" : "false";
+      page.dataset.webglPreferred = String(!reduced && "WebGL2RenderingContext" in window);
       let entrances: IntersectionObserver | undefined;
       const tones = Array.from(page.querySelectorAll<HTMLElement>("[data-home-zone]")).map((section) => {
         const tone = document.createElement("span");
@@ -106,8 +108,7 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
       let engaged = window.scrollY > 2;
       let raf = 0;
       let swap = 0;
-      let loadTimer = 0;
-      let idle = 0;
+      let loadTimeout = 0;
       const release = () => {
         setSlotRenderer(currentSlot.current, "svg");
       };
@@ -169,18 +170,12 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
         if (storyBox && storyBox.top < height * .85 && storyBox.bottom > header + 16) next = "story";
         if (!engaged || reduced || document.hidden || !("WebGL2RenderingContext" in window)) next = "none";
         select(next);
-        if (next !== "story" && next !== "none" && !loading && !failed.current && !loadTimer) {
-          // Decorative WebGL must not contend with the first click after a fast scroll/jump.
-          loadTimer = window.setTimeout(() => {
-            loadTimer = 0;
-            const load = () => {
-              if (disposed || document.hidden || activeOwner.current === "none" || activeOwner.current === "story" || loading) return;
-              loading = true;
-              void import("./three/cinematic-world").then(({ default: World }) => { if (!disposed) setRenderer(() => World); }).catch(() => { if (!disposed) fail(); });
-            };
-            if ("requestIdleCallback" in window) idle = window.requestIdleCallback(load);
-            else load();
-          }, 500);
+        // Warm the module on approach, but mount only the single permitted Canvas.
+        // No fixed delay or unbounded idle wait once the user reaches the board.
+        if (engaged && !reduced && !document.hidden && "WebGL2RenderingContext" in window && !loading && !failed.current && measurements.some(({ region }) => region.top < height + 600 && region.bottom > 0)) {
+          loading = true;
+          loadTimeout = window.setTimeout(() => { if (!disposed) fail(); }, 15000);
+          void import("./three/cinematic-world").then(({ default: World }) => { if (!disposed && !failed.current) setRenderer(() => World); }).catch(() => { if (!disposed) fail(); }).finally(() => clearTimeout(loadTimeout));
         }
       };
       const schedule = () => { if (!disposed && !raf) raf = requestAnimationFrame(update); };
@@ -194,9 +189,9 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
       const initial = requestAnimationFrame(() => { raf = requestAnimationFrame(update); });
       return () => {
         disposed = true; cancelAnimationFrame(initial); cancelAnimationFrame(raf); cancelAnimationFrame(swap);
+        clearTimeout(loadTimeout);
         entrances?.disconnect();
         tones.forEach(({ tone }) => tone.remove());
-        clearTimeout(loadTimer); if (idle) window.cancelIdleCallback(idle);
         window.removeEventListener("scroll", scroll); window.removeEventListener("resize", schedule);
         document.removeEventListener("visibilitychange", schedule); ScrollTrigger.removeEventListener("refresh", schedule); resize.disconnect();
         release();

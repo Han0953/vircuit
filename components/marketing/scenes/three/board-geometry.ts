@@ -68,7 +68,6 @@ export function createBoardGeometry(type: FeaturedBoard): BoardSurface[] {
       block("metal", local(along, .135, side * (width / 2 + .035)), [.025, .03, .1], [0, angle, 0]);
     }
     round("silkscreen", local(-width * .31, .263, -width * .31), [.018, .004, .018]);
-    for (const offset of [-.04, .02]) block("silkscreen", local(.02, .263, offset), [width * .36, .004, .012], [0, angle, 0]);
   };
   if (type === "uno") {
     outline([[-1.69, -1.333], [1.365, -1.333], [1.69, -1.118], [1.69, .95], [1.49, .95], [1.365, 1.333], [-1.69, 1.333]], [[-1.53, -1.14], [-1.53, 1.14], [1.51, -.95], [1.24, 1.12]]);
@@ -86,7 +85,6 @@ export function createBoardGeometry(type: FeaturedBoard): BoardSurface[] {
       block("metal", [.47 + side * .415, .115, -.365 + i * .102], [.035, .075, .035]);
     }
     round("substrate", [.47, .382, -.38], [.075, .006, .075]);
-    for (let i = 0; i < 3; i++) block("silkscreen", [.47, .383, .1 + i * .07], [.29 - i * .04, .004, .014]);
     qfp(-.64, -.49, .37, 8);
     for (const [x, width, z] of [[.86, 1.1, -1.206], [-.17, .85, -1.206], [.96, .8, 1.206], [-.19, .44, 1.206], [-.66, .31, 1.206]]) block("chip", [x, .175, z], [width, .2, .19]);
     for (const [x, y, z] of unoHeaderPads) {
@@ -136,7 +134,6 @@ export function createBoardGeometry(type: FeaturedBoard): BoardSurface[] {
       block("substrate", [0, .15, -.43], [1.01, .035, 1.39]);
       block("metal", [0, .235, -.43], [.94, .16, 1.35]);
       block("metal", [0, .323, -.43], [.88, .025, 1.29]);
-      for (let i = 0; i < 3; i++) block("substrate", [0, .338, -.64 + i * .065], [.45 - i * .08, .004, .013]);
       for (const side of [-1, 1]) for (let i = 0; i < 9; i++) block("gold", [side * .515, .147, -1.05 + i * .16], [.065, .018, .045]);
       // One connected meander, with horizontal links alternating sides.
       for (let i = 0; i < 5; i++) block("gold", [-.32 + i * .16, .147, -1.39], [.027, .012, .32]);

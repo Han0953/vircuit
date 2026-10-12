@@ -11,10 +11,10 @@ export function LandingHero() {
     <section
       data-home-zone="hero"
       aria-labelledby="hero-heading"
-      className={`${styles.section} ${styles.hero} grid items-center gap-10 lg:min-h-[calc(100svh-5rem)] lg:grid-cols-2 lg:gap-12`}
+      className={`${styles.section} ${styles.hero} grid items-center lg:grid-cols-2 lg:gap-12`}
     >
       <div className="min-w-0">
-        <p data-hero-copy className="mb-6 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
+        <p data-hero-copy className="mb-4 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
           <span className="h-px w-8 bg-primary" aria-hidden="true" />
           Virtual lab untuk belajar IoT
         </p>
@@ -26,19 +26,19 @@ export function LandingHero() {
           Belajar IoT dengan <span className="text-primary">membangunnya</span> secara langsung.
         </h1>
 
-        <p data-hero-copy className="mt-6 max-w-lg text-base leading-relaxed text-text-secondary sm:text-body-lg">
+        <p data-hero-copy className="mt-4 max-w-lg text-base leading-relaxed text-text-secondary sm:text-body-lg">
           Susun rangkaian, tulis kode, dan amati responsnya. Hubungkan materi
           dengan praktik dalam satu Virtual Lab.
         </p>
 
-        <div data-hero-copy className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Button asChild className="h-12 px-6 text-base">
+        <div data-hero-copy className="mt-6 flex gap-3">
+          <Button asChild className="h-12 px-3 text-sm sm:px-6 sm:text-base">
             <Link href={marketingRoutes.simulator}>
               Coba Simulator
               <ArrowUpRight aria-hidden="true" className="size-5" />
             </Link>
           </Button>
-          <Button asChild variant="outline" className="h-12 px-6 text-base">
+          <Button asChild variant="outline" className="h-12 px-3 text-sm sm:px-6 sm:text-base">
             <Link href={marketingRoutes.learningApp}>
               <BookOpen aria-hidden="true" className="size-5" />
               Mulai Belajar
@@ -50,7 +50,7 @@ export function LandingHero() {
           Langsung coba tanpa login. Simulator inti tetap gratis.
         </p>
 
-        <p data-hero-copy className="mt-12 hidden flex-wrap items-center gap-3 text-sm text-text-secondary lg:flex">
+        <p data-hero-copy className="mt-6 hidden flex-wrap items-center gap-3 text-sm text-text-secondary lg:flex">
           Rangkai
           <ArrowRight aria-hidden="true" className="size-4 text-border-strong" />
           Coba

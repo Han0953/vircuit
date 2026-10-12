@@ -274,3 +274,48 @@ close-ups, story framing and dark theme renders were visually reviewed.
 No dependency, simulator/dashboard/auth, commit or deployment changes.
 Models remain lightweight marketing approximations, not CAD/manufacturing
 assets. Physical-device/Safari QA and full application E2E were not run.
+
+## Homepage composition and renderer entry — 12 October 2026
+
+The learning story warms its renderer module within 600px of the viewport;
+the board spotlight warms on scroll approach. The spotlight no longer waits
+500ms and then an unbounded idle callback. Module preparation does not mount
+another Canvas: the existing exclusive owner still controls actual rendering.
+WebGL-capable, motion-enabled visitors see a neutral pending label rather than
+a temporary SVG board before the first completed 3D frame. SSR/no-JS, reduced
+motion, unavailable WebGL, failed imports (including a 15s timeout), context
+creation failure and context loss retain the meaningful SVG fallback.
+
+Uno, Nano and ESP32 now carry authored PCB/package markings using one generated
+1024px texture atlas and one additional mesh per board. Markings include board
+names, ATmega package text, Uno's canonical story pin labels, ESP32 RF module
+text and reset/USB labels. Previous placeholder strokes on chips/shields are
+removed so they cannot cross the new lettering. Atlas planes share one draw
+call and their geometry, material and texture are disposed with the world.
+The six physical finish batches remain unchanged; the visible board budget is
+now seven calls, still below the overall mobile scene budget. No external
+textures, fonts, dependencies or lighting loops are added.
+
+Virtual Lab uses the existing Uno, push-button and LED SVG artwork in a weighted
+layout. Board geometry keeps its aspect ratio and gets more space than the
+input/output parts. The former generic icon sizing rule no longer shrinks the
+board to 24px. This remains a labeled illustration, not an active simulator.
+
+The hero uses the measured sticky-header height to size its available viewport,
+smaller vertical spacing/headline bounds and adjacent touch-friendly CTAs.
+The SVG showcase is capped at 36rem, and content can naturally grow on unusually
+short viewports or with enlarged text. There is no fixed clipping height.
+Hero autoplay, pointer depth and reduced-motion behavior remain intact.
+
+Validation: lint, typecheck, production build and 219 unit tests pass (6 opt-in
+live AI checks skipped). The initial five-suite checkpoint passed 42/42 browser
+checks. After visual review removed the old package strokes, the final build
+passed 24/24 3D/cinematic/composition checks, including delayed delivery for
+both WebGL sections. Hero bounds fit without scrolling at 360x800, 390x844,
+430x844, 768x1024, 1280x720 and 1440x900. Desktop/mobile screenshots and
+Light/Dark/System renders were reviewed. Local Edge warm story samples are
+33 calls / 7,304 triangles, scroll rAF p95 16.8ms, with 251,649 gzip bytes of
+deferred world code. Budgets remain 256,000 bytes and 45 mobile story calls.
+Reports: ignored `playwright-report/homepage-refinement.json` and
+`homepage-refinement-final.json`. No simulator/dashboard/auth or dependency
+changes. Physical-device/Safari QA and full application E2E were not run.

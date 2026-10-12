@@ -40,7 +40,8 @@ for (const width of [390, 1440]) test(`cinematic ownership, board sequencing and
     await page.screenshot({ path: `test-results/cinematic-${width}-${board}.png` });
     await expect.poll(async () => Number(await page.locator('[data-cinematic-slot="boards"] [data-render-frames]').getAttribute("data-draw-calls"))).toBeGreaterThan(0);
     const hardware = await page.locator('[data-cinematic-slot="boards"] [data-render-frames]').evaluate((el) => ({ calls: Number(el.getAttribute("data-draw-calls")), triangles: Number(el.getAttribute("data-triangles")) }));
-    expect(hardware.calls).toBeLessThanOrEqual(6);
+    // Six batched physical finishes plus one shared atlas for printed markings.
+    expect(hardware.calls).toBeLessThanOrEqual(7);
     expect(hardware.triangles).toBeLessThan(6000);
     await info.attach(`${board}-hardware-budget`, { body: JSON.stringify(hardware), contentType: "application/json" });
     await page.locator("[data-board-stage]").screenshot({ path: `test-results/hardware-${width}-${board}-light.png` });

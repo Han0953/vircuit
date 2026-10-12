@@ -3,8 +3,20 @@ import { Mesh, MeshBasicMaterial, Raycaster, Vector3, PerspectiveCamera, Matrix4
 import { createBoardGeometry } from "@/components/marketing/scenes/three/board-geometry";
 import { featuredBoards, sampleCinematic } from "@/components/marketing/scenes/homepage-cinematic-config";
 import { unoPins } from "@/components/marketing/scenes/three/hardware-layout";
+import { boardPrintSurfaces } from "@/components/marketing/scenes/three/board-lettering";
 
 describe("marketing hardware geometry", () => {
+  for (const type of featuredBoards) it(`${type} prints a recognizable name and package markings inside its surfaces`, () => {
+    const surfaces = boardPrintSurfaces(type);
+    expect(surfaces).toHaveLength(2);
+    expect(surfaces.flatMap(({ labels }) => labels.map(({ text }) => text)).join(" ")).toContain(type.toUpperCase());
+    for (const surface of surfaces) for (const label of surface.labels) {
+      expect([surface.width, surface.length, surface.y, label.x, label.z, label.size].every(Number.isFinite)).toBe(true);
+      expect(label.size).toBeGreaterThan(0);
+      expect(Math.abs(label.x - surface.x) + label.text.length * label.size * .3).toBeLessThan(surface.width / 2);
+      expect(Math.abs(label.z - surface.z) + label.size / 2).toBeLessThan(surface.length / 2);
+    }
+  });
   for (const type of featuredBoards) it(`${type} keeps detailed geometry finite and batched within the mobile budget`, () => {
     const surfaces = createBoardGeometry(type);
     try {

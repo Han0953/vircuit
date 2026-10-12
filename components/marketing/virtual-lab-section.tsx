@@ -1,9 +1,18 @@
-import { ArrowRight, CircleDot, Code2, Cpu, Lightbulb, Play, Sparkles } from "lucide-react";
+import { ArrowRight, Code2, Cpu, Play, Sparkles } from "lucide-react";
 import { MotionScene } from "./scenes/motion-scene";
 import { SectionHeading } from "./section-heading";
 import { SectionLink } from "./section-link";
 import styles from "./homepage.module.css";
 import { BoardArtwork } from "./scenes/board-showcase";
+import { getDefinition } from "@/features/simulator/catalog/registry";
+import { visualLayout } from "@/features/simulator/ui/visuals/pin-layout";
+import { ComponentVisual } from "@/features/simulator/ui/visuals/component-visual";
+
+function PreviewPart({ type }: { type: "button" | "led" }) {
+  const definition = getDefinition(type);
+  const layout = visualLayout(definition);
+  return <div className={styles.demoPart + " component-art"} data-preview-part={type}><ComponentVisual component={{ id: `preview-${type}`, type, label: definition.name, position: { x: 0, y: 0 }, rotation: 0, properties: definition.defaults }} layout={layout} rotated={layout} output={type === "led" ? 1 : 0} value={0} /></div>;
+}
 
 export function VirtualLabSection() {
   return <section data-home-zone="workspace" aria-labelledby="lab-heading" className={styles.section}>
@@ -20,11 +29,11 @@ export function VirtualLabSection() {
             <div className={styles.demoCanvas}>
               <p className="flex items-center justify-between text-xs text-text-secondary"><span>Circuit Workspace</span><span className="flex items-center gap-1"><Play className="size-3" aria-hidden="true" />Run</span></p>
               <div className={styles.demoFlow} aria-hidden="true">
-                <div className={styles.demoUnit} data-input><CircleDot /><span>BUTTON / D2</span></div>
+                <div className={styles.demoUnit} data-input><PreviewPart type="button" /><span>BUTTON / D2</span></div>
                 <div className={styles.demoWire} data-signal />
-                <div className={styles.demoUnit}><div className={styles.workspaceBoard + " component-art"}><BoardArtwork type="uno" /></div><span>UNO / LOGIC</span></div>
+                <div className={styles.demoUnit}><div className={styles.workspaceBoard + " component-art"} data-preview-part="uno"><BoardArtwork type="uno" /></div><span>UNO / LOGIC</span></div>
                 <div className={styles.demoWire} data-signal />
-                <div className={styles.demoUnit + " text-iot"} data-demo-led><Lightbulb /><span>LED / D3</span></div>
+                <div className={styles.demoUnit + " text-iot"} data-demo-led><PreviewPart type="led" /><span>LED / D3</span></div>
               </div>
               <div className={styles.demoCirra} aria-hidden="true"><Sparkles className="size-4" /></div>
             </div>
