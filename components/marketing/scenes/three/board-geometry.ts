@@ -3,6 +3,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import type { FeaturedBoard } from "../homepage-cinematic-config";
 import type { Vector } from "../story-config";
 import { unoHeaderPads } from "./hardware-layout";
+import type { HardwareQuality } from "./quality-policy";
 
 type Finish = "pcb" | "substrate" | "chip" | "metal" | "gold" | "silkscreen";
 export type BoardSurface = { finish: Finish; geometry: BufferGeometry };
@@ -10,11 +11,12 @@ export type BoardSurface = { finish: Finish; geometry: BufferGeometry };
 /** Static hardware is baked by finish, including leads and connector walls.
  * Detail count does not become draw-call count. No simulator geometry is changed.
  */
-export function createBoardGeometry(type: FeaturedBoard): BoardSurface[] {
+export function createBoardGeometry(type: FeaturedBoard, quality: HardwareQuality = "high"): BoardSurface[] {
   const buckets = new Map<Finish, BufferGeometry[]>();
   const box = new BoxGeometry();
-  const cylinder = new CylinderGeometry(1, 1, 1, 16);
-  const ring = new RingGeometry(.55, 1, 16);
+  const segments = quality === "high" ? 16 : quality === "medium" ? 12 : 8;
+  const cylinder = new CylinderGeometry(1, 1, 1, segments);
+  const ring = new RingGeometry(.55, 1, segments);
   const matrix = new Matrix4(), quaternion = new Quaternion();
   const add = (source: BufferGeometry, finish: Finish, position: Vector, scale: Vector, rotation: Vector = [0, 0, 0]) => {
     quaternion.setFromEuler(new Euler(...rotation));
@@ -28,6 +30,7 @@ export function createBoardGeometry(type: FeaturedBoard): BoardSurface[] {
   const round = (finish: Finish, position: Vector, scale: Vector, rotation?: Vector) => add(cylinder, finish, position, scale, rotation);
   const pad = (position: Vector, radius = .057) => add(ring, "gold", position, [radius, radius, 1], [-Math.PI / 2, 0, 0]);
   const smd = (x: number, z: number, length = .13, width = .06, ceramic = false) => {
+    if (quality === "low") return;
     block("chip", [x, .105, z], [length, .055, width]);
     for (const side of [-1, 1]) block(ceramic ? "gold" : "metal", [x + side * length * .43, .105, z], [length * .2, .057, width * 1.05]);
   };
@@ -35,7 +38,7 @@ export function createBoardGeometry(type: FeaturedBoard): BoardSurface[] {
     const shape = new Shape();
     points.forEach(([x, z], i) => i ? shape.lineTo(x, -z) : shape.moveTo(x, -z)); shape.closePath();
     for (const [x, z] of holes) { const hole = new Path(); hole.absarc(x, -z, .068, 0, Math.PI * 2, true); shape.holes.push(hole); }
-    const geometry = new ExtrudeGeometry(shape, { depth: .09, bevelEnabled: false, curveSegments: 8 });
+    const geometry = new ExtrudeGeometry(shape, { depth: .09, bevelEnabled: false, curveSegments: quality === "high" ? 8 : 4 });
     geometry.rotateX(-Math.PI / 2);
     add(geometry, type === "esp32" ? "chip" : "pcb", [0, 0, 0], [1, 1, 1]);
     // Visible laminate edge below the solder mask, following the same cutouts.

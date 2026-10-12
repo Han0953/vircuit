@@ -4,6 +4,7 @@ import type { Project } from "../../features/simulator/types/project";
 
 async function load(page: Page, project: Project) {
   await page.goto("/simulator");
+  if ((page.viewportSize()?.width ?? 1440) < 1024) await page.getByRole("button", { name: "Tindakan workspace", exact: true }).click();
   await page.getByRole("button", { name: "Buka menu proyek" }).click();
   await page.getByLabel("Impor JSON", { exact: true }).setInputFiles({ name: "routing-v1.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(project)) });
   await expect(page.locator(".react-flow__node")).toHaveCount(project.components.length);
@@ -191,6 +192,7 @@ test.describe("touch routing", () => {
     }
     for (const theme of ["Terang", "Gelap", "Sistem"]) {
       await page.emulateMedia({ colorScheme: "dark" });
+      if (!(await page.getByRole("button", { name: /^Pilih tema:/ }).isVisible())) await page.getByRole("button", { name: "Tindakan workspace", exact: true }).click();
       await page.getByRole("button", { name: /^Pilih tema:/ }).click(); await page.getByRole("menuitemradio", { name: theme }).click();
       await expect(page.getByRole("menu")).not.toBeVisible();
       await page.screenshot({ path: `test-results/routing-mobile-${theme}.png` });

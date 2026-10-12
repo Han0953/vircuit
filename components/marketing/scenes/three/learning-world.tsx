@@ -1,5 +1,7 @@
 "use client";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useHardwareQuality } from "./use-hardware-quality";
+import { framedFov } from "./quality-policy";
 import { useEffect, useMemo, useRef } from "react";
 import { BufferGeometry, CatmullRomCurve3, Group, MeshBasicMaterial, PerspectiveCamera, TubeGeometry, Vector3 } from "three";
 import { primaryTypes } from "../component-motion-registry";
@@ -8,12 +10,13 @@ import { createHardwareResources, hardwareTokens, HardwareModel } from "./hardwa
 import { storyWireRoutes } from "./hardware-layout";
 
 function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HTMLElement; ready: () => void; fail: () => void }) {
-  const { camera, gl, invalidate, size, setDpr } = useThree();
+  const { camera, gl, invalidate, size } = useThree();
   const groups = useRef<Partial<Record<PrimaryType, Group>>>({});
-  const resources = useMemo(() => createHardwareResources(), []);
+  const { quality, report } = useHardwareQuality(host, fail);
+  const resources = useMemo(() => createHardwareResources(quality), [quality]);
   const wires = useMemo(() => storyWireRoutes.map((route) => new TubeGeometry(new CatmullRomCurve3(route.map((point) => new Vector3(...point)), false, "centripetal"), 32, .017, 4, false)), []);
   const wireMaterial = useMemo(() => new MeshBasicMaterial({ color: "#2563eb" }), []);
-  const renderState = useRef({ visible: false, requested: 0, slow: 0, downgraded: false, frames: 0, readyFrame: 0 });
+  const renderState = useRef({ visible: false, requested: 0, frames: 0, readyFrame: 0 });
   useEffect(() => {
     let active = true;
     const state = renderState.current;
@@ -41,7 +44,7 @@ function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HT
       resources.materials.led.color.set(pose.led > .1 ? colors.on : colors.off);
       wires.forEach((geometry) => geometry.setDrawRange(0, Math.floor((geometry.index?.count ?? 0) * pose.wire / 3) * 3));
       wireMaterial.color.set(pose.diagnostic ? colors.diagnostic : colors.wire);
-      if (camera instanceof PerspectiveCamera) setFieldOfView(camera, size.width < 600 ? 31 : 38);
+      if (camera instanceof PerspectiveCamera) setFieldOfView(camera, framedFov(size.width < 600 ? 31 : 38, size.width / size.height, size.width < 600 ? 1.5 : .85));
       camera.position.set(...pose.camera); camera.lookAt(...pose.target); camera.updateProjectionMatrix();
       host.setAttribute("data-world-progress", pose.p.toFixed(3)); host.setAttribute("data-camera", pose.camera.join(","));
       if (!state.requested) state.requested = performance.now();
@@ -56,16 +59,11 @@ function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HT
     document.addEventListener("visibilitychange", visibility);
     const off = channel.subscribe(() => apply()); palette(); apply(true);
     return () => { active = false; cancelAnimationFrame(state.readyFrame); state.readyFrame = 0; off(); observer.disconnect(); theme.disconnect(); document.removeEventListener("visibilitychange", visibility); gl.domElement.removeEventListener("webglcontextlost", lost); };
-  }, [camera, channel, fail, gl, host, invalidate, resources, size.width, wireMaterial, wires]);
+  }, [camera, channel, fail, gl, host, invalidate, resources, size.width, size.height, wireMaterial, wires]);
   useEffect(() => () => { resources.dispose(); wireMaterial.dispose(); wires.forEach((wire: BufferGeometry) => wire.dispose()); }, [resources, wireMaterial, wires]);
   useFrame(() => {
     const state = renderState.current; const delta = state.requested ? performance.now() - state.requested : 0; state.requested = 0;
-    // Measure requested-frame latency, excluding demand-rendered idle intervals.
-    if (delta > 40) state.slow++; else if (delta > 0 && delta < 25) state.slow = Math.max(0, state.slow - 1);
-    if (state.slow > 24) {
-      if (!state.downgraded) { state.downgraded = true; state.slow = 0; setDpr(.75); host.setAttribute("data-quality", "low"); }
-      else { fail(); return; }
-    }
+    if (!report(delta)) return;
     state.frames++; host.setAttribute("data-render-frames", String(state.frames));
     // Counters belong to the completed render, not the preceding idle frame.
     if (!state.readyFrame) state.readyFrame = requestAnimationFrame(() => {
@@ -78,7 +76,7 @@ function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HT
   return <>
     <hemisphereLight args={["#ffffff", "#8090a0", 1.55]} />
     <directionalLight position={[-4, 7, 3]} intensity={2.8} />
-    <directionalLight position={[4, 3, -5]} intensity={.8} />
+    {quality !== "low" && <directionalLight position={[4, 3, -5]} intensity={.8} />}
     {primaryTypes.map((type) => <HardwareModel key={type} type={type} resources={resources} onGroup={(group) => { if (group) groups.current[type] = group; }} />)}
     {wires.map((geometry, i) => <mesh key={i} geometry={geometry} material={wireMaterial} dispose={null} />)}
   </>;

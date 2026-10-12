@@ -33,7 +33,7 @@ export function animatePublic(root: HTMLElement, route: string) {
       if (target.dataset.revealed === "true") return;
       target.dataset.revealed = "true";
       const members = target.hasAttribute("data-motion-group") ? [target] : Array.from(target.querySelectorAll<HTMLElement>("[data-motion-group]"));
-      const timeline = gsap.timeline({ delay: Math.floor(order / 3) * .95, defaults: { duration: motion.reveal, ease: motion.ease }, onComplete: () => { members.forEach((item) => { item.dataset.motionState = item.dataset.motion === "static" ? "static" : "complete"; }); observer?.unobserve(target); } });
+      const timeline = gsap.timeline({ delay: Math.min(order, 3) * (desktop ? .06 : .025), defaults: { duration: desktop ? motion.reveal : motion.mobileReveal, ease: motion.ease }, onComplete: () => { members.forEach((item) => { item.dataset.motionState = item.dataset.motion === "static" ? "static" : "complete"; }); observer?.unobserve(target); } });
       timelines.set(target, timeline);
       members.forEach((item, index) => {
         const definition = motionDefinition(route, item.dataset.motionGroup ?? "");
@@ -44,9 +44,9 @@ export function animatePublic(root: HTMLElement, route: string) {
         item.dataset.motionState = "active";
         item.dataset.motionMode = members.length > 1 || item.querySelector("li, [data-motion-row], [data-part], [data-trace]") ? "sequence" : "individual";
         const hero = item.closest("[data-hero]");
-        timeline.fromTo(item, { y: hero ? 4 : desktop ? motion.desktopDistance : motion.mobileDistance, opacity: hero ? 1 : .55 }, { y: 0, opacity: 1, clearProps: "transform,opacity" }, index * (desktop ? motion.desktopStagger : motion.stagger));
+        timeline.fromTo(item, { y: hero ? 4 : desktop ? motion.desktopDistance : motion.mobileDistance, opacity: hero ? 1 : .65 }, { y: 0, opacity: 1, clearProps: "transform,opacity" }, Math.min(index * (desktop ? motion.desktopStagger : motion.stagger), .24));
         const rows = item.querySelectorAll("li, [data-motion-row]");
-        if (rows.length) timeline.fromTo(rows, { x: -4, opacity: .5 }, { x: 0, opacity: 1, duration: .25, stagger: motion.stagger, clearProps: "transform,opacity" }, index * motion.stagger + .1);
+        if (rows.length) timeline.fromTo(rows, { x: -4, opacity: .65 }, { x: 0, opacity: 1, duration: .25, stagger: { amount: Math.min(.28, rows.length * motion.stagger) }, clearProps: "transform,opacity" }, Math.min(index * motion.stagger, .2) + .08);
         if (treatment === "identity") timeline.fromTo(item.querySelectorAll("svg"), { scale: .96 }, { scale: 1, transformOrigin: "center", clearProps: "transform", duration: .25 }, index * motion.stagger);
         const storyOwned = item.hasAttribute("data-story") && matchMedia("(min-width:1024px) and (min-height:620px)").matches;
         if (treatment === "art" && !storyOwned) {

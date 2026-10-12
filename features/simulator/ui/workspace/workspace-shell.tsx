@@ -21,6 +21,7 @@ import { DraftRecovery } from "@/features/projects/ui/draft-recovery";
 import { Autosave } from "@/features/projects/ui/autosave";
 import { FloatingCirra } from "@/features/ai/ui/floating-cirra";
 import controls from "./workspace-controls.module.css";
+import { useWorkspaceViewport } from "./use-workspace-viewport";
 
 const subscribeDesktop = (listener: () => void) => { const query = window.matchMedia("(min-width: 1024px)"); query.addEventListener("change", listener); return () => query.removeEventListener("change", listener); };
 
@@ -31,6 +32,8 @@ export function WorkspaceShell() {
 }
 
 function WorkspaceContent() {
+  const root = useWorkspaceViewport();
+  const sheetHeading = useRef<HTMLHeadingElement>(null);
   const desktop = useSyncExternalStore(subscribeDesktop, () => window.matchMedia("(min-width: 1024px)").matches, () => false);
   const pathname = usePathname();
   const query = useSearchParams().toString();
@@ -69,10 +72,10 @@ function WorkspaceContent() {
   const panelTitle = mobilePanel === "parts" ? "Parts" : mobilePanel === "properties" ? "Properties" : workspaceTabs.find((item) => item.id === mobilePanel)?.label;
 
   return (
-    <div data-workspace-shell className={`${controls.workspace} flex h-full min-h-0 flex-col overflow-hidden bg-background`}>
+    <div ref={root} data-workspace-shell className={`${controls.workspace} flex h-full min-h-0 flex-col overflow-hidden bg-background`}>
       <Autosave />
       <a href="#workspace-canvas" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-md focus:bg-surface focus:p-4 focus:ring-2 focus:ring-ring">Lewati ke canvas</a>
-      <WorkspaceTopbar onOpenAI={() => window.dispatchEvent(new Event("vircuit:open-cirra"))} />
+      <WorkspaceTopbar desktop={desktop} onOpenAI={() => window.dispatchEvent(new Event("vircuit:open-cirra"))} />
       <PracticeContextPanel />
       <main aria-label="Workspace Virtual Lab" className="flex min-h-0 flex-1 flex-col">
         <ResizableWorkspace
@@ -96,15 +99,17 @@ function WorkspaceContent() {
 
           </div>
         </ResizableWorkspace>
-        <nav aria-label="Panel workspace" className="grid shrink-0 grid-cols-3 border-t bg-surface px-1 pb-[env(safe-area-inset-bottom)] lg:hidden">
-          <Button variant="ghost" className="h-auto min-h-16 flex-col gap-1 px-1 text-xs" onClick={(event) => openPanel("parts", event.currentTarget)}><PanelLeft aria-hidden="true" />Parts</Button>
+        <nav aria-label="Panel workspace" className={controls.island} data-active={mobilePanel}>
+          <span aria-hidden className={controls.islandIndicator} style={{ transform: `translateX(${mobilePanel === "parts" || mobilePanel === "properties" ? 0 : mobilePanel === "serial" ? 100 : 200}%)` }} />
+          <Button variant="ghost" aria-expanded={sheetOpen && mobilePanel === "parts"} className={controls.islandButton} onClick={(event) => openPanel("parts", event.currentTarget)}><PanelLeft aria-hidden="true" /><span>Parts</span></Button>
           {workspaceTabs.map(({ id, label, mobileLabel, icon: Icon }) => (
-            <Button key={id} variant="ghost" aria-label={`Buka ${label}`} className="h-auto min-h-16 flex-col gap-1 px-1 text-xs" onClick={(event) => openPanel(id, event.currentTarget)}><Icon aria-hidden="true" />{mobileLabel}</Button>
+            <Button key={id} variant="ghost" aria-label={`Buka ${label}`} aria-expanded={sheetOpen && mobilePanel === id} className={controls.islandButton} onClick={(event) => openPanel(id, event.currentTarget)}><Icon aria-hidden="true" /><span>{mobileLabel}</span></Button>
           ))}
         </nav>
       </main>
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="bottom" className="h-[85dvh] max-h-dvh gap-0 rounded-t-xl pb-[env(safe-area-inset-bottom)]"
+          onOpenAutoFocus={(event) => { event.preventDefault(); sheetHeading.current?.focus({ preventScroll: true }); }}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
             const trigger = lastTrigger.current;
@@ -112,7 +117,7 @@ function WorkspaceContent() {
             else canvas.current?.focus();
           }}>
           <SheetHeader className="shrink-0 border-b pr-16">
-            <SheetTitle>{panelTitle}</SheetTitle>
+            <SheetTitle ref={sheetHeading} tabIndex={-1} className="outline-none">{panelTitle}</SheetTitle>
             <SheetDescription>Tutup panel untuk kembali ke canvas.</SheetDescription>
           </SheetHeader>
           <div className={`min-h-0 flex-1 ${mobilePanel === "parts" || mobilePanel === "properties" ? "overflow-y-auto" : "overflow-hidden"}`}>

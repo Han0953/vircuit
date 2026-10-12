@@ -47,7 +47,7 @@ export function MarketingThemeToggle() {
     }} onKeyDown={() => { hover.current = false; cancelTimer(); }}>
       <Button ref={trigger} variant="ghost" size="icon" className={styles.themeButton} disabled={!mounted} aria-label={`Pilih tema: ${selected.label}`}
         onPointerEnter={(event) => {
-          if (event.pointerType !== "mouse" || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+          if (event.pointerType !== "mouse" || !window.matchMedia("(min-width: 1024px) and (hover: hover) and (pointer: fine)").matches) return;
           hover.current = true; restoreFocus.current = false; cancelTimer(); timer.current = setTimeout(() => setOpen(true), 160);
         }} onPointerLeave={leave}>
         <Icon aria-hidden="true" key={selected.value} />

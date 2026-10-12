@@ -27,11 +27,15 @@ test(`theme changes preserve scroll and compact header at ${width}`, async ({ pa
   for (const route of routes) {
     await page.goto(route);
     await page.evaluate(() => document.fonts.ready);
-    await page.evaluate(() => scrollTo(0, 1800));
+    await page.mouse.wheel(0, 1800);
     await page.waitForTimeout(1200); // Let lazy scene initialization and scroll settling finish.
     const before = await page.evaluate(() => scrollY);
+    expect(before).toBeGreaterThan(100);
     for (const name of ["Gelap", "Terang"] as const) {
-      if (width < 1024) await press(page, page.getByRole("button", { name: "Buka menu navigasi" }), true);
+      if (width < 1024) {
+        await press(page, page.getByRole("button", { name: "Buka menu navigasi" }), true);
+        await expect.poll(async () => Math.round((await page.getByRole("dialog").boundingBox())!.x)).toBe(0);
+      }
       const trigger = page.getByRole("button", { name: /^Pilih tema:/ });
       await press(page, trigger, width < 1024);
       const afterOpen = await page.evaluate(() => scrollY);

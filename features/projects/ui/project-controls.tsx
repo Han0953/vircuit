@@ -1,8 +1,9 @@
 "use client";
 import { CircuitPanel } from "@/features/simulator/ui/panels/circuit-panel";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { FolderOpen, LogOut, Plus, Save, Trash2 } from "lucide-react";
+import { FolderOpen, LogOut, MoreHorizontal, Plus, Save, Trash2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -19,7 +20,7 @@ function exportBackup() {
   const url = URL.createObjectURL(new Blob([serializeProject(useProject.getState().project)], { type: "application/json" }));
   const link = document.createElement("a"); link.href = url; link.download = "vircuit-backup.json"; link.click(); URL.revokeObjectURL(url);
 }
-export function ProjectControls() {
+export function ProjectControls({ compact = false, secondary }: { compact?: boolean; secondary?: ReactNode }) {
   const router = useRouter();
   const userId = usePersistence((s) => s.userId);
   const busy = usePersistence((s) => s.busy);
@@ -47,12 +48,7 @@ export function ProjectControls() {
       if (userId) setProjects(await listCloudProjects());
     });
   }
-  const statusLabel = { unsaved: "Belum tersimpan di akun", saving: "Menyimpan…", saved: "Tersimpan di akun", failed: "Simpan gagal" }[status];
-  return <>
-    <span role="status" className="max-w-36 truncate text-xs text-text-secondary" title={statusLabel}>{statusLabel}</span>
-    <Button disabled={busy || loading} variant="ghost" aria-label={status === "failed" ? "Coba simpan lagi" : "Simpan proyek"} onClick={() => void action(async () => { const next = await requestSave(); if (next) router.push(next); })} className="px-3"><Save aria-hidden /><span className="hidden sm:inline">Simpan</span></Button>
-    <Button disabled={busy || loading} variant="ghost" size="icon" aria-label="Buka menu proyek" onClick={() => void showProjects()}><FolderOpen aria-hidden /></Button>
-    {userId && <Button disabled={busy || loading} variant="ghost" size="icon" aria-label="Keluar akun" onClick={() => void action(async () => {
+  const signOut = () => void action(async () => {
       const draft = usePersistence.getState().draft;
       if (draft && (await archivedDrafts(draft.scope)).length && !window.confirm("Ada arsip draft lokal akun. Ekspor arsip yang diperlukan melalui menu Proyek sebelum keluar. Lanjut keluar dan hapus cache akun termasuk arsip?")) return;
       if (draft && draft.savedLocalRevision !== draft.localRevision) {
@@ -60,8 +56,24 @@ export function ProjectControls() {
         exportBackup();
       }
       await logout(); setProjects([]);
-    })}><LogOut aria-hidden /></Button>}
-    {(error || message) && <span role="alert" className="max-w-full text-xs text-destructive">{error || message}</span>}
+    });
+  const statusLabel = { unsaved: "Belum tersimpan di akun", saving: "Menyimpan…", saved: "Tersimpan di akun", failed: "Simpan gagal" }[status];
+  return <>
+    <span role="status" className={compact ? "sr-only" : "max-w-36 truncate text-xs text-text-secondary"} title={statusLabel}>{statusLabel}</span>
+    <Button disabled={busy || loading} variant="ghost" title={statusLabel} aria-label={status === "failed" ? "Coba simpan lagi" : "Simpan proyek"} onClick={() => void action(async () => { const next = await requestSave(); if (next) router.push(next); })} className={compact ? "relative size-11 p-0" : "px-3"}><Save aria-hidden /><span className={compact ? "sr-only" : "hidden sm:inline"}>Simpan</span>{compact && <span aria-hidden className={`absolute right-2 top-2 size-1.5 rounded-full ${status === "saved" ? "bg-iot" : status === "failed" ? "bg-destructive" : "bg-text-tertiary"}`} />}</Button>
+    <Popover open={compact ? undefined : true}>
+    {compact && <PopoverTrigger asChild><Button size="icon" variant="ghost" aria-label="Tindakan workspace"><MoreHorizontal aria-hidden /></Button></PopoverTrigger>}
+    {compact ? <PopoverContent align="end" role="group" aria-label="Tindakan workspace" onInteractOutside={(event) => {
+      // Secondary actions open portaled dialogs/menus; keep their owners mounted.
+      if (document.querySelector("[data-slot='dialog-content'],[data-slot='dropdown-menu-content']")) event.preventDefault();
+    }} className="flex flex-wrap items-center gap-2"><Button disabled={busy || loading} variant="outline" aria-label="Buka menu proyek" onClick={() => void showProjects()}><FolderOpen aria-hidden />Proyek & cadangan</Button>{secondary}{userId && <Button variant="ghost" disabled={busy || loading} onClick={signOut}>Keluar akun</Button>}</PopoverContent> : null}
+    </Popover>
+    <div className={compact ? "hidden" : "contents"}>
+    <Button disabled={busy || loading} variant="ghost" size="icon" aria-label="Buka menu proyek" onClick={() => void showProjects()}><FolderOpen aria-hidden /></Button>
+    {userId && <Button data-workspace-logout disabled={busy || loading} variant="ghost" size="icon" aria-label="Keluar akun" onClick={signOut}><LogOut aria-hidden /></Button>}
+    {!compact && secondary}
+    </div>
+    {(error || message) && <span role="alert" className={compact ? "absolute inset-x-2 top-full z-30 rounded-md border bg-surface p-3 text-xs text-destructive break-words" : "max-w-full text-xs text-destructive"}>{error || message}</span>}
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader><DialogTitle>Proyek</DialogTitle><DialogDescription>Kelola proyek aktif, arsip draft lokal, dan proyek yang tersimpan di akun.</DialogDescription></DialogHeader>

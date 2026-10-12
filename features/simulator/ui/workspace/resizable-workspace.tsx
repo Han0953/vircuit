@@ -88,7 +88,7 @@ export function ResizableWorkspace({ parts, properties, bottom, children, naviga
       <Panel style={{ overflow: "hidden" }} id="center" minSize="36%" className="h-full min-w-0">
         <div className="flex h-full min-h-0 flex-col">
           <TooltipProvider>
-            <div className="flex shrink-0 items-center justify-between border-b px-3">
+            <div data-workspace-chrome className="flex shrink-0 items-center justify-between border-b px-3">
               {navigation ?? <span className="text-sm font-medium">Circuit</span>}
               <div className="flex gap-1">
                 {controls.map(({ name, label, icon: Icon }) => <Tooltip key={name}>

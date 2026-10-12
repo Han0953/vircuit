@@ -45,6 +45,7 @@ for (const width of [1440, 360, 430]) {
     await input.fill("Pertanyaan tetap bisa diketik");
     await page.screenshot({ path: `playwright-report/cirra-focus-${width}.png` });
     await chat.getByRole("button", { name: "Minimalkan Cirra" }).click();
+    if (width < 1024) await page.getByRole("button", { name: "Tindakan workspace" }).click();
     await page.getByRole("button", { name: "Buka menu proyek" }).click();
     const close = page.locator('[data-slot="dialog-close"]').filter({ hasText: "Tutup" });
     await close.hover(); await page.mouse.down();
@@ -189,7 +190,7 @@ test("touch Enter creates a newline; visible viewport, focus and reduced motion 
   await request.post(`${fixture}/__fixture/reset`, { data: { count: 0 } });
   await page.route("https://*.supabase.co/auth/v1/**", async (route) => { const url = new URL(route.request().url()); await route.fulfill({ response: await route.fetch({ url: `${fixture}${url.pathname}${url.search}` }) }); });
   await login(page); await mockReplies(page); await page.goto("/simulator");
-  await page.getByRole("button", { name: "Buka panel Cirra" }).tap();
+  await page.getByRole("button", { name: "Buka Cirra", exact: true }).tap();
   await expect(page.getByRole("button", { name: "Minimalkan Cirra" })).toBeFocused();
   const chat = page.getByRole("region", { name: "Percakapan Cirra" }), input = chat.getByLabel("Pertanyaan untuk Cirra");
   await chat.getByLabel("Mode", { exact: true }).tap();
@@ -219,9 +220,9 @@ test("touch Enter creates a newline; visible viewport, focus and reduced motion 
   await page.keyboard.press("ArrowDown"); await expect(page.getByRole("menuitem", { name: "Bersihkan" })).toBeFocused();
   await page.keyboard.press("Escape"); await expect(chat.getByRole("button", { name: "Opsi percakapan" })).toBeFocused();
   await input.fill("Tetap tersimpan"); await page.screenshot({ path: "test-results/cirra-ux-mobile-viewport.png", fullPage: true });
-  await page.getByRole("button", { name: "Minimalkan Cirra" }).tap(); await expect(page.getByRole("button", { name: "Buka panel Cirra" })).toBeFocused();
+  await page.getByRole("button", { name: "Minimalkan Cirra" }).tap(); await expect(page.getByRole("button", { name: "Buka Cirra", exact: true })).toBeFocused();
   expect(await page.evaluate(() => document.body.style.overflow)).not.toBe("hidden");
-  await page.getByRole("button", { name: "Buka panel Cirra" }).tap(); await expect(input).toHaveValue("Tetap tersimpan");
+  await page.getByRole("button", { name: "Buka Cirra", exact: true }).tap(); await expect(input).toHaveValue("Tetap tersimpan");
   await context.close();
 });
 

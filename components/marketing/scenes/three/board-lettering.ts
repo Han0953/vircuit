@@ -51,17 +51,17 @@ export function boardPrintSurfaces(type: FeaturedBoard): PrintSurface[] {
   ];
 }
 
-export function createBoardLettering(type: FeaturedBoard) {
+export function createBoardLettering(type: FeaturedBoard, resolution = 1024) {
   const canvas = document.createElement("canvas");
-  canvas.width = 1024; canvas.height = 1024;
+  canvas.width = resolution; canvas.height = resolution;
   const context = canvas.getContext("2d");
   if (!context) return null;
   const surfaces = boardPrintSurfaces(type);
   const planes = surfaces.map((surface, index) => {
     const { width, length, x, z, y, labels } = surface;
-    const top = index * 512;
-    context.save(); context.beginPath(); context.rect(0, top, 1024, 512); context.clip();
-    context.translate(0, top); context.scale(1024 / width, 512 / length);
+    const top = index * resolution / 2;
+    context.save(); context.beginPath(); context.rect(0, top, resolution, resolution / 2); context.clip();
+    context.translate(0, top); context.scale(resolution / width, resolution / 2 / length);
     context.textAlign = "center"; context.textBaseline = "middle";
     for (const label of labels) {
       context.fillStyle = label.dark ? "#25282b" : "#f1f4ed";

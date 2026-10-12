@@ -73,11 +73,11 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
           const parts = inner.length ? inner : [element];
           parts.forEach((part, index) => {
             part.setAttribute("data-home-reveal", "");
-            (part as HTMLElement | SVGElement).style.setProperty("--home-reveal-delay", `${index * (desktop ? homeMotion.stagger : homeMotion.mobileStagger)}s`);
+            (part as HTMLElement | SVGElement).style.setProperty("--home-reveal-delay", `${Math.min(.24, index * (desktop ? homeMotion.stagger : homeMotion.mobileStagger))}s`);
           });
           return parts;
         });
-        page.style.setProperty("--home-reveal-duration", `${homeMotion.entrance}s`);
+        page.style.setProperty("--home-reveal-duration", `${desktop ? homeMotion.entrance : homeMotion.mobileEntrance}s`);
         page.style.setProperty("--home-reveal-travel", `${desktop ? homeMotion.desktopTravel : homeMotion.mobileTravel}px`);
         // One observer, not a ScrollTrigger for every paragraph. Fast jumps only animate
         // the actual destination; skipped content remains fully visible by default.
@@ -156,6 +156,9 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
             const name = container.querySelector("[data-board-name]");
             const label = reduced || !tall ? "Uno · Nano · ESP32" : ({ uno: "Arduino Uno R3", nano: "Arduino Nano · visual saja", esp32: "ESP32 · subset edukatif" })[pose.board];
             if (name && name.textContent !== label) name.textContent = label;
+            const context = container.querySelector("[data-board-context]");
+            const contextText = reduced || !tall ? "Uno & ESP32: subset edukatif · Nano: visual saja" : ({ uno: "Digital I/O · Analog & PWM · ATmega328P", nano: "Board ringkas · Kenali pin · Visual saja", esp32: "GPIO · Analog & PWM · Wi-Fi tidak disimulasikan" })[pose.board];
+            if (context && context.textContent !== contextText) context.textContent = contextText;
           }
           if (fallback && !reduced && visible > 0) fallback.style.transform = `translate(${pose.position[0] * 8}px, ${-pose.position[1] * 12}px) rotate(${pose.rotation[1] * 12}deg)`;
           if (visible > best && visible >= Math.min(160, box.height * .5)) { best = visible; next = zone; }

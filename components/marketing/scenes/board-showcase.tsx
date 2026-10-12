@@ -28,7 +28,7 @@ export function BoardShowcase() {
         <CinematicSlot zone="boards" className={styles.boardViewport}>
           {featuredBoards.map((type) => <div key={type} data-featured-fallback={type}><BoardArtwork type={type} /></div>)}
         </CinematicSlot>
-        <figcaption className={styles.boardCaption}><strong data-board-name>Uno · Nano · ESP32</strong><span>Ilustrasi bentuk board · periksa dukungan sebelum praktik</span></figcaption>
+        <figcaption className={styles.boardCaption}><strong data-board-name>Uno · Nano · ESP32</strong><span data-board-context>Ilustrasi bentuk board · periksa dukungan sebelum praktik</span></figcaption>
       </figure>
       <div className={styles.boardChapters}>
         {featuredBoards.map((type, i) => <article className={styles.boardChapter} key={type} data-featured-board={type}>

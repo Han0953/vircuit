@@ -1,5 +1,7 @@
 "use client";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useHardwareQuality } from "./use-hardware-quality";
+import { framedFov } from "./quality-policy";
 import { useEffect, useMemo, useRef } from "react";
 import { Group, PerspectiveCamera } from "three";
 import { featuredBoards, sampleCinematic, type CinematicChannel, type FeaturedBoard } from "../homepage-cinematic-config";
@@ -8,10 +10,11 @@ import { CompactBoard } from "./board-models";
 
 export type CinematicWorldProps = { channel: CinematicChannel; host: HTMLElement; ready: () => void; fail: () => void };
 function Boards({ channel, host, ready, fail }: CinematicWorldProps) {
-  const { camera, gl, invalidate, size, setDpr } = useThree();
-  const resources = useMemo(() => createHardwareResources(), []);
+  const { camera, gl, invalidate, size } = useThree();
+  const { quality, report } = useHardwareQuality(host, fail);
+  const resources = useMemo(() => createHardwareResources(quality), [quality]);
   const groups = useRef<Partial<Record<FeaturedBoard, Group>>>({});
-  const state = useRef({ requested: 0, slow: 0, low: false, frames: 0, announced: false, readyFrame: 0 });
+  const state = useRef({ requested: 0, frames: 0, announced: false, readyFrame: 0 });
   useEffect(() => {
     const apply = () => {
       if (document.hidden) return;
@@ -26,7 +29,7 @@ function Boards({ channel, host, ready, fail }: CinematicWorldProps) {
         group.scale.setScalar(pose.scale);
       }
       camera.position.set(...pose.camera); camera.lookAt(...pose.target);
-      if (camera instanceof PerspectiveCamera) { camera.fov = size.width / size.height < 1 ? 37 : 32; camera.updateProjectionMatrix(); }
+      if (camera instanceof PerspectiveCamera) { camera.fov = framedFov(size.width / size.height < 1 ? 37 : 32, size.width / size.height); camera.updateProjectionMatrix(); }
       host.dataset.board = pose.board;
       host.dataset.worldProgress = pose.p.toFixed(3);
       host.dataset.camera = pose.camera.join(",");
@@ -56,11 +59,7 @@ function Boards({ channel, host, ready, fail }: CinematicWorldProps) {
     const s = state.current;
     const latency = s.requested ? performance.now() - s.requested : 0;
     s.requested = 0;
-    if (latency > 40) s.slow++; else if (latency > 0 && latency < 25) s.slow = Math.max(0, s.slow - 1);
-    if (s.slow > 24) {
-      if (s.low) { fail(); return; }
-      s.low = true; s.slow = 0; setDpr(.75); host.setAttribute("data-quality", "low");
-    }
+    if (!report(latency)) return;
     host.setAttribute("data-render-frames", String(++s.frames));
     // useFrame runs before gl.render. Read counters after the completed frame,
     // including the first demand-rendered frame when the scene then stays idle.
@@ -74,7 +73,7 @@ function Boards({ channel, host, ready, fail }: CinematicWorldProps) {
   return <>
     <hemisphereLight args={["#ffffff", "#8090a0", 1.55]} />
     <directionalLight position={[-4, 7, 3]} intensity={2.8} />
-    <directionalLight position={[4, 3, -5]} intensity={.8} />
+    {quality !== "low" && <directionalLight position={[4, 3, -5]} intensity={.8} />}
     <HardwareModel type="uno" resources={resources} onGroup={(group) => { if (group) groups.current.uno = group; }} />
     {(["nano", "esp32"] as const).map((type) => <group key={type} ref={(group) => { if (group) groups.current[type] = group; }} dispose={null}><CompactBoard type={type} resources={resources} /></group>)}
   </>;

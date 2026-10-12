@@ -87,6 +87,7 @@ test("mobile gallery and custom dropdown stay inside 360–430px in light dark a
   for (const [theme, width] of [["light", 360], ["dark", 390], ["system", 430]] as const) {
     await page.setViewportSize({ width, height: 900 }); await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
     await page.addInitScript((theme) => localStorage.setItem("vircuit-theme", theme), theme); await page.goto("/simulator");
+    await page.getByRole("button", { name: "Tindakan workspace", exact: true }).click();
     await page.getByRole("button", { name: "Contoh rangkaian", exact: true }).click();
     const dialog = page.getByRole("dialog"); await expect(dialog.getByRole("img")).toHaveCount(12);
     await page.getByLabel("Board contoh", { exact: true }).click();

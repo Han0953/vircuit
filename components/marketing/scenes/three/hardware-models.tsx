@@ -4,15 +4,16 @@ import type { PrimaryType, Vector } from "../story-config";
 import type { FeaturedBoard } from "../homepage-cinematic-config";
 import { createBoardGeometry } from "./board-geometry";
 import { createBoardLettering } from "./board-lettering";
+import type { HardwareQuality } from "./quality-policy";
 
 export const hardwareTokens = { pcb: "pcb", substrate: "pcb-dark", chip: "chip", metal: "metal", gold: "gold", silkscreen: "silkscreen", breadboard: "breadboard", resistor: "resistor", led: "led-on" } as const;
 
-export function createHardwareResources() {
+export function createHardwareResources(quality: HardwareQuality = "high") {
   const materials = {
-    pcb: new MeshStandardMaterial({ color: "#1b7598", roughness: .78 }),
+    pcb: new MeshStandardMaterial({ color: "#1b7598", roughness: .74, metalness: .04 }),
     substrate: new MeshStandardMaterial({ color: "#244343", roughness: .88 }),
     chip: new MeshStandardMaterial({ color: "#25282b", roughness: .85 }),
-    metal: new MeshStandardMaterial({ color: "#bdc6c9", metalness: .58, roughness: .5 }),
+    metal: new MeshStandardMaterial({ color: "#bdc6c9", metalness: .65, roughness: .43 }),
     gold: new MeshStandardMaterial({ color: "#d8b971", metalness: .48, roughness: .53 }),
     silkscreen: new MeshStandardMaterial({ color: "#f1f4ed", roughness: .9 }),
     breadboard: new MeshStandardMaterial({ color: "#e6e5df", roughness: .8 }),
@@ -20,8 +21,9 @@ export function createHardwareResources() {
     led: new MeshStandardMaterial({ color: "#ff5a51", emissive: "#ff5a51", emissiveIntensity: 0, roughness: .35 }),
   };
   const geometry = { box: new BoxGeometry(), cylinder: new CylinderGeometry(1, 1, 1, 12), dome: new SphereGeometry(1, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2) };
-  const boards = { uno: createBoardGeometry("uno"), nano: createBoardGeometry("nano"), esp32: createBoardGeometry("esp32") };
-  const lettering = { uno: createBoardLettering("uno"), nano: createBoardLettering("nano"), esp32: createBoardLettering("esp32") };
+  const boards = { uno: createBoardGeometry("uno", quality), nano: createBoardGeometry("nano", quality), esp32: createBoardGeometry("esp32", quality) };
+  const resolution = quality === "low" ? 512 : 1024;
+  const lettering = { uno: createBoardLettering("uno", resolution), nano: createBoardLettering("nano", resolution), esp32: createBoardLettering("esp32", resolution) };
   return { materials, geometry, boards, lettering, dispose() { Object.values(materials).forEach((m) => m.dispose()); Object.values(geometry).forEach((g) => g.dispose()); Object.values(boards).flat().forEach(({ geometry: g }) => g.dispose()); Object.values(lettering).forEach((print) => print?.dispose()); } };
 }
 export type HardwareResources = ReturnType<typeof createHardwareResources>;

@@ -51,7 +51,7 @@ export function PublicNavbar() {
   }, []);
 
   return (
-    <header ref={header} data-home-header="" data-scrolled={scrolled} data-menu-open={menuOpen} className={cn("border-b border-border bg-background", styles.header)}>
+    <header ref={header} data-home-header="" data-scrolled={scrolled} data-menu-open={menuOpen} className={styles.header}>
       <a
         data-motion-group="nav.skip" data-motion="control"
         href="#main-content"
@@ -103,9 +103,7 @@ export function PublicNavbar() {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <Button data-motion-group="nav.simulator" data-motion="control" asChild className="px-3">
-            <Link prefetch={false} href={marketingRoutes.simulator}>Buka Virtual Lab</Link>
-          </Button>
+          <span data-motion-group="nav.theme" data-motion="control"><MarketingThemeToggle /></span>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <Button ref={menuTrigger} data-motion-group="nav.menu" data-motion="control" variant="outline" size="icon" aria-label="Buka menu navigasi">
@@ -116,9 +114,9 @@ export function PublicNavbar() {
               event.preventDefault();
               menuTrigger.current?.focus({ preventScroll: true });
             }}>
-              <SheetHeader className="border-b p-6 pr-16 text-left">
+              <SheetHeader className="p-6 pr-16 text-left"><div className="flex items-center justify-between gap-3">
                 <SheetTitle className="flex items-center gap-2 text-xl"><BrandLogo size="sm" /></SheetTitle>
-                <SheetDescription>Belajar IoT lewat praktik.</SheetDescription>
+                <MarketingThemeToggle /></div><SheetDescription>Belajar IoT lewat praktik.</SheetDescription>
               </SheetHeader>
               <nav aria-label="Navigasi mobile" className={styles.mobileLinks}>
                 {primaryNavigation.map(({ label, href }) => {
@@ -153,18 +151,6 @@ export function PublicNavbar() {
                     </Link>
                   </Button>
                 </SheetClose>
-                <SheetClose asChild>
-                  <Button asChild>
-                    <Link href={marketingRoutes.simulator}>
-                      Buka Virtual Lab
-                      <ArrowUpRight aria-hidden="true" />
-                    </Link>
-                  </Button>
-                </SheetClose>
-              </div>
-              <div className="mt-auto flex items-center justify-between gap-4 border-t p-6">
-                <span className="text-sm text-text-secondary">Tampilan</span>
-                <MarketingThemeToggle />
               </div>
             </SheetContent>
           </Sheet>

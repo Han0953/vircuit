@@ -1,6 +1,6 @@
 export const publicRoutes = ["/fitur", "/belajar", "/jelajahi", "/harga"] as const;
 export type PublicRoute = (typeof publicRoutes)[number];
-export const motion = { reveal: .4, short: .15, state: .2, stagger: .05, desktopStagger: .08, desktopDistance: 16, mobileDistance: 8, ease: "power2.out" } as const;
+export const motion = { reveal: .4, mobileReveal: .28, short: .15, state: .2, stagger: .035, desktopStagger: .06, desktopDistance: 14, mobileDistance: 6, ease: "power3.out" } as const;
 export const treatments = ["text", "identity", "details", "actions", "art", "control", "static"] as const;
 export type Treatment = (typeof treatments)[number];
 export function validTreatment(value: string | undefined): value is Treatment {

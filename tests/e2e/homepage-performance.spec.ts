@@ -20,7 +20,7 @@ for (const width of [390, 1440]) {
       new PerformanceObserver((list) => { for (const entry of list.getEntries()) metrics.longTasks.push({ start: entry.startTime, duration: entry.duration }); }).observe({ type: "longtask", buffered: true });
     });
     await page.goto("/");
-    await expect(page.locator('[data-scene="hero"]')).toHaveAttribute("data-motion", "hero");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect.poll(() => page.evaluate(() => (window as typeof window & { homeMetrics: Metrics }).homeMetrics.lcp)).toBeGreaterThan(0);
     const initialScripts = await page.evaluate(() => performance.getEntriesByType("resource").map((e) => e.name).filter((url) => url.includes("/_next/static/") && url.includes(".js")));
     await page.locator("summary").first().click();
@@ -65,9 +65,9 @@ for (const width of [390, 1440]) {
         await expect.poll(() => scene.locator(selector).evaluate((el) => Number(getComputedStyle(el).opacity))).toBe(1);
         await scene.screenshot({ path: `test-results/home-${width}-${theme}-${kind}.png` });
       }
-      await page.getByRole("heading", { name: "Rangkaian pertamamu dimulai dari satu percobaan." }).scrollIntoViewIfNeeded();
-      await expect(page.getByRole("heading", { name: "Rangkaian pertamamu dimulai dari satu percobaan." })).toHaveAttribute("data-home-played", "true");
-      await expect(page.getByRole("heading", { name: "Rangkaian pertamamu dimulai dari satu percobaan." })).toHaveCSS("opacity", "1");
+      await page.locator("#final-cta-heading").scrollIntoViewIfNeeded();
+      await expect(page.locator("#final-cta-heading")).toHaveAttribute("data-home-played", "true");
+      await expect(page.locator("#final-cta-heading")).toHaveCSS("opacity", "1");
       await page.screenshot({ path: `test-results/home-${width}-${theme}-final.png` });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     });
