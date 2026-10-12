@@ -15,7 +15,7 @@ export function LandingHero() {
       className={`${styles.section} ${styles.hero} grid items-center lg:grid-cols-2 lg:gap-12`}
     >
       <SectionBackground scene="home-hero" />
-      <div className="min-w-0">
+      <div className="w-full min-w-0">
         <p data-hero-copy className="mb-4 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
           <span className="h-px w-8 bg-primary" aria-hidden="true" />
           Virtual lab untuk belajar IoT

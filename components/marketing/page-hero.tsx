@@ -34,8 +34,8 @@ export function PageHero({
       <div
         data-page-hero-content
         className={cn(
-          "mx-auto my-auto grid w-full max-w-7xl gap-8 px-4 sm:gap-10 sm:px-8 lg:gap-16",
-          "pt-[calc(var(--home-header-height,64px)+2rem)] pb-12 sm:pt-[calc(var(--home-header-height,64px)+2.5rem)] sm:pb-16 lg:pt-[calc(var(--home-header-height,64px)+3rem)] lg:pb-20",
+          "mx-auto my-auto grid w-full max-w-7xl gap-6 px-4 sm:gap-10 sm:px-8 lg:gap-16",
+          "pt-[calc(var(--home-header-height,64px)+1.25rem)] pb-8 sm:pt-[calc(var(--home-header-height,64px)+2.5rem)] sm:pb-16 lg:pt-[calc(var(--home-header-height,64px)+3rem)] lg:pb-20",
           aside && "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-center"
         )}
       >
@@ -53,10 +53,10 @@ export function PageHero({
           <p data-motion-group={`${id}.description`} data-motion="text" className="mt-4 max-w-2xl text-base leading-relaxed text-text-secondary sm:mt-5 sm:text-body-lg">
             {description}
           </p>
-          {actions && <div data-motion-group={`${id}.actions`} data-motion="actions" className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">{actions}</div>}
+          {actions && <div data-motion-group={`${id}.actions`} data-motion="actions" className="mt-5 flex flex-row flex-wrap gap-2.5 sm:mt-8 sm:gap-3">{actions}</div>}
           {note && <p data-motion-group={`${id}.note`} data-motion="text" className="mt-3 text-xs text-text-secondary">{note}</p>}
         </div>
-        {aside && <div className="min-w-0">{aside}</div>}
+        {aside && <div className="min-w-0 max-w-md mx-auto w-full lg:max-w-none">{aside}</div>}
       </div>
     </section>
   );

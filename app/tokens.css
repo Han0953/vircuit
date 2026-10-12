@@ -61,8 +61,8 @@
   /* System fallbacks until VIR-008 selects and loads the final fonts. */
   --font-ui: Arial, Helvetica, sans-serif;
   --font-code: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
-  --type-display: clamp(1.875rem, 4.5vw, 4.5rem);
-  --type-h1: clamp(1.5rem, 3.2vw + 0.5rem, 3rem);
+  --type-display: clamp(1.65rem, 4.5vw, 4.5rem);
+  --type-h1: clamp(1.35rem, 3.2vw + 0.4rem, 3rem);
   --type-h2: clamp(1.25rem, 2.5vw, 2.25rem);
   --type-h3: clamp(1.125rem, 2vw, 1.75rem);
   --type-body-lg: 1.125rem;

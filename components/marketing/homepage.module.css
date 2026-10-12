@@ -97,10 +97,10 @@
 .section { max-width: 80rem; margin-inline: auto; padding: 2.75rem 1rem; }
 .eyebrow { display: flex; align-items: center; gap: .75rem; font: 500 .7rem var(--font-code); letter-spacing: .13em; text-transform: uppercase; color: var(--text-secondary); }
 .eyebrow::before { content: ''; width: 1.75rem; height: 2px; background: var(--primary); }
-.hero { position: relative; padding-top: calc(var(--home-header-height, 64px) + 2rem); padding-bottom: 3rem; gap: 2rem; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; }
-.heroTitle { max-width: 16ch; font-size: clamp(1.75rem, 4.5vw + 0.5rem, 4.25rem); line-height: 1.12; font-weight: 600; letter-spacing: -.04em; text-wrap: balance; }
-.scene { min-width: 0; }
-.heroFigure { position: relative; margin: 0; max-width: 36rem; width: 100%; margin-inline: auto; }
+.hero { position: relative; padding-top: calc(var(--home-header-height, 64px) + 1.25rem); padding-bottom: 2rem; gap: 1.25rem; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; }
+.heroTitle { max-width: 22ch; font-size: clamp(1.45rem, 4.5vw, 4.25rem); line-height: 1.15; font-weight: 600; letter-spacing: -.035em; text-wrap: balance; }
+.scene { width: 100%; min-width: 0; }
+.heroFigure { position: relative; margin: 0; max-width: min(100%, 22rem); width: 100%; margin-inline: auto; }
 .heroStage { position: relative; aspect-ratio: 1.5; perspective: 1000px; }
 .technicalGrid { position: absolute; inset: 2%; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse, black 30%, transparent 72%); transform: rotate(-6deg); }
 .heroDepth { position: absolute; inset: 4%; transform: rotateX(9deg) rotateY(-12deg) rotateZ(-3deg); transform-style: preserve-3d; }
@@ -190,7 +190,8 @@
 .closingTrace { width: min(100%, 30rem); height: 4rem; color: var(--primary); }
 @media (min-width: 640px) {
   .section { padding-inline: 2rem; padding-block: 4rem; }
-  .heroTitle { font-size: clamp(2.25rem, 5vw, 4.5rem); line-height: 1.06; letter-spacing: -.055em; }
+  .heroTitle { max-width: 16ch; font-size: clamp(2.25rem, 5vw, 4.5rem); line-height: 1.06; letter-spacing: -.055em; }
+  .heroFigure { max-width: 30rem; }
   .codeLayer { font-size: .85rem; }
   .outputLayer { font-size: .75rem; }
   .storyStage { aspect-ratio: 1.65; }
@@ -201,6 +202,7 @@
 @media (min-width: 1024px) {
   .section { padding-block: 6rem; }
   .hero { display: grid; padding-top: calc(var(--home-header-height, 64px) + 2.5rem); padding-bottom: 3.5rem; }
+  .heroFigure { max-width: 36rem; }
   .split { grid-template-columns: 1fr 1fr; gap: 5rem; }
   .storyGrid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 5rem; }
   .storyStage { aspect-ratio: 1.2; }
