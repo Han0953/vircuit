@@ -36,7 +36,7 @@ export function ThemeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" disabled={!mounted} aria-label={`Pilih tema: ${selected.label}`}>
-          <Icon className="size-4 shrink-0" aria-hidden="true" />
+          <Icon className="size-4 shrink-0 transition-transform duration-200" aria-hidden="true" key={currentTheme} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

@@ -20,6 +20,17 @@
   }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    transition: background-color 240ms cubic-bezier(0.16, 1, 0.3, 1),
+                color 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .brand-logo-icon,
+  .brand-logo-text {
+    transition: filter 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
 .workspace-divider { background: var(--border); touch-action: none; }
 .workspace-divider:hover, .workspace-divider:focus-visible { background: var(--primary); outline: 2px solid var(--ring); }
 .workspace-divider[data-separator='active'] { background: var(--primary); }

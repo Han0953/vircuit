@@ -190,7 +190,7 @@
   .backdrop, .base, .pattern, .atmosphere, .signals, .nodes {
     transition-property: color, background-color, border-color, box-shadow, fill, stroke;
     transition-duration: var(--section-theme-duration);
-    transition-timing-function: ease-out;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
   .pattern { transition-property: --section-pattern; }
   .atmosphere { transition-property: --section-glow, --section-ambient; }

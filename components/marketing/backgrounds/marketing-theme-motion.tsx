@@ -13,7 +13,7 @@ export function MarketingThemeMotion() {
     previousTheme.current = resolvedTheme;
     if (!previous || previous === resolvedTheme || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const animations = Array.from(document.querySelectorAll<HTMLElement>("[data-theme-visible='true'] > [data-marketing-background] > [data-bg-drift]"),
-      (layer) => layer.animate([{ opacity: .6 }, { opacity: 1 }], { duration: 180, easing: "ease-out" }));
+      (layer) => layer.animate([{ opacity: .6 }, { opacity: 1 }], { duration: 240, easing: "cubic-bezier(0.16, 1, 0.3, 1)" }));
     return () => animations.forEach((animation) => animation.cancel());
   }, [resolvedTheme, pathname]);
   useEffect(() => {
