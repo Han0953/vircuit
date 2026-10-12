@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ArrowUpRight, Menu } from "lucide-react";
 import { BrandLogo } from "@/components/shared/brand-logo";
 import { MarketingThemeToggle } from "./marketing-theme-toggle";
@@ -23,11 +23,22 @@ import styles from "./home-controls.module.css";
 
 export function PublicNavbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const header = useRef<HTMLElement>(null);
   const menuTrigger = useRef<HTMLButtonElement>(null);
   const loginActive = isActiveRoute(pathname, marketingRoutes.login);
+
+  useEffect(() => {
+    if (menuOpen) {
+      primaryNavigation.forEach(({ href }) => {
+        router.prefetch(href);
+      });
+      router.prefetch(marketingRoutes.login);
+      router.prefetch(marketingRoutes.simulator);
+    }
+  }, [menuOpen, router]);
 
   useEffect(() => {
     if (!header.current) return;
@@ -61,7 +72,6 @@ export function PublicNavbar() {
       </a>
       <div className={cn("mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-8 lg:gap-6", styles.headerInner)}>
         <Link
-          prefetch={false}
           href={marketingRoutes.home}
           aria-label="Vircuit — Beranda"
           data-motion-group="nav.logo" data-motion="control" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-sm text-xl font-bold tracking-tight outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -79,7 +89,7 @@ export function PublicNavbar() {
                 variant="ghost"
                 data-motion-group={`nav.${href}`} data-motion="control" className={cn(active ? "text-primary font-semibold" : "text-text-secondary hover:text-foreground")}
               >
-                <Link prefetch={false} href={href} aria-current={active ? "page" : undefined}>
+                <Link href={href} aria-current={active ? "page" : undefined}>
                   {label}
                 </Link>
               </Button>
@@ -90,12 +100,12 @@ export function PublicNavbar() {
         <div className="hidden items-center gap-2 lg:flex">
           <span data-motion-group="nav.theme" data-motion="control"><MarketingThemeToggle /></span>
           <Button data-motion-group="nav.login" data-motion="control" asChild variant="ghost" className={cn(loginActive && "text-primary font-semibold")}>
-            <Link prefetch={false} href={marketingRoutes.login} aria-current={loginActive ? "page" : undefined}>
+            <Link href={marketingRoutes.login} aria-current={loginActive ? "page" : undefined}>
               Masuk
             </Link>
           </Button>
           <Button data-motion-group="nav.simulator" data-motion="control" asChild>
-            <Link prefetch={false} href={marketingRoutes.simulator}>
+            <Link href={marketingRoutes.simulator}>
               Buka Virtual Lab
               <ArrowUpRight aria-hidden="true" />
             </Link>
@@ -131,7 +141,11 @@ export function PublicNavbar() {
                           active && "bg-primary-soft text-primary font-semibold"
                         )}
                       >
-                        <Link prefetch={false} href={href} aria-current={active ? "page" : undefined}>
+                        <Link
+                          href={href}
+                          aria-current={active ? "page" : undefined}
+                          onClick={() => setMenuOpen(false)}
+                        >
                           {label}
                         </Link>
                       </Button>
@@ -146,7 +160,11 @@ export function PublicNavbar() {
                     variant="outline"
                     className={cn(loginActive && "text-primary font-semibold")}
                   >
-                    <Link href={marketingRoutes.login} aria-current={loginActive ? "page" : undefined}>
+                    <Link
+                      href={marketingRoutes.login}
+                      aria-current={loginActive ? "page" : undefined}
+                      onClick={() => setMenuOpen(false)}
+                    >
                       Masuk
                     </Link>
                   </Button>

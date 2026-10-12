@@ -57,7 +57,7 @@ export function CtaSection({
 export function SimulatorCtaButton({ label = "Buka Virtual Lab" }: { label?: string }) {
   return (
     <Button asChild className="h-12 px-6">
-      <Link prefetch={false} href={marketingRoutes.simulator}>
+      <Link href={marketingRoutes.simulator}>
         {label}
         <ArrowUpRight aria-hidden="true" />
       </Link>

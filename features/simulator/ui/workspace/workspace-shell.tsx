@@ -44,6 +44,7 @@ function WorkspaceContent() {
   const [tab, setTab] = useState<WorkspaceTab>("serial");
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>("parts");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [cirraOpen, setCirraOpen] = useState(false);
   const lastTrigger = useRef<HTMLButtonElement | null>(null);
   const canvas = useRef<HTMLElement | null>(null);
 
@@ -80,7 +81,7 @@ function WorkspaceContent() {
       <main aria-label="Workspace Virtual Lab" className="flex min-h-0 flex-1 flex-col">
         <ResizableWorkspace
           sidebars={!code}
-          overlay={<FloatingCirra desktop={desktop} blocked={sheetOpen} />}
+          overlay={<FloatingCirra desktop={desktop} blocked={sheetOpen} onOpenChange={setCirraOpen} />}
           navigation={<nav aria-label="Tampilan workspace" className="flex gap-1">{[["/simulator", "Circuit"], ["/simulator/code", "Code"]].map(([href, label]) => <Button key={href} variant={pathname === href ? "secondary" : "ghost"} asChild><Link aria-current={pathname === href ? "page" : undefined} href={`${href}${query ? `?${query}` : ""}`}>{label}</Link></Button>)}</nav>}
           parts={<><h2 className="border-b px-4 py-3 text-sm font-semibold">Parts</h2><PartsPanel category={category} onCategoryChange={setCategory} /></>}
           properties={<><h2 className="border-b px-4 py-3 text-sm font-semibold">Properties</h2><PropertiesPanel /></>}
@@ -99,13 +100,15 @@ function WorkspaceContent() {
 
           </div>
         </ResizableWorkspace>
-        <nav aria-label="Panel workspace" className={controls.island} data-active={mobilePanel}>
-          <span aria-hidden className={controls.islandIndicator} style={{ transform: `translateX(${mobilePanel === "parts" || mobilePanel === "properties" ? 0 : mobilePanel === "serial" ? 100 : 200}%)` }} />
-          <Button variant="ghost" aria-expanded={sheetOpen && mobilePanel === "parts"} className={controls.islandButton} onClick={(event) => openPanel("parts", event.currentTarget)}><PanelLeft aria-hidden="true" /><span>Parts</span></Button>
-          {workspaceTabs.map(({ id, label, mobileLabel, icon: Icon }) => (
-            <Button key={id} variant="ghost" aria-label={`Buka ${label}`} aria-expanded={sheetOpen && mobilePanel === id} className={controls.islandButton} onClick={(event) => openPanel(id, event.currentTarget)}><Icon aria-hidden="true" /><span>{mobileLabel}</span></Button>
-          ))}
-        </nav>
+        {!code && !cirraOpen && (
+          <nav aria-label="Panel workspace" className={controls.island} data-active={mobilePanel} data-cirra-open={cirraOpen ? "true" : undefined}>
+            <span aria-hidden className={controls.islandIndicator} style={{ transform: `translateX(${mobilePanel === "parts" || mobilePanel === "properties" ? 0 : mobilePanel === "serial" ? 100 : 200}%)` }} />
+            <Button variant="ghost" aria-expanded={sheetOpen && mobilePanel === "parts"} className={controls.islandButton} onClick={(event) => openPanel("parts", event.currentTarget)}><PanelLeft aria-hidden="true" /><span>Parts</span></Button>
+            {workspaceTabs.map(({ id, label, mobileLabel, icon: Icon }) => (
+              <Button key={id} variant="ghost" aria-label={`Buka ${label}`} aria-expanded={sheetOpen && mobilePanel === id} className={controls.islandButton} onClick={(event) => openPanel(id, event.currentTarget)}><Icon aria-hidden="true" /><span>{mobileLabel}</span></Button>
+            ))}
+          </nav>
+        )}
       </main>
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="bottom" className="h-[85dvh] max-h-dvh gap-0 rounded-t-xl pb-[env(safe-area-inset-bottom)]"

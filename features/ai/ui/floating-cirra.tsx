@@ -8,7 +8,7 @@ import { clearCirraSessions } from "./session-store";
 import { desktopChatInput } from "./chat-input";
 import { useChatViewport } from "./use-chat-viewport";
 
-export function FloatingCirra({ desktop, blocked }: { desktop: boolean; blocked: boolean }) {
+export function FloatingCirra({ desktop, blocked, onOpenChange }: { desktop: boolean; blocked: boolean; onOpenChange?: (open: boolean) => void }) {
   const [open, setOpen] = useState(false);
   const [visited, setVisited] = useState(false);
   const bubble = useRef<HTMLButtonElement>(null);
@@ -17,6 +17,9 @@ export function FloatingCirra({ desktop, blocked }: { desktop: boolean; blocked:
   const origin = useRef<HTMLElement | null>(null);
   const openingInput = useRef("keyboard");
   useChatViewport(dialog, open && !blocked, !desktop, true);
+  useEffect(() => {
+    onOpenChange?.(open);
+  }, [open, onOpenChange]);
   const close = useCallback(() => {
     setOpen(false);
     const target = origin.current;
@@ -51,7 +54,7 @@ export function FloatingCirra({ desktop, blocked }: { desktop: boolean; blocked:
     window.addEventListener("vircuit:open-cirra", show);
     return () => { window.removeEventListener("vircuit:open-cirra", show); document.removeEventListener("pointerdown", pointer, true); document.removeEventListener("keydown", keyboard, true); channel.close(); };
   }, []);
-  return <div className={blocked ? "hidden" : "pointer-events-none absolute inset-0 z-20"}>
+  return <div className={blocked ? "hidden" : `pointer-events-none absolute inset-0 ${open ? "z-50" : "z-20"}`}>
     <section ref={dialog} role="dialog" aria-label="Asisten Cirra" aria-modal={!desktop && open ? true : undefined} inert={!open} style={{ display: open ? undefined : "none" }}
       className="cirra-viewport pointer-events-auto fixed inset-0 z-50 flex min-h-0 flex-col overflow-hidden border bg-background shadow-xl lg:absolute lg:inset-auto lg:right-3 lg:bottom-16 lg:h-[min(38rem,calc(100%-4rem))] lg:max-h-full lg:w-[min(26rem,calc(100%-1.5rem))] lg:rounded-xl"
       onKeyDown={(event) => {

@@ -12,11 +12,11 @@ export function LandingHero() {
     <section
       data-home-zone="hero"
       aria-labelledby="hero-heading"
-      className={`${styles.section} ${styles.hero} grid items-center lg:grid-cols-2 lg:gap-12`}
+      className={`${styles.section} ${styles.hero} flex flex-col justify-between lg:grid lg:grid-cols-2 lg:items-center lg:gap-12`}
     >
       <SectionBackground scene="home-hero" />
-      <div className="w-full min-w-0">
-        <p data-hero-copy className="mb-4 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
+      <div className="w-full min-w-0 shrink-0">
+        <p data-hero-copy className="mb-2.5 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase sm:mb-4">
           <span className="h-px w-8 bg-primary" aria-hidden="true" />
           Virtual lab untuk belajar IoT
         </p>
@@ -28,19 +28,19 @@ export function LandingHero() {
           Belajar IoT dengan <span className="text-primary">membangunnya</span> secara langsung.
         </h1>
 
-        <p data-hero-copy className="mt-3 max-w-lg text-sm leading-relaxed text-text-secondary sm:mt-4 sm:text-base sm:text-body-lg">
+        <p data-hero-copy className="mt-2.5 max-w-lg text-[clamp(0.875rem,1.8vh,1.05rem)] leading-relaxed text-text-secondary sm:mt-4 sm:text-base sm:text-body-lg">
           Susun rangkaian, tulis kode, dan amati responsnya. Hubungkan materi
           dengan praktik dalam satu Virtual Lab.
         </p>
 
-        <div data-hero-copy className="mt-5 flex gap-2.5 sm:mt-6 sm:gap-3">
-          <Button asChild className="h-11 px-3.5 text-sm sm:h-12 sm:px-6 sm:text-base">
+        <div data-hero-copy className="mt-3.5 flex gap-2.5 sm:mt-6 sm:gap-3">
+          <Button asChild className="h-11 px-4 text-sm font-semibold sm:h-12 sm:px-6 sm:text-base">
             <Link href={marketingRoutes.simulator}>
               Buka Virtual Lab
               <ArrowUpRight aria-hidden="true" className="size-4 sm:size-5" />
             </Link>
           </Button>
-          <Button asChild variant="outline" className="h-11 px-3.5 text-sm sm:h-12 sm:px-6 sm:text-base">
+          <Button asChild variant="outline" className="h-11 px-4 text-sm sm:h-12 sm:px-6 sm:text-base">
             <Link href={marketingRoutes.learningApp}>
               <BookOpen aria-hidden="true" className="size-4 sm:size-5" />
               Mulai Belajar
@@ -48,7 +48,7 @@ export function LandingHero() {
           </Button>
         </div>
 
-        <p data-hero-copy className="mt-3 text-xs text-text-secondary">
+        <p data-hero-copy className="mt-2 text-xs text-text-secondary sm:mt-3">
           Langsung coba tanpa login. Simulator inti tetap gratis.
         </p>
 

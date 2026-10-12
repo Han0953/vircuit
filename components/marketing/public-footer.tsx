@@ -21,7 +21,7 @@ export function PublicFooter() {
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-8">
         <div className="flex flex-col justify-between gap-8 md:flex-row">
           <div className="max-w-sm">
-            <Link prefetch={false} data-motion-group="footer.logo" data-motion="identity"
+            <Link data-motion-group="footer.logo" data-motion="identity"
               href={marketingRoutes.home}
               aria-label="Vircuit — Beranda"
               className="inline-flex min-h-11 items-center rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -36,7 +36,7 @@ export function PublicFooter() {
           <nav aria-label="Navigasi footer" className="grid grid-cols-2 gap-x-8 gap-y-1 self-start sm:grid-cols-3">
             {footerLinks.map(({ label, href }) => (
               <Button key={href} asChild variant="ghost" className="justify-start">
-                <Link prefetch={false} data-motion-group={`footer.${href}`} data-motion="control" href={href}>{label}</Link>
+                <Link data-motion-group={`footer.${href}`} data-motion="control" href={href}>{label}</Link>
               </Button>
             ))}
           </nav>

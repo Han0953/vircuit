@@ -68,7 +68,11 @@ for (const width of [360, 390, 430, 768, 1280, 1440]) {
     await expect(heading).toBeFocused();
     await expect(page.getByRole("textbox", { name: "Cari komponen" })).not.toBeFocused();
     await page.keyboard.press("Escape");
-    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await page.getByRole("button", { name: "Buka Cirra" }).click();
+    await expect(page.getByRole("dialog", { name: "Asisten Cirra" })).toBeVisible();
+    await expect(nav).toBeHidden();
+    await page.getByRole("button", { name: "Minimalkan Cirra" }).click();
+    await expect(nav).toBeVisible();
     await page.screenshot({ path: `playwright-report/workspace-island-${width}.png` });
     await page.getByRole("button", { name: "Tindakan workspace", exact: true }).click();
     await expect(page.getByRole("button", { name: "Buka menu proyek", exact: true }).first()).toBeVisible();
@@ -88,7 +92,7 @@ for (const width of [360, 390, 430, 768, 1280, 1440]) {
     await page.evaluate(() => { Object.defineProperty(visualViewport!, "height", { configurable: true, value: 240 }); visualViewport!.dispatchEvent(new Event("resize")); });
     await expect.poll(async () => (await page.locator(".monaco-editor").boundingBox())!.height).toBeGreaterThan(60);
     await page.evaluate(() => { Object.defineProperty(visualViewport!, "height", { configurable: true, value: 900 }); visualViewport!.dispatchEvent(new Event("resize")); });
-    await expect(nav).toBeVisible();
+    await expect(nav).toBeHidden();
     await page.evaluate(() => {
       let copied = "";
       Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async (text: string) => { copied = text; }, readText: async () => copied } });
