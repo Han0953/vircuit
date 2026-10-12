@@ -28,21 +28,21 @@ export function LandingHero() {
           Belajar IoT dengan <span className="text-primary">membangunnya</span> secara langsung.
         </h1>
 
-        <p data-hero-copy className="mt-4 max-w-lg text-base leading-relaxed text-text-secondary sm:text-body-lg">
+        <p data-hero-copy className="mt-3 max-w-lg text-sm leading-relaxed text-text-secondary sm:mt-4 sm:text-base sm:text-body-lg">
           Susun rangkaian, tulis kode, dan amati responsnya. Hubungkan materi
           dengan praktik dalam satu Virtual Lab.
         </p>
 
-        <div data-hero-copy className="mt-6 flex gap-3">
-          <Button asChild className="h-12 px-3 text-sm sm:px-6 sm:text-base">
+        <div data-hero-copy className="mt-5 flex gap-2.5 sm:mt-6 sm:gap-3">
+          <Button asChild className="h-11 px-3.5 text-sm sm:h-12 sm:px-6 sm:text-base">
             <Link href={marketingRoutes.simulator}>
               Buka Virtual Lab
-              <ArrowUpRight aria-hidden="true" className="size-5" />
+              <ArrowUpRight aria-hidden="true" className="size-4 sm:size-5" />
             </Link>
           </Button>
-          <Button asChild variant="outline" className="h-12 px-3 text-sm sm:px-6 sm:text-base">
+          <Button asChild variant="outline" className="h-11 px-3.5 text-sm sm:h-12 sm:px-6 sm:text-base">
             <Link href={marketingRoutes.learningApp}>
-              <BookOpen aria-hidden="true" className="size-5" />
+              <BookOpen aria-hidden="true" className="size-4 sm:size-5" />
               Mulai Belajar
             </Link>
           </Button>

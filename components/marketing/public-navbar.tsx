@@ -51,7 +51,7 @@ export function PublicNavbar() {
   }, []);
 
   return (
-    <header ref={header} data-home-header="" data-scrolled={scrolled} data-menu-open={menuOpen} className={styles.header}>
+    <header ref={header} data-home-header="" data-scrolled={scrolled} data-menu-open={menuOpen} data-route={pathname} className={styles.header}>
       <a
         data-motion-group="nav.skip" data-motion="control"
         href="#main-content"

@@ -38,7 +38,7 @@ export function AuthForm({ register = false, next: destination, callbackError = 
     } catch { setMessage("Google belum dapat diakses. Coba masuk dengan email."); }
     finally { setGoogleLoading(false); }
   }
-  return <div className="mx-auto flex min-h-[calc(100svh-12rem)] max-w-md flex-col justify-center px-4 py-12">
+  return <div className="mx-auto flex min-h-[calc(100svh-6rem)] max-w-md flex-col justify-center px-4 pt-[calc(var(--home-header-height,64px)+2rem)] pb-12">
     <div className="rounded-xl border bg-surface p-6 sm:p-8">
       <Link href="/" aria-label="Vircuit — Beranda" className="inline-flex min-h-11 items-center rounded-sm focus-visible:ring-2 focus-visible:ring-ring"><BrandLogo size="default" /></Link>
       <h1 className="mt-5 text-2xl font-bold">{register ? "Daftar ke Vircuit" : "Masuk ke Vircuit"}</h1>

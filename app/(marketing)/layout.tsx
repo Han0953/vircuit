@@ -12,7 +12,12 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
       <MarketingThemeMotion />
       <PublicNavbar />
       <BackToTop />
-      <main id="main-content" tabIndex={-1} className="outline-none">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="outline-none"
+        style={{ marginTop: "calc(-1 * var(--home-header-height, 64px))" }}
+      >
         {children}
       </main>
       <PublicFooter />

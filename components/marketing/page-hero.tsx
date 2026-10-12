@@ -28,18 +28,19 @@ export function PageHero({
   return (
     <section
       data-motion-section={id} data-hero="" aria-labelledby={id}
-      className={cn("relative isolate overflow-hidden", !background && styles.circuitBackground, className)}
+      className={cn("relative isolate flex min-h-svh flex-col justify-center overflow-hidden", !background && styles.circuitBackground, className)}
     >
       {background && <SectionBackground scene={background} />}
       <div
         data-page-hero-content
         className={cn(
-          "mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-8 sm:py-16 lg:py-20",
-          aside && "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-center lg:gap-16"
+          "mx-auto my-auto grid w-full max-w-7xl gap-8 px-4 sm:gap-10 sm:px-8 lg:gap-16",
+          "pt-[calc(var(--home-header-height,64px)+2rem)] pb-12 sm:pt-[calc(var(--home-header-height,64px)+2.5rem)] sm:pb-16 lg:pt-[calc(var(--home-header-height,64px)+3rem)] lg:pb-20",
+          aside && "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-center"
         )}
       >
         <div className="min-w-0">
-          <p data-motion-group={`${id}.eyebrow`} data-motion="identity" className="mb-5 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
+          <p data-motion-group={`${id}.eyebrow`} data-motion="identity" className="mb-4 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase sm:mb-5">
             <span className="h-px w-8 bg-primary" aria-hidden="true" />
             {eyebrow}
           </p>
@@ -49,10 +50,10 @@ export function PageHero({
           >
             {title}
           </h1>
-          <p data-motion-group={`${id}.description`} data-motion="text" className="mt-5 max-w-2xl text-base leading-relaxed text-text-secondary sm:text-body-lg">
+          <p data-motion-group={`${id}.description`} data-motion="text" className="mt-4 max-w-2xl text-base leading-relaxed text-text-secondary sm:mt-5 sm:text-body-lg">
             {description}
           </p>
-          {actions && <div data-motion-group={`${id}.actions`} data-motion="actions" className="mt-8 flex flex-col gap-3 sm:flex-row">{actions}</div>}
+          {actions && <div data-motion-group={`${id}.actions`} data-motion="actions" className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">{actions}</div>}
           {note && <p data-motion-group={`${id}.note`} data-motion="text" className="mt-3 text-xs text-text-secondary">{note}</p>}
         </div>
         {aside && <div className="min-w-0">{aside}</div>}

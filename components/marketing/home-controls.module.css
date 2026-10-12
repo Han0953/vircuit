@@ -27,6 +27,10 @@
 @keyframes theme-icon-in { from { opacity: .25; transform: rotate(-30deg) scale(.8); } to { opacity: 1; transform: none; } }
 .header[data-scrolled='true'] { background: color-mix(in srgb, var(--surface-elevated) 92%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom-color: var(--border); box-shadow: var(--shadow-panel); }
 .header[data-scrolled='true'] .headerInner::after { opacity: .2; }
+:global(html:not(.dark)) .header[data-scrolled='false'][data-route='/fitur'] :global(.brand-logo-text) { filter: none; }
+:global(html:not(.dark)) .header[data-scrolled='false'][data-route='/fitur'] [data-motion-group='nav.login'] { color: #f5f7fa; }
+:global(html:not(.dark)) .header[data-scrolled='false'][data-route='/fitur'] [data-motion-group='nav.menu'] { background: rgba(255, 255, 255, 0.1); color: #f5f7fa; border-color: rgba(255, 255, 255, 0.2); }
+:global(html:not(.dark)) .header[data-scrolled='false'][data-route='/fitur'] .themeButton { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #f5f7fa; }
 .header a { transition: color 150ms, background-color 150ms, transform 150ms; }
 .header a[aria-current='page'] { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
 .header a:active, .header button:active:not(:disabled) { transform: scale(.98); }
