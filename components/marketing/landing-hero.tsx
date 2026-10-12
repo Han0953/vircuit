@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SectionBackground } from "./backgrounds/section-background";
 import { ArrowRight, ArrowUpRight, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroCircuit } from "./hero-circuit";
@@ -13,6 +14,7 @@ export function LandingHero() {
       aria-labelledby="hero-heading"
       className={`${styles.section} ${styles.hero} grid items-center lg:grid-cols-2 lg:gap-12`}
     >
+      <SectionBackground scene="home-hero" />
       <div className="min-w-0">
         <p data-hero-copy className="mb-4 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
           <span className="h-px w-8 bg-primary" aria-hidden="true" />

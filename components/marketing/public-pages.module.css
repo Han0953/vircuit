@@ -5,12 +5,14 @@
 .page [data-motion-card] article { transition: border-color 200ms, background-color 200ms; }
 .page[data-public-route='/fitur'] [data-hero] { background: linear-gradient(120deg, var(--background) 55%, var(--primary-soft)); }
 .page[data-public-route='/fitur'] [data-motion-card] { border-radius: var(--radius-sm); }
+.page[data-public-route='/fitur'] [data-motion-section^='features.'] { padding-block: clamp(2rem, 4vw, 4rem); }
 .page[data-public-route='/belajar'] [data-hero] { background: var(--surface-muted); }
 .page[data-public-route='/belajar'] #cycle-heading { max-width: 18ch; }
 .page[data-public-route='/belajar'] #cycle-heading ~ p { max-width: 50ch; }
 .page[data-public-route='/belajar'] article { border-left: 2px solid var(--primary); }
 .page[data-public-route='/jelajahi'] [data-hero] { border-bottom: 1px solid var(--border); }
 .page[data-public-route='/jelajahi'] [data-project] { gap: 1rem; }
+.page[data-public-route='/jelajahi'] [data-level] { padding-block: 2rem; }
 .page[data-public-route='/jelajahi'] [data-project]:hover { border-color: var(--primary); }
 .page [data-project] figure svg { transition: transform 200ms ease-out; }
 .page [data-project]:hover figure svg, .page [data-project]:focus-within figure svg { transform: translateY(-2px); }
@@ -53,13 +55,13 @@
 @keyframes answer { from { transform: translateY(-4px); opacity: .6; } to { transform: none; opacity: 1; } }
 @media (min-width:640px) { .section { padding-inline: 2rem; } }
 @media (min-width:1024px) {
-  .page[data-public-route='/belajar'] [data-hero] > div { grid-template-columns: minmax(0,.9fr) minmax(0,1.2fr); }
-  .page[data-public-route='/belajar'] [data-hero] > div > div:first-child { grid-column: 2; grid-row: 1; border-left: 2px solid var(--primary); padding-left: 2rem; }
-  .page[data-public-route='/belajar'] [data-hero] > div > div:last-child { grid-column: 1; grid-row: 1; }
-  .page[data-public-route='/jelajahi'] [data-hero] > div { grid-template-columns: minmax(0,1fr) minmax(0,.85fr); align-items: start; }
-  .page[data-public-route='/jelajahi'] [data-hero] > div > div:last-child { padding-top: 3rem; transform: rotate(-2deg); }
+  .page[data-public-route='/belajar'] [data-hero] > [data-page-hero-content] { grid-template-columns: minmax(0,.9fr) minmax(0,1.2fr); }
+  .page[data-public-route='/belajar'] [data-hero] > [data-page-hero-content] > div:first-child { grid-column: 2; grid-row: 1; border-left: 2px solid var(--primary); padding-left: 2rem; }
+  .page[data-public-route='/belajar'] [data-hero] > [data-page-hero-content] > div:last-child { grid-column: 1; grid-row: 1; }
+  .page[data-public-route='/jelajahi'] [data-hero] > [data-page-hero-content] { grid-template-columns: minmax(0,1fr) minmax(0,.85fr); align-items: start; }
+  .page[data-public-route='/jelajahi'] [data-hero] > [data-page-hero-content] > div:last-child { padding-top: 3rem; transform: rotate(-2deg); }
   .page[data-public-route='/harga'] [data-hero] { text-align: center; }
-  .page[data-public-route='/harga'] [data-hero] > div { grid-template-columns: 1fr; gap: 2rem; }
+  .page[data-public-route='/harga'] [data-hero] > [data-page-hero-content] { grid-template-columns: 1fr; gap: 2rem; }
   .page[data-public-route='/harga'] [data-hero] h1 { max-width: 26ch; }
   .page[data-public-route='/harga'] [data-hero] p, .page[data-public-route='/harga'] [data-hero] h1 { margin-inline: auto; }
   .page[data-public-route='/harga'] [data-hero] [data-motion='identity'], .page[data-public-route='/harga'] [data-hero] [data-motion='actions'] { justify-content: center; }

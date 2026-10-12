@@ -2,6 +2,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, validTreatment } from "./public-motion-config";
 import { motionDefinition } from "./public-motion-manifest";
+import { animateMarketingBackgrounds } from "../backgrounds/background-motion";
 
 export function animatePublic(root: HTMLElement, route: string) {
   gsap.registerPlugin(ScrollTrigger);
@@ -15,6 +16,7 @@ export function animatePublic(root: HTMLElement, route: string) {
   media.add({ desktop: "(min-width:1024px)", reduce: "(prefers-reduced-motion:reduce)", all: "(min-width:0px)" }, (match) => {
     const reduced = !!match.conditions?.reduce;
     const desktop = !!match.conditions?.desktop;
+    if (!reduced) animateMarketingBackgrounds(root, desktop);
     const groups = Array.from(root.querySelectorAll<HTMLElement>("[data-motion-group]"));
     groups.forEach((group) => {
       const definition = motionDefinition(route, group.dataset.motionGroup ?? "");

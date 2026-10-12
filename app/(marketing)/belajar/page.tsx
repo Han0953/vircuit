@@ -1,6 +1,7 @@
 import { learningCatalog, lessonHref } from "@/features/learning/registry";
 import { LearningRoadmap } from "@/components/marketing/scenes/learning-roadmap";
 import { PublicMotion } from "@/components/marketing/scenes/public-motion-page";
+import { SectionBackground } from "@/components/marketing/backgrounds/section-background";
 import { PublicArtwork } from "@/components/marketing/scenes/public-artwork";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -165,6 +166,7 @@ export function BelajarPage() {
   return (
     <PublicMotion route="/belajar">
       <PageHero
+        background="learn-hero"
         id="belajar-hero-heading"
         eyebrow="Sistem Pembelajaran Vircuit"
         title={
@@ -191,6 +193,7 @@ export function BelajarPage() {
       <LearningRoadmap lessons={course.lessons.map((lesson) => ({ id: lesson.id, title: lesson.title, summary: lesson.summary, duration: lesson.duration, href: lessonHref(course, lesson) }))} />
       {/* Siklus 8 Langkah */}
       <section data-motion-section="cycle" aria-labelledby="cycle-heading" className="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
+        <SectionBackground scene="learn-cycle" />
         <div className="max-w-3xl">
           <p data-motion-group="cycle.label" data-motion="identity" className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
             Alur Inti Pembelajaran
@@ -238,6 +241,7 @@ export function BelajarPage() {
 
       {/* 3 Pilar Pembelajaran */}
       <section data-motion-section="pillars" aria-labelledby="pillars-heading" className="border-t bg-surface">
+        <SectionBackground scene="learn-pillars" />
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
           <div className="max-w-3xl">
             <p data-motion-group="pillars.label" data-motion="identity" className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
@@ -269,6 +273,7 @@ export function BelajarPage() {
 
       {/* Matriks Kompetensi */}
       <section data-motion-section="competencies" aria-labelledby="competencies-heading" className="border-t">
+        <SectionBackground scene="learn-competencies" />
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
           <div className="max-w-3xl">
             <p data-motion-group="competencies.label" data-motion="identity" className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
@@ -297,6 +302,7 @@ export function BelajarPage() {
       </section>
 
       <CtaSection
+        background="learn-closing"
         id="belajar-cta-heading"
         eyebrow="Mulai Praktik Pertama"
         title="Siap memulai langkah pertama belajarmu?"

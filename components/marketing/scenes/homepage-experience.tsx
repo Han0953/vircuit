@@ -9,6 +9,7 @@ import { collectHomeTargets, homeMotion } from "./homepage-motion-manifest";
 import type { CinematicWorldProps } from "./three/cinematic-world";
 import { WorldBoundary } from "./three/world-boundary";
 import styles from "../homepage.module.css";
+import { animateMarketingBackgrounds } from "../backgrounds/background-motion";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 export const StoryRendererPermission = createContext(true);
@@ -63,12 +64,8 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
       page.dataset.boardsSticky = !reduced && tall ? "true" : "false";
       page.dataset.webglPreferred = String(!reduced && "WebGL2RenderingContext" in window);
       let entrances: IntersectionObserver | undefined;
-      const tones = Array.from(page.querySelectorAll<HTMLElement>("[data-home-zone]")).map((section) => {
-        const tone = document.createElement("span");
-        tone.className = styles.toneLayer; tone.setAttribute("data-home-tone", ""); tone.setAttribute("aria-hidden", "true"); section.prepend(tone);
-        return { section, tone };
-      });
       if (!reduced) {
+        animateMarketingBackgrounds(page, !!desktop);
         const entranceTargets = targets.filter(({ treatment }) => treatment !== "scene" && treatment !== "disclosure");
         const byElement = new Map(entranceTargets.map((target) => [target.element, target]));
         const revealParts = entranceTargets.flatMap(({ element, treatment }) => {
@@ -93,9 +90,6 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
           }
         }, { rootMargin: "0px 0px -24px 0px" });
         entranceTargets.forEach(({ element }) => entrances?.observe(element));
-        tones.forEach(({ section, tone }) => {
-          gsap.fromTo(tone, { opacity: 0 }, { opacity: 1, ease: "none", scrollTrigger: { trigger: section, start: "top 95%", end: "top 25%", scrub: .15 } });
-        });
         context.add(() => () => {
           revealParts.forEach((part) => { part.removeAttribute("data-home-reveal"); (part as HTMLElement | SVGElement).style.removeProperty("--home-reveal-delay"); });
           entranceTargets.forEach(({ element }) => { delete element.dataset.homePlayed; });
@@ -191,7 +185,6 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
         disposed = true; cancelAnimationFrame(initial); cancelAnimationFrame(raf); cancelAnimationFrame(swap);
         clearTimeout(loadTimeout);
         entrances?.disconnect();
-        tones.forEach(({ tone }) => tone.remove());
         window.removeEventListener("scroll", scroll); window.removeEventListener("resize", schedule);
         document.removeEventListener("visibilitychange", schedule); ScrollTrigger.removeEventListener("refresh", schedule); resize.disconnect();
         release();

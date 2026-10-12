@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { SectionBackground } from "./backgrounds/section-background";
+import type { BackgroundScene } from "./backgrounds/background-scenes";
 import { cn } from "@/lib/utils";
 import styles from "./landing-sections.module.css";
 
@@ -11,6 +13,7 @@ export function PageHero({
   aside,
   note,
   className,
+  background,
 }: {
   id: string;
   eyebrow: string;
@@ -20,13 +23,16 @@ export function PageHero({
   aside?: ReactNode;
   note?: string;
   className?: string;
+  background?: BackgroundScene;
 }) {
   return (
     <section
       data-motion-section={id} data-hero="" aria-labelledby={id}
-      className={cn("relative isolate overflow-hidden", styles.circuitBackground, className)}
+      className={cn("relative isolate overflow-hidden", !background && styles.circuitBackground, className)}
     >
+      {background && <SectionBackground scene={background} />}
       <div
+        data-page-hero-content
         className={cn(
           "mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-8 sm:py-16 lg:py-20",
           aside && "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-center lg:gap-16"

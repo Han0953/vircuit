@@ -1,5 +1,6 @@
 import { AccessComparison } from "@/components/marketing/scenes/access-comparison";
 import { PublicMotion } from "@/components/marketing/scenes/public-motion-page";
+import { SectionBackground } from "@/components/marketing/backgrounds/section-background";
 import { PublicArtwork } from "@/components/marketing/scenes/public-artwork";
 import publicStyles from "@/components/marketing/public-pages.module.css";
 import type { Metadata } from "next";
@@ -72,6 +73,7 @@ export function HargaPage() {
   return (
     <PublicMotion route="/harga">
       <PageHero
+        background="pricing-hero"
         id="harga-hero-heading"
         eyebrow="Akses & Skema Paket"
         title={
@@ -94,6 +96,7 @@ export function HargaPage() {
 
       {/* Plan Cards */}
       <section data-motion-section="plans" aria-labelledby="plans-heading" className="mx-auto max-w-7xl px-4 py-12 sm:px-8 sm:py-16">
+        <SectionBackground scene="pricing-plans" />
         <h2 data-motion-group="plans.heading" data-motion="text" id="plans-heading" className="mb-8 text-h2 font-semibold tracking-tight">
           Pilihan akses untuk cara belajarmu.
         </h2>
@@ -181,6 +184,7 @@ export function HargaPage() {
 
       {/* Comparison Table */}
       <section data-motion-section="comparison" aria-labelledby="comparison-heading" className="border-t bg-surface">
+        <SectionBackground scene="pricing-comparison" />
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
           <div className="max-w-2xl">
             <p data-motion-group="comparison.label" data-motion="identity" className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
@@ -200,6 +204,7 @@ export function HargaPage() {
 
       {/* FAQs */}
       <section data-motion-section="faq" aria-labelledby="faq-heading" className="border-t">
+        <SectionBackground scene="pricing-faq" />
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
           <div className="max-w-2xl">
             <p data-motion-group="faq.label" data-motion="identity" className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
@@ -222,6 +227,7 @@ export function HargaPage() {
       </section>
 
       <CtaSection
+        background="pricing-closing"
         id="harga-cta-heading"
         eyebrow="Tanpa Biaya Awal"
         title="Mulai praktikum tanpa hambatan biaya."

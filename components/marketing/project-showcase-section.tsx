@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SectionBackground } from "./backgrounds/section-background";
 import { ArrowUpRight, HardDrive, Cloud, FolderOpen } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import styles from "./homepage.module.css";
@@ -13,6 +14,7 @@ const practices = [
 
 export function ProjectShowcaseSection() {
   return <section data-home-zone="projects" className="border-y bg-surface" aria-labelledby="projects-heading">
+    <SectionBackground scene="home-projects" />
     <div className={styles.section + " " + styles.split}>
       <div>
         <SectionHeading id="projects-heading" eyebrow="06 / Project pertamamu" title="Mulai dari LED. Lanjutkan ke project pertamamu." description="Latihan singkat untuk pemula, siswa, mahasiswa, dan pengajar yang ingin menghubungkan konsep dengan eksperimen." />

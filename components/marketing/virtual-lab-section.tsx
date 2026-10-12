@@ -1,6 +1,7 @@
 import { ArrowRight, Code2, Cpu, Play, Sparkles } from "lucide-react";
 import { MotionScene } from "./scenes/motion-scene";
 import { SectionHeading } from "./section-heading";
+import { SectionBackground } from "./backgrounds/section-background";
 import { SectionLink } from "./section-link";
 import styles from "./homepage.module.css";
 import { BoardArtwork } from "./scenes/board-showcase";
@@ -16,6 +17,7 @@ function PreviewPart({ type }: { type: "button" | "led" }) {
 
 export function VirtualLabSection() {
   return <section data-home-zone="workspace" aria-labelledby="lab-heading" className={styles.section}>
+    <SectionBackground scene="home-workspace" />
     <div className="flex flex-wrap items-end justify-between gap-6">
       <SectionHeading id="lab-heading" eyebrow="03 / Virtual Lab" title="Satu project. Rangkaian dan kode saling terhubung." description="Atur komponen, hubungkan pin, dan lihat pengaruh program pada output. Berpindah dari Circuit ke Code tanpa meninggalkan project." />
       <SectionLink href="/simulator">Buka Virtual Lab</SectionLink>

@@ -2,6 +2,7 @@ import { getDefinition } from "@/features/simulator/catalog/registry";
 import { visualLayout } from "@/features/simulator/ui/visuals/pin-layout";
 import { ComponentVisual } from "@/features/simulator/ui/visuals/component-visual";
 import { SectionHeading } from "../section-heading";
+import { SectionBackground } from "../backgrounds/section-background";
 import { SectionLink } from "../section-link";
 import { CinematicSlot } from "./cinematic-slot";
 import { featuredBoards, type FeaturedBoard } from "./homepage-cinematic-config";
@@ -19,6 +20,7 @@ export function BoardArtwork({ type }: { type: FeaturedBoard }) {
 }
 export function BoardShowcase() {
   return <section className={styles.section} aria-labelledby="components-heading" data-home-zone="boards">
+    <SectionBackground scene="home-boards" />
     <SectionHeading id="components-heading" eyebrow="Board / Kenali titik awal eksperimenmu" title="Tiga bentuk. Dukungan yang jelas." description="Kenali board yang tersedia di Vircuit, lalu pilih langkah praktik sesuai dukungannya." />
     <div className={styles.boardShowcase} data-board-showcase>
       <figure className={styles.boardStage} data-board-stage aria-label="Spotlight Arduino Uno, Arduino Nano, dan ESP32">

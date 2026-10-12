@@ -1,4 +1,5 @@
 import { Play } from "lucide-react";
+import { SectionBackground } from "./backgrounds/section-background";
 import { StoryVisual } from "./scenes/story-visual";
 import { SectionHeading } from "./section-heading";
 import styles from "./homepage.module.css";
@@ -14,6 +15,7 @@ const beats = [
 
 export function LearningJourneySection() {
   return <section data-home-zone="story" className={styles.story} aria-labelledby="journey-heading">
+    <SectionBackground scene="home-story" />
     <div className={styles.section}>
       <SectionHeading id="journey-heading" eyebrow="02 / Learning by doing" title="Dari materi ke rangkaian yang kamu pahami." description="Satu alur belajar. Setiap percobaan membuat hubungan antara teori dan hasil semakin jelas." />
       <StoryExperience><div className={styles.storyGrid} data-story>

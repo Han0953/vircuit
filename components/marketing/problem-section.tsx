@@ -1,5 +1,6 @@
 import { Boxes, Cable, Clock3, Wallet } from "lucide-react";
 import { SectionHeading } from "./section-heading";
+import { SectionBackground } from "./backgrounds/section-background";
 
 const problems = [
   {
@@ -27,6 +28,7 @@ const problems = [
 export function ProblemSection() {
   return (
     <section data-home-zone="problem" aria-labelledby="problem-heading" className="border-t">
+      <SectionBackground scene="home-problem" />
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-8 lg:grid-cols-2 lg:gap-20 lg:py-24">
         <div>
           <SectionHeading

@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { SectionBackground } from "./backgrounds/section-background";
+import type { BackgroundScene } from "./backgrounds/background-scenes";
 import Link from "next/link";
 import { ArrowUpRight, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,7 @@ export function CtaSection({
   description,
   actions,
   note,
+  background,
 }: {
   id: string;
   eyebrow: string;
@@ -21,9 +24,11 @@ export function CtaSection({
   description: string;
   actions: ReactNode;
   note?: string;
+  background?: BackgroundScene;
 }) {
   return (
-    <section data-motion-section={id} aria-labelledby={id} className={`relative isolate overflow-hidden border-t ${styles.circuitBackground}`}>
+    <section data-motion-section={id} aria-labelledby={id} className={`relative isolate overflow-hidden border-t ${background ? "" : styles.circuitBackground}`}>
+      {background && <SectionBackground scene={background} />}
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:py-24">
         <div className="max-w-2xl">
           <p data-motion-group={`${id}.eyebrow`} data-motion="identity" className="mb-4 font-mono text-xs tracking-widest text-text-secondary uppercase">
@@ -63,6 +68,7 @@ export function SimulatorCtaButton({ label = "Coba Simulator" }: { label?: strin
 export function FinalCtaSection() {
   return (
     <div data-home-zone="closing" className={homeStyles.homeClosing}>
+      <SectionBackground scene="home-closing" />
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-8">
         <MotionScene kind="closing">
           <svg viewBox="0 0 480 64" className={homeStyles.closingTrace} fill="none" aria-hidden="true">

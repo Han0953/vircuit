@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader } f
 import { PublicArtwork, type ArtworkKind } from "./public-artwork";
 import styles from "../public-pages.module.css";
 import { PublicMotion } from "./public-motion-page";
+import { SectionBackground } from "../backgrounds/section-background";
 export function ProjectGallery({ children }: { children: ReactNode }) {
   const [level, setLevel] = useState<ProjectLevel | "All">("All");
   const [selected, setSelected] = useState<string | null>(null);
@@ -14,6 +15,7 @@ export function ProjectGallery({ children }: { children: ReactNode }) {
   const visibleCount = projectCatalog.filter((item) => level === "All" || item.level === level).length;
   const levelLabel = { All: "semua tingkat", Beginner: "dasar", Intermediate: "menengah", Advanced: "lanjutan" }[level];
   return <div data-gallery-filter={level}>
+    <SectionBackground scene="explore-gallery" />
     <div className={styles.section} style={{ paddingBottom: 0 }}>
       <div className={styles.filters} data-motion-group="gallery.filters" data-motion="control" aria-label="Filter tingkat proyek">{([ ["All", "Semua"], ["Beginner", "Dasar"], ["Intermediate", "Menengah"], ["Advanced", "Lanjutan"] ] as const).map(([value, label]) => <button key={value} aria-pressed={level === value} onClick={() => setLevel(value)}>{label}</button>)}</div>
       <p data-motion-group="gallery.status" data-motion="text" role="status" className="text-sm text-text-secondary">{visibleCount} proyek · {levelLabel}</p>

@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { SectionBackground } from "./backgrounds/section-background";
 import { SectionHeading } from "./section-heading";
 import { SectionLink } from "./section-link";
 import styles from "./homepage.module.css";
@@ -13,6 +14,7 @@ const questions = [
 
 export function PricingSection() {
   return <section data-home-zone="access" className={styles.section + " " + styles.split} aria-labelledby="pricing-heading">
+    <SectionBackground scene="home-access" />
     <div>
       <SectionHeading id="pricing-heading" eyebrow="07 / Akses terbuka" title="Mulai dari rasa ingin tahu. Simulatornya gratis." description="Core simulator tetap Free. Mulai bereksperimen tanpa membeli paket atau menunggu perangkat tersedia." />
       <p className="mt-6 max-w-md text-sm leading-relaxed text-text-secondary">Premium masih berupa rencana untuk akses lanjutan. Belum tersedia pembelian; harga dan kuota paket belum ditentukan.</p>

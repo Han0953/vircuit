@@ -1,5 +1,6 @@
 import { BookOpen, Bug, Compass, Sparkles } from "lucide-react";
 import { SectionHeading } from "./section-heading";
+import { SectionBackground } from "./backgrounds/section-background";
 import { MotionScene } from "./scenes/motion-scene";
 import styles from "./homepage.module.css";
 
@@ -11,6 +12,7 @@ const roles = [
 
 export function AiLearningSection() {
   return <section data-home-zone="cirra" className="border-y bg-surface" aria-labelledby="ai-heading">
+    <SectionBackground scene="home-cirra" />
     <div className={styles.section + " " + styles.split}>
       <div>
         <SectionHeading id="ai-heading" eyebrow="04 / Meet Cirra" title="Kenalan dengan Cirra, pendamping belajar AI kamu." description="Tanya konsep, telusuri masalah, atau susun rencana project. Kamu tetap memegang kendali atas rangkaian dan setiap perbaikannya." />

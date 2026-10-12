@@ -1,5 +1,11 @@
 .header { position: sticky; top: 0; z-index: 40; padding-top: env(safe-area-inset-top, 0px); transition: box-shadow 180ms ease-out, background-color 180ms ease-out; }
 .headerInner { position: relative; }
+/* Keep the existing compact logo treatment on every marketing route at 360px. */
+@media (max-width: 430px) {
+  .header [data-motion-group='nav.logo'] > span { gap: .375rem; }
+  .header :global(.brand-logo-icon) { height: 22px !important; }
+  .header :global(.brand-logo-text) { height: 15px !important; }
+}
 .headerInner::after { content: ''; position: absolute; inset: auto 2rem -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); opacity: .25; pointer-events: none; }
 .desktopNav { padding: .25rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
 .desktopNav a { border-radius: var(--radius-md); font-size: .8rem; padding-inline: .8rem; }

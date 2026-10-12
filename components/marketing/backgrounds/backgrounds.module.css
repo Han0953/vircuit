@@ -1,0 +1,207 @@
+@property --section-glow { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-ambient { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-pattern { syntax: '<color>'; inherits: true; initial-value: transparent; }
+
+/* Section-local semantic tokens: inversion also changes cards, buttons and SVGs.
+   Physical .component-art materials remain independent from these UI surfaces. */
+:global(:is(section, div):has(> [data-marketing-background])) {
+  position: relative;
+  isolation: isolate;
+  --section-bg: #ffffff;
+  --section-fg: #0a0a0a;
+  --section-muted: #5f6b7a;
+  --section-card: #ffffff;
+  --section-soft: #f1f5f9;
+  --section-border: #dde3ea;
+  --section-border-strong: #c8d1dc;
+  --section-accent: #2563eb;
+  --section-accent-hover: #1d4ed8;
+  --section-accent-fg: #ffffff;
+  --section-accent-soft: #dbeafe;
+  --section-ai: #8b5cf6;
+  --section-iot: #06b6d4;
+  --section-pattern: color-mix(in srgb, var(--section-accent) 22%, var(--section-border));
+  --section-glow: color-mix(in srgb, var(--section-accent) 13%, transparent);
+  --section-ambient: color-mix(in srgb, var(--section-iot) 9%, transparent);
+  --background: var(--section-bg);
+  --foreground: var(--section-fg);
+  --text-primary: var(--section-fg);
+  --text-secondary: var(--section-muted);
+  --text-tertiary: var(--section-muted);
+  --surface: var(--section-card);
+  --surface-elevated: var(--section-card);
+  --surface-muted: var(--section-soft);
+  --border: var(--section-border);
+  --border-strong: var(--section-border-strong);
+  --primary: var(--section-accent);
+  --primary-hover: var(--section-accent-hover);
+  --primary-active: var(--section-accent-hover);
+  --primary-foreground: var(--section-accent-fg);
+  --primary-soft: var(--section-accent-soft);
+  --ai: var(--section-ai);
+  --iot: var(--section-iot);
+  --card: var(--section-card);
+  --card-foreground: var(--section-fg);
+  --popover: var(--section-card);
+  --popover-foreground: var(--section-fg);
+  --muted: var(--section-soft);
+  --muted-foreground: var(--section-muted);
+  --secondary: var(--section-soft);
+  --secondary-foreground: var(--section-fg);
+  --accent: var(--section-accent-soft);
+  --accent-foreground: var(--section-fg);
+  --input: var(--section-border-strong);
+  --ring: var(--section-accent);
+  --shadow-panel: 0 3px 16px color-mix(in srgb, var(--section-fg) 5%, transparent);
+  --shadow-overlay: 0 12px 32px color-mix(in srgb, var(--section-fg) 12%, transparent);
+  color: var(--section-fg);
+  background: var(--section-bg) !important;
+  border-color: var(--section-border);
+}
+:global(:is(section, div):has(> [data-bg-tone='muted'])) { --section-bg: #f1f5f9; --section-soft: #e8eef6; }
+:global(:is(section, div):has(> [data-bg-tone='blue'])) { --section-bg: #edf4ff; --section-soft: #e1ecfc; }
+:global(:is(section, div):has(> [data-bg-tone='violet'])) {
+  --section-bg: #f4f1ff; --section-soft: #ece6ff;
+  --section-glow: color-mix(in srgb, var(--section-ai) 14%, transparent);
+  --section-ambient: color-mix(in srgb, var(--section-accent) 8%, transparent);
+  --section-pattern: color-mix(in srgb, var(--section-ai) 28%, var(--section-border));
+}
+:global(.dark :is(section, div):has(> [data-marketing-background])),
+:global(:is(section, div):has(> [data-bg-tone='night'], > [data-bg-tone='inverse'])) {
+  --section-bg: #081426;
+  --section-fg: #f5f7fa;
+  --section-muted: #b2bfce;
+  --section-card: #101e32;
+  --section-soft: #14263d;
+  --section-border: #2a3a50;
+  --section-border-strong: #42556f;
+  --section-accent: #60a5fa;
+  --section-accent-hover: #93c5fd;
+  --section-accent-fg: #000000;
+  --section-accent-soft: #142c4b;
+  --section-ai: #a78bfa;
+  --section-iot: #22d3ee;
+  --section-glow: color-mix(in srgb, var(--section-accent) 12%, transparent);
+  --section-ambient: color-mix(in srgb, var(--section-iot) 7%, transparent);
+}
+:global(.dark :is(section, div):has(> [data-bg-tone='paper'], > [data-bg-tone='night'])) { --section-bg: #000000; --section-card: #0a0a0a; --section-soft: #121212; }
+:global(.dark :is(section, div):has(> [data-bg-tone='muted'])) { --section-bg: #0b1018; --section-card: #111923; --section-soft: #172232; }
+:global(.dark :is(section, div):has(> [data-bg-tone='blue'])) { --section-bg: #020a16; --section-card: #091426; }
+:global(.dark :is(section, div):has(> [data-bg-tone='violet'])) {
+  --section-bg: #0c0618; --section-card: #170e29; --section-soft: #211335;
+  --section-border: #352648; --section-border-strong: #57406f;
+  --section-glow: color-mix(in srgb, var(--section-ai) 13%, transparent);
+}
+:global(.dark :is(section, div):has(> [data-bg-tone='inverse'])) {
+  --section-bg: #edf4ff; --section-fg: #0a0a0a; --section-muted: #485a70;
+  --section-card: #ffffff; --section-soft: #e1eaf7;
+  --section-border: #c8d5e8; --section-border-strong: #a4b8d4;
+  --section-accent: #2563eb; --section-accent-hover: #1d4ed8;
+  --section-accent-fg: #ffffff; --section-accent-soft: #dbeafe;
+  --section-ai: #8b5cf6; --section-iot: #0891b2;
+}
+
+/* Only the decorative plane bleeds. No overflow/transform on sticky ancestors. */
+.backdrop { position: absolute; inset-block: 0; left: 50%; width: 100vw; transform: translateX(-50%); overflow: hidden; z-index: -1; pointer-events: none; user-select: none; }
+.base, .atmosphere, .pattern, .scan { position: absolute; inset: 0; }
+.base { background: var(--section-bg); }
+.atmosphere {
+  inset: -24px 0;
+  background: radial-gradient(ellipse at 85% 28%, var(--section-glow), transparent 55%), radial-gradient(ellipse at 0% 90%, var(--section-ambient), transparent 46%);
+}
+.pattern {
+  background-image: radial-gradient(var(--section-pattern) .8px, transparent .8px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(90deg, #000, transparent 30%, transparent 65%, #000);
+  opacity: .5;
+}
+.routes { position: absolute; inset: 0; width: 100%; height: 100%; max-height: 72rem; stroke-width: 1; mask-image: linear-gradient(90deg, #000, transparent 18%, transparent 82%, #000); }
+.routes path { vector-effect: non-scaling-stroke; }
+.underlay { stroke: var(--section-pattern); opacity: .55; }
+.signals { stroke: var(--section-accent); stroke-width: 1.4; opacity: .32; }
+.signals path { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.nodes { fill: var(--section-accent); opacity: .7; }
+.scan { inset: auto -20% 12% auto; width: 44%; height: 1px; background: linear-gradient(90deg, transparent, var(--section-accent), transparent); opacity: .35; }
+.backdrop[data-bg-motion='static'] .scan { display: none; }
+.backdrop[data-bg-motif='blueprint'] .pattern {
+  background-image: linear-gradient(var(--section-pattern) 1px, transparent 1px), linear-gradient(90deg, var(--section-pattern) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(100deg, transparent 32%, #000);
+  opacity: .32;
+}
+.backdrop[data-bg-motif='journey'] .pattern {
+  background-image: radial-gradient(circle, var(--section-pattern) 2px, transparent 3px);
+  background-size: 96px 96px;
+  mask-image: linear-gradient(90deg, #000, transparent 25%, transparent 76%, #000);
+}
+.backdrop[data-bg-motif='journey'] .signals { stroke: var(--section-ai); }
+.backdrop[data-bg-motif='diagnostics'] .pattern {
+  background-image: repeating-linear-gradient(0deg, transparent 0 39px, var(--section-pattern) 40px 41px);
+  mask-image: linear-gradient(90deg, #000, transparent 22%, transparent 78%, #000);
+  opacity: .45;
+}
+.backdrop[data-bg-motif='diagnostics'] .scan { top: 18%; bottom: auto; right: -15%; width: 35%; }
+.backdrop[data-bg-motif='tiles'] .pattern {
+  background-image: linear-gradient(90deg, var(--section-pattern) 1px, transparent 1px), linear-gradient(var(--section-pattern) 1px, transparent 1px);
+  background-size: 160px 120px;
+  mask-image: linear-gradient(145deg, #000, transparent 48%, #000);
+  opacity: .38;
+}
+.backdrop[data-bg-motif='spotlight'] .pattern { background-image: linear-gradient(90deg, var(--section-pattern) 1px, transparent 1px); background-size: 20% 100%; opacity: .28; mask-image: linear-gradient(#000, transparent 85%); }
+.backdrop[data-bg-motif='spotlight'] .atmosphere { background: radial-gradient(ellipse at 50% 0%, var(--section-glow), transparent 65%); }
+
+/* Route-specific compositions, rather than five copies of the same gradient. */
+.backdrop[data-marketing-background='home-problem'] .signals { opacity: .18; }
+.backdrop[data-marketing-background='home-problem'] .underlay { stroke-dasharray: 6 12; }
+.backdrop[data-marketing-background='home-hero'] .routes { mask-image: linear-gradient(180deg, #000, transparent 20%, transparent 80%, #000); }
+.backdrop[data-marketing-background='home-story'] .pattern { display: none; }
+.backdrop[data-marketing-background='home-story'] .atmosphere { background: radial-gradient(ellipse at 12% 25%, var(--section-glow), transparent 45%); }
+.backdrop[data-marketing-background='home-boards'] .pattern { top: 40%; transform: perspective(480px) rotateX(22deg) scale(1.2); transform-origin: bottom; opacity: .4; }
+:global([data-home-zone='boards'][data-active-board='nano']) > .backdrop .atmosphere { --section-glow: color-mix(in srgb, var(--section-iot) 16%, transparent); }
+:global([data-home-zone='boards'][data-active-board='esp32']) > .backdrop .atmosphere { --section-glow: color-mix(in srgb, var(--section-ai) 16%, transparent); }
+.backdrop[data-marketing-background='home-workspace'] .routes { top: 10%; height: 80%; }
+.backdrop[data-marketing-background='home-cirra'] .atmosphere { background: radial-gradient(ellipse at 85% 50%, var(--section-glow), transparent 60%); }
+.backdrop[data-marketing-background='home-closing'] .pattern, .backdrop[data-marketing-background='features-closing'] .pattern { background-size: 40px 40px; mask-image: linear-gradient(90deg, transparent 20%, #000); }
+.backdrop[data-marketing-background='features-hero'] .pattern { background-size: 96px 48px; mask-image: linear-gradient(90deg, transparent 10%, #000); }
+.backdrop[data-marketing-background='features-hero'] .scan { top: 16%; }
+:global(section[data-motion-section='features-story']:has([data-stage='1'])) { --section-glow: color-mix(in srgb, var(--section-iot) 16%, transparent); }
+:global([data-motion-section='features-story']:has([data-stage='2'])) > .backdrop .pattern { background-size: 128px 24px; }
+:global([data-motion-section='features-story']:has([data-stage='3'])) > .backdrop .atmosphere { background: radial-gradient(ellipse at 75% 50%, var(--section-glow), transparent 65%); }
+:global([data-motion-section='features-story']:has([data-stage='4'])) > .backdrop .pattern { background-size: 32px 96px; }
+:global(section[data-motion-section='features-story']:has([data-stage='5'])) { --section-glow: color-mix(in srgb, var(--section-ai) 14%, transparent); }
+.backdrop[data-marketing-background='learn-hero'] .routes { width: 45%; left: 55%; }
+.backdrop[data-marketing-background='learn-cycle'] .pattern { background-size: 128px 128px; }
+.backdrop[data-marketing-background='explore-hero'] .pattern { background-size: 192px 144px; opacity: .5; }
+.backdrop[data-marketing-background='explore-capstone'] .atmosphere { background: radial-gradient(ellipse at 90% 50%, var(--section-ambient), transparent 65%); }
+:global(div[data-gallery-filter='Intermediate']:has(> [data-marketing-background])) { --section-ambient: color-mix(in srgb, var(--section-iot) 12%, transparent); }
+:global(div[data-gallery-filter='Advanced']:has(> [data-marketing-background])) { --section-glow: color-mix(in srgb, var(--section-ai) 12%, transparent); }
+.backdrop[data-marketing-background='pricing-plans'] .atmosphere { background: radial-gradient(ellipse at 25% 20%, var(--section-glow), transparent 40%), radial-gradient(ellipse at 75% 20%, var(--section-ambient), transparent 40%); }
+.backdrop[data-marketing-background='pricing-comparison'] .pattern { background-size: 20% 64px; }
+.backdrop[data-marketing-background='pricing-faq'] .pattern { opacity: .12; }
+:global([data-home-zone='closing'] > section)::before { display: none; }
+
+/* Specificity intentionally beats next-themes' universal transition suppression.
+   Only color properties are animated; GSAP retains ownership of transforms. */
+@media (prefers-reduced-motion: no-preference) {
+  :global(:is(section, div):has(> [data-marketing-background])),
+  :global(:is(section, div):has(> [data-marketing-background]) :is(h1,h2,h3,h4,p,li,article,figure,a,button,summary,details,span,dt,dd,svg,path,circle,rect)),
+  .backdrop, .base, .pattern, .atmosphere, .signals, .nodes {
+    transition-property: --section-glow, --section-ambient, --section-pattern, color, background-color, border-color, box-shadow, fill, stroke !important;
+    transition-duration: 280ms !important;
+    transition-timing-function: ease-out !important;
+  }
+}
+@media (max-width: 767px) {
+  .pattern { opacity: .28; background-size: 32px 32px; }
+  .routes { width: 160%; left: -30%; opacity: .6; }
+  .scan { width: 30%; opacity: .2; }
+  .backdrop[data-bg-motif='blueprint'] .pattern { background-size: 80px 80px; opacity: .2; }
+  .backdrop[data-marketing-background='learn-hero'] .routes { width: 90%; left: 50%; }
+  .backdrop[data-marketing-background='home-boards'] .pattern { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .backdrop *, .backdrop { animation: none !important; transition: none !important; }
+  .signals path { stroke-dashoffset: 0 !important; }
+  .atmosphere { transform: none !important; }
+  .scan { transform: none !important; opacity: .25 !important; }
+}

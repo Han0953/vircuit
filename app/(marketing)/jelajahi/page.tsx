@@ -1,6 +1,7 @@
 import { ProjectGallery } from "@/components/marketing/scenes/project-gallery";
 import type { ArtworkKind } from "@/components/marketing/scenes/public-artwork";
 import { PublicMotion } from "@/components/marketing/scenes/public-motion-page";
+import { SectionBackground } from "@/components/marketing/backgrounds/section-background";
 import { PublicArtwork } from "@/components/marketing/scenes/public-artwork";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -52,6 +53,7 @@ export function JelajahiPage() {
   return (
     <PublicMotion route="/jelajahi">
       <PageHero
+        background="explore-hero"
         id="jelajahi-hero-heading"
         eyebrow="Jelajahi Vircuit"
         title={
@@ -77,6 +79,7 @@ export function JelajahiPage() {
 
       {/* 3 Konsep Eksplorasi */}
       <section data-motion-section="concepts" aria-label="Konsep eksplorasi" className="border-b bg-surface">
+        <SectionBackground scene="explore-concepts" />
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8 sm:py-16">
           <div className="grid gap-6 md:grid-cols-3">
             {conceptFeatures.map((item) => {
@@ -99,6 +102,7 @@ export function JelajahiPage() {
 
       {/* Showcase Capstone: IoT Egg Incubator */}
       <section data-motion-section="capstone" aria-labelledby="capstone-heading" className="mx-auto max-w-7xl px-4 py-16 sm:px-8">
+        <SectionBackground scene="explore-capstone" />
         <div className="relative overflow-hidden rounded-xl border bg-surface p-6 sm:p-10 lg:p-12">
           <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
             <div className="lg:col-span-7">
@@ -151,6 +155,7 @@ export function JelajahiPage() {
 
             return (
               <section data-motion-section={`level.${lvl.level}`} data-level={lvl.level} key={lvl.level} aria-labelledby={`level-${lvl.level}`}>
+                <SectionBackground scene={`explore-${lvl.level}`} />
                 <div className="border-b pb-4">
                   <div data-motion-group={`level.${lvl.level}.title`} data-motion="identity" className="flex items-center gap-3">
                     <h2 id={`level-${lvl.level}`} className="text-h3 font-semibold tracking-tight">
@@ -209,6 +214,7 @@ export function JelajahiPage() {
 
       </ProjectGallery>
       <CtaSection
+        background="explore-closing"
         id="jelajahi-cta-heading"
         eyebrow="Eksplorasi Bebas"
         title="Punya ide rangkaian buatan sendiri?"

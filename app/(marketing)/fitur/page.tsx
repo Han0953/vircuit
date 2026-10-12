@@ -1,5 +1,6 @@
 import { FeaturesShowcase } from "@/components/marketing/scenes/features-showcase";
 import { PublicMotion } from "@/components/marketing/scenes/public-motion-page";
+import { SectionBackground } from "@/components/marketing/backgrounds/section-background";
 import { PublicArtwork } from "@/components/marketing/scenes/public-artwork";
 import publicStyles from "@/components/marketing/public-pages.module.css";
 import type { Metadata } from "next";
@@ -189,11 +190,12 @@ const featureGroups = [
       },
     ],
   },
-];
+] as const;
 export function FiturPage() {
   return (
     <PublicMotion route="/fitur">
       <PageHero
+        background="features-hero"
         id="fitur-hero-heading"
         eyebrow="Fitur Vircuit"
         title={
@@ -223,6 +225,7 @@ export function FiturPage() {
         <div className="space-y-16 lg:space-y-24">
           {featureGroups.map((group) => (
             <section data-motion-section={`features.${group.id}`} key={group.id} aria-labelledby={`features-${group.id}-heading`}>
+              <SectionBackground scene={`features-${group.id}`} />
               <div className="border-b pb-4">
                 <p data-motion-group={`features.${group.id}.label`} data-motion="identity" className="font-mono text-xs font-medium tracking-widest text-text-secondary uppercase">
                   {group.eyebrow}
@@ -280,8 +283,9 @@ export function FiturPage() {
         </div>
       </div>
 
-      <section data-motion-section="features-cirra" className={publicStyles.section}><div className={publicStyles.intro}><p data-motion-group="features-cirra.label" data-motion="identity">Pendamping, bukan pengganti eksperimen</p><h2 data-motion-group="features-cirra.heading" data-motion="text">Cirra membantu menjelaskan konteks.</h2><p data-motion-group="features-cirra.description" data-motion="text">Tutor, Debugger dan Project Assistant tersedia untuk akun login, bergantung kuota dan ketersediaan layanan.</p></div><div data-motion-group="features-cirra.preview" data-motion="art" className="grid gap-4 sm:grid-cols-3">{["Pertanyaan: mengapa LED belum menyala?", "Konteks: wiring, kode dan Problems", "Arahan: periksa pin output dan ground"].map((text) => <p data-part key={text} className="rounded-lg border bg-surface p-6">{text}</p>)}</div><p data-motion-group="features-cirra.note" data-motion="text" className={publicStyles.caption}>Contoh percakapan ilustratif, bukan respons AI langsung.</p></section>
+      <section data-motion-section="features-cirra" className={publicStyles.section}><SectionBackground scene="features-assistant" /><div className={publicStyles.intro}><p data-motion-group="features-cirra.label" data-motion="identity">Pendamping, bukan pengganti eksperimen</p><h2 data-motion-group="features-cirra.heading" data-motion="text">Cirra membantu menjelaskan konteks.</h2><p data-motion-group="features-cirra.description" data-motion="text">Tutor, Debugger dan Project Assistant tersedia untuk akun login, bergantung kuota dan ketersediaan layanan.</p></div><div data-motion-group="features-cirra.preview" data-motion="art" className="grid gap-4 sm:grid-cols-3">{["Pertanyaan: mengapa LED belum menyala?", "Konteks: wiring, kode dan Problems", "Arahan: periksa pin output dan ground"].map((text) => <p data-part key={text} className="rounded-lg border bg-surface p-6">{text}</p>)}</div><p data-motion-group="features-cirra.note" data-motion="text" className={publicStyles.caption}>Contoh percakapan ilustratif, bukan respons AI langsung.</p></section>
       <CtaSection
+        background="features-closing"
         id="fitur-cta-heading"
         eyebrow="Uji Coba Langsung"
         title="Ingin merasakan langsung kanvas Virtual Lab?"

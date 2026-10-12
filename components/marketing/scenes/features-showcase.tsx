@@ -6,6 +6,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { PublicArtwork } from "./public-artwork";
 import { scrollHomeTo } from "./home-scroll";
 import styles from "../public-pages.module.css";
+import { SectionBackground } from "../backgrounds/section-background";
+import { addBackgroundMotion } from "../backgrounds/background-motion";
 
 const stages = [
   ["Build", "Mulai dari komponen.", "Pilih board dan susun komponen sesuai tujuan eksperimen."],
@@ -32,6 +34,7 @@ export function FeaturesShowcase() {
         element.querySelectorAll<HTMLButtonElement>("[data-stage-button]").forEach((button, index) => button.setAttribute("aria-pressed", String(index === active)));
         const label = element.querySelector("[data-stage-label]"); if (label && label.textContent !== stages[active][0]) label.textContent = stages[active][0];
       } } });
+      addBackgroundMotion(timeline, element.parentElement?.querySelector("[data-marketing-background]") ?? null, true);
       timeline.fromTo(stageArt?.querySelectorAll("[data-part]") ?? [], { y: -12 }, { y: 0, stagger: .1, duration: 1 }, 0)
         .fromTo(stageArt?.querySelectorAll("[data-trace]") ?? [], { opacity: .2 }, { opacity: 1, duration: 1 }, 1)
         .fromTo(stageArt?.querySelectorAll("[data-output]") ?? [], { opacity: .2 }, { opacity: 1, duration: 1 }, 3);
@@ -39,6 +42,7 @@ export function FeaturesShowcase() {
     return () => media.revert();
   }, { scope: root });
   return <section className={styles.section} aria-labelledby="features-story-heading" data-motion-section="features-story">
+    <SectionBackground scene="features-story" />
     <div className={styles.intro}><p data-motion-group="features-story.label" data-motion="identity">01 / Di balik satu eksperimen</p><h2 id="features-story-heading" data-motion-group="features-story.heading" data-motion="text">Satu alur. Banyak hal yang bisa dipahami.</h2><p data-motion-group="features-story.description" data-motion="text">Pratinjau ini menjelaskan alur kerja Virtual Lab. Hasil dan rangkaian di sini merupakan ilustrasi.</p></div>
     <div ref={root} className={styles.featureStage} data-stage="0">
       <div className={styles.stageArt} data-feature-visual>

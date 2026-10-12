@@ -1,11 +1,13 @@
 import { Check, ArrowRight } from "lucide-react";
 import { SectionHeading } from "./section-heading";
+import { SectionBackground } from "./backgrounds/section-background";
 import { SectionLink } from "./section-link";
 import { MotionScene } from "./scenes/motion-scene";
 import styles from "./homepage.module.css";
 
 export function ChallengeSection() {
   return <section data-home-zone="challenge" className={styles.section + " " + styles.split} aria-labelledby="challenge-heading">
+    <SectionBackground scene="home-challenge" />
     <div>
       <SectionHeading id="challenge-heading" eyebrow="05 / Belajar, praktik, evaluasi" title="Uji pemahaman. Tahu apa yang perlu diperbaiki." description="Ikuti materi Dasar IoT dengan Arduino Uno. Bawa konsep ke lab, kerjakan challenge, lalu gunakan feedback untuk mencoba kembali." />
       <ol className="mt-7 space-y-3 text-sm text-text-secondary">
