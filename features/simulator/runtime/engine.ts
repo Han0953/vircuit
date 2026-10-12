@@ -60,8 +60,8 @@ export class SimulationEngine {
   step() { const delay = this.interpreter.step(); const outputs = this.electronics.outputs(); this.time += delay; return { delay, outputs, time: this.time, serial: this.serial }; }
   input(id: string, property: string, value: number) {
     const component = this.electronics.project.components.find((c) => c.id === id);
-    const allowed = component?.type === "button" ? ["pressed"] : component?.type === "pot" ? ["value"] : component?.type === "dht22" ? ["temperature", "humidity"] : [];
+    const allowed = component?.type === "button" ? ["pressed"] : component?.type === "pot" ? ["value"] : component?.type === "dht22" ? ["temperature", "humidity"] : component?.type === "ldr" ? ["light", "threshold"] : component?.type === "pir" ? ["motion"] : [];
     if (!allowed.includes(property) || !Number.isFinite(value)) return;
-    this.electronics.inputs[id][property] = property === "temperature" ? Math.max(-40, Math.min(80, value)) : property === "pressed" ? Number(Boolean(value)) : Math.max(0, Math.min(100, value));
+    this.electronics.inputs[id][property] = property === "temperature" ? Math.max(-40, Math.min(80, value)) : property === "pressed" || property === "motion" ? Number(Boolean(value)) : Math.max(0, Math.min(100, value));
   }
 }

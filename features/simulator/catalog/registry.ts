@@ -30,6 +30,13 @@ export const catalog: ComponentDefinition[] = [
   definition("dht22", "DHT22", "Sensors", [pin("VCC", "power"), pin("DATA", "data"), pin("GND", "ground")], { temperature: 25, humidity: 50 }),
   definition("relay", "Relay", "Actuators", [pin("VCC", "power"), pin("IN", "digital"), pin("GND", "ground"), pin("COM"), pin("NO"), pin("NC")]),
   definition("fan", "DC Motor / Fan", "Actuators", [pin("+"), pin("-")]),
+  { ...definition("ldr", "LDR Module (AO/DO)", "Sensors", [pin("VCC", "power"), pin("GND", "ground"), pin("DO", "digital"), pin("AO", "analog")], { light: 50, threshold: 50 }), supportNote: "AO turun saat cahaya naik. DO LOW di atas ambang. Cahaya virtual 0–100%, bukan lux." },
+  { ...definition("hcsr04", "HC-SR04", "Sensors", [pin("VCC", "power"), pin("TRIG", "digital"), pin("ECHO", "digital"), pin("GND", "ground")], { distance: 100 }), support: "visual-only", supportNote: "Pratinjau jarak dari properti. Trigger/echo dan pulseIn belum disimulasikan." },
+  { ...definition("pir", "PIR Sensor", "Sensors", [pin("VCC", "power"), pin("OUT", "digital"), pin("GND", "ground")], { motion: 0 }), supportNote: "Gerakan virtual mengubah OUT melalui digitalRead. Tidak memodelkan warm-up atau delay sensor fisik." },
+  { ...definition("buzzer", "Buzzer aktif", "Actuators", [pin("+"), pin("-")]), supportNote: "Output on/off visual melalui digitalWrite. Tanpa audio; tone/noTone belum didukung." },
+  { ...definition("servo", "Servo Motor", "Actuators", [pin("GND", "ground"), pin("VCC", "power"), pin("SIG", "digital")], { angle: 90 }), support: "visual-only", supportNote: "Sudut 0–180° dari properti. Servo library dan pulse-control belum disimulasikan." },
+  { ...definition("lcd16x2", "LCD 16×2 (I2C)", "Displays", [pin("GND", "ground"), pin("VCC", "power"), pin("SDA", "data"), pin("SCL", "data")], { address: 39, contrast: 50 }), support: "visual-only", supportNote: "Pratinjau LCD dengan backpack I2C. Wire/LiquidCrystal dan output teks program belum didukung." },
+  { ...definition("oled", "OLED 128×64 (I2C)", "Displays", [pin("GND", "ground"), pin("VCC", "power"), pin("SCL", "data"), pin("SDA", "data")], { address: 60 }), support: "visual-only", supportNote: "Pratinjau modul I2C empat pin. Wire/SSD1306 dan output program belum didukung." },
 ];
 export function getDefinition(type: string) {
   const result = catalog.find((definition) => definition.key === type);

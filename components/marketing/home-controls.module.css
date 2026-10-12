@@ -1,4 +1,4 @@
-.header { position: sticky; top: 0; z-index: 40; padding-top: env(safe-area-inset-top, 0px); transition: box-shadow 180ms ease-out, background-color 180ms ease-out; }
+.header { position: sticky; top: 0; z-index: 40; padding-top: env(safe-area-inset-top, 0px); background: color-mix(in srgb, var(--background) 88%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: box-shadow 180ms ease-out, background-color 180ms ease-out; }
 .headerInner { position: relative; }
 /* Keep the existing compact logo treatment on every marketing route at 360px. */
 @media (max-width: 430px) {
@@ -7,8 +7,8 @@
   .header :global(.brand-logo-text) { height: 15px !important; }
 }
 .headerInner::after { content: ''; position: absolute; inset: auto 2rem -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); opacity: .25; pointer-events: none; }
-.desktopNav { padding: .25rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
-.desktopNav a { border-radius: var(--radius-md); font-size: .8rem; padding-inline: .8rem; }
+.desktopNav { padding: .125rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.desktopNav a { border-radius: var(--radius-md); font-size: .8rem; padding-inline: .7rem; }
 .header .desktopNav a[aria-current='page'] { background: var(--primary-soft); text-decoration: none; }
 .themeButton { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); min-width: 44px; min-height: 44px; }
 .themeButton svg { animation: theme-icon-in 220ms ease-out; }
@@ -24,15 +24,14 @@
 @keyframes menu-close { to { opacity: 0; transform: translateY(-8px); } }
 @keyframes menu-links { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes theme-icon-in { from { opacity: .25; transform: rotate(-30deg) scale(.8); } to { opacity: 1; transform: none; } }
-:global(html:has([data-home-header])::view-transition-group(root)) { animation-duration: 260ms; }
-.header[data-scrolled='true'] { background: var(--surface-elevated); box-shadow: var(--shadow-panel); }
+.header[data-scrolled='true'] { background: color-mix(in srgb, var(--surface-elevated) 88%, transparent); box-shadow: var(--shadow-panel); }
 .header a { transition: color 150ms, background-color 150ms, transform 150ms; }
 .header a[aria-current='page'] { text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
 .header a:active, .header button:active:not(:disabled) { transform: scale(.98); }
 .header [data-motion-group='nav.logo'] svg { animation: logo-settle 400ms ease-out; }
 @keyframes logo-settle { from { transform: translateY(-4px) rotate(-5deg); } to { transform: none; } }
 .header[data-menu-open='true'] ~ .backToTop { visibility: hidden; pointer-events: none; }
-:global(html:has([data-home-header])) { scroll-padding-top: calc(var(--home-header-height, 80px) + 16px); }
+:global(html:has([data-home-header])) { --home-header-height: 64px; scroll-padding-top: calc(var(--home-header-height) + 16px); }
 .backToTop { position: fixed; z-index: 30; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); width: 44px; height: 44px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--surface-elevated); color: var(--foreground); box-shadow: var(--shadow-overlay); display: grid; place-items: center; opacity: 0; transform: translateY(8px); visibility: hidden; pointer-events: none; transition: opacity 180ms ease-out, transform 180ms ease-out, visibility 180ms; }
 .backToTop[data-visible='true'], .backToTop:focus-visible { opacity: 1; transform: none; visibility: visible; pointer-events: auto; }
 .backToTop:hover { color: var(--primary); }

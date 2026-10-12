@@ -26,6 +26,7 @@ export function PublicNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const header = useRef<HTMLElement>(null);
+  const menuTrigger = useRef<HTMLButtonElement>(null);
   const loginActive = isActiveRoute(pathname, marketingRoutes.login);
 
   useEffect(() => {
@@ -58,14 +59,14 @@ export function PublicNavbar() {
       >
         Lewati ke konten utama
       </a>
-      <div className={cn("mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-3 px-4 sm:px-8 lg:gap-6", styles.headerInner)}>
+      <div className={cn("mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-8 lg:gap-6", styles.headerInner)}>
         <Link
           prefetch={false}
           href={marketingRoutes.home}
           aria-label="Vircuit — Beranda"
           data-motion-group="nav.logo" data-motion="control" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-sm text-xl font-bold tracking-tight outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <BrandLogo size="default" />
+          <BrandLogo size="sm" />
         </Link>
 
         <nav aria-label="Navigasi utama" className={cn("hidden items-center gap-1 lg:flex", styles.desktopNav)}>
@@ -107,11 +108,14 @@ export function PublicNavbar() {
           </Button>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
-              <Button data-motion-group="nav.menu" data-motion="control" variant="outline" size="icon" aria-label="Buka menu navigasi">
+              <Button ref={menuTrigger} data-motion-group="nav.menu" data-motion="control" variant="outline" size="icon" aria-label="Buka menu navigasi">
                 <Menu aria-hidden="true" className="size-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent data-motion-group="nav.sheet" data-motion="control" className={styles.mobileMenu}>
+            <SheetContent data-motion-group="nav.sheet" data-motion="control" className={styles.mobileMenu} onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              menuTrigger.current?.focus({ preventScroll: true });
+            }}>
               <SheetHeader className="border-b p-6 pr-16 text-left">
                 <SheetTitle className="flex items-center gap-2 text-xl"><BrandLogo size="sm" /></SheetTitle>
                 <SheetDescription>Belajar IoT lewat praktik.</SheetDescription>

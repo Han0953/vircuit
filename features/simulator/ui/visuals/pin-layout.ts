@@ -49,6 +49,13 @@ export function visualLayout(definition: ComponentDefinition): VisualLayout {
     dht22: { width: p * 4, height: p * 7 },
     relay: { width: p * 7, height: p * 9 },
     fan: { width: p * 8, height: p * 8 },
+    ldr: { width: p * 5, height: p * 8 },
+    hcsr04: { width: p * 12, height: p * 6 },
+    pir: { width: p * 6, height: p * 7, interaction: { x: p, y: p, width: p * 4, height: p * 4 } },
+    buzzer: { width: p * 4, height: p * 5 },
+    servo: { width: p * 7, height: p * 7 },
+    lcd16x2: { width: p * 16, height: p * 8 },
+    oled: { width: p * 7, height: p * 8 },
   };
   const size = sizes[definition.key] ?? { width: p * 10, height: Math.max(p * 6, Math.ceil(pins.length / 2) * p + p * 2) };
   return { ...size, anchors: pins.map((pin, index) => {
@@ -58,6 +65,7 @@ export function visualLayout(definition: ComponentDefinition): VisualLayout {
     if (definition.key === "dht22") return { pin, x: p / 2 + (index === 2 ? 3 : index) * p, y: size.height - p / 2, side: "bottom" };
     if (definition.key === "relay") return { pin, x: p * (1.5 + (index % 3) * 2), y: index < 3 ? p / 2 : size.height - p / 2, side: index < 3 ? "top" : "bottom" };
     if (definition.key === "fan") return { pin, x: p * (index ? 5.5 : 2.5), y: size.height - p / 2, side: "bottom" };
+    if (["ldr", "hcsr04", "pir", "buzzer", "servo", "lcd16x2", "oled"].includes(definition.key)) return { pin, x: size.width / 2 + (index - (pins.length - 1) / 2) * p, y: size.height - p / 2, side: "bottom" };
     return { pin, x: index % 2 ? size.width - p : p, y: p + Math.floor(index / 2) * p, side: index % 2 ? "right" : "left" };
   }) };
 }

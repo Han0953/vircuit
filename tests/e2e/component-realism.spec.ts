@@ -17,7 +17,7 @@ async function saved(page: Page) {
   });
 }
 async function screenPoint(page: Page, point: { x: number; y: number }) {
-  return page.getByTestId("circuit-canvas").evaluate((el, point) => {
+  return page.getByTestId("circuit-canvas").locator(".react-flow").evaluate((el, point) => {
     const rect = el.getBoundingClientRect(), viewport = el.querySelector(".react-flow__viewport")!;
     const m = new DOMMatrix(getComputedStyle(viewport).transform);
     return { x: rect.x + m.e + point.x * m.a, y: rect.y + m.f + point.y * m.d };
@@ -132,7 +132,7 @@ test("wire reconnect and delete keep logical identity and are undoable", async (
   await page.mouse.move(to!.x + to!.width / 2, to!.y + to!.height / 2, { steps: 10 }); await page.mouse.up();
   await expect.poll(async () => (await saved(page))?.wires[0]).toEqual({ ...p.wires[0], to: { componentId: "r", pinId: "2" } });
   await expect(edge).toBeVisible();
-  await edge.dispatchEvent("click"); await page.getByTestId("circuit-canvas").click({ position: { x: 10, y: 10 } });
+  await edge.dispatchEvent("click"); await page.locator(".react-flow__pane").click({ position: { x: 10, y: 10 } });
   await edge.dispatchEvent("click"); await edge.focus(); await page.keyboard.press("Delete");
   await expect(page.locator(".react-flow__edge")).toHaveCount(0);
   await expect(page.getByTestId("circuit-canvas")).toBeFocused();

@@ -10,6 +10,7 @@ interface ProjectStore {
   checkpoint: () => void;
   add: (type: string, position: { x: number; y: number }) => void;
   remove: (ids: string[]) => void;
+  clearCircuit: () => void;
   updateComponent: (id: string, update: Partial<ComponentInstance>) => void;
   duplicate: (ids: string[]) => void;
   undo: () => void; redo: () => void;
@@ -23,6 +24,7 @@ export const useProject = create<ProjectStore>((set, get) => ({
   }),
   checkpoint: () => set((s) => ({ past: [...s.past.slice(-49), s.project], future: [] })),
   add: (type, position) => {
+    if (get().project.components.length >= 100) return;
     const definition = getDefinition(type);
     const id = crypto.randomUUID();
     get().edit((p) => ({ ...p, components: [...p.components, { id, type, position, label: definition.name, rotation: 0, properties: { ...definition.defaults } }], settings: { boardId: p.settings.boardId ?? (definition.category === "Boards" ? id : null) } }));
@@ -31,8 +33,13 @@ export const useProject = create<ProjectStore>((set, get) => ({
     if (!p.components.some((c) => ids.includes(c.id)) && !p.wires.some((w) => ids.includes(w.id))) return p;
     return { ...p, components: p.components.filter((c) => !ids.includes(c.id)), wires: p.wires.filter((w) => !ids.includes(w.id) && !ids.includes(w.from.componentId) && !ids.includes(w.to.componentId)), settings: { boardId: ids.includes(p.settings.boardId ?? "") ? null : p.settings.boardId } };
   }),
+  clearCircuit: () => get().remove([...get().project.components.map((c) => c.id), ...get().project.wires.map((w) => w.id)]),
   updateComponent: (id, update) => get().edit((p) => ({ ...p, components: p.components.map((c) => c.id === id ? { ...c, ...update, rotation: normalizeRotation(update.rotation ?? c.rotation) } : c) })),
-  duplicate: (ids) => get().edit((p) => ({ ...p, components: [...p.components, ...p.components.filter((c) => ids.includes(c.id)).map((c) => ({ ...c, id: crypto.randomUUID(), properties: { ...c.properties }, position: { x: c.position.x + 40, y: c.position.y + 40 } }))] })),
+  duplicate: (ids) => get().edit((p) => {
+    const source = p.components.filter((c) => ids.includes(c.id));
+    if (!source.length || p.components.length + source.length > 100) return p;
+    return { ...p, components: [...p.components, ...source.map((c) => ({ ...c, id: crypto.randomUUID(), properties: { ...c.properties }, position: { x: c.position.x + 40, y: c.position.y + 40 } }))] };
+  }),
   undo: () => set((s) => s.past.length ? { project: s.past.at(-1)!, past: s.past.slice(0, -1), future: [s.project, ...s.future] } : s),
   redo: () => set((s) => s.future.length ? { project: s.future[0], future: s.future.slice(1), past: [...s.past, s.project] } : s),
 }));

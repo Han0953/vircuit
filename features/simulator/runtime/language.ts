@@ -1,7 +1,8 @@
 export class CodeError extends Error { constructor(message: string, public line: number) { super(message); } }
 export interface Token { value: string; line: number; kind: "number" | "string" | "word" | "symbol" }
 export type Expr = { kind: "value"; value: number | string; line: number } | { kind: "name"; name: string; line: number } | { kind: "call"; name: string; args: Expr[]; line: number } | { kind: "binary"; op: string; left: Expr; right: Expr; line: number } | { kind: "unary"; op: string; value: Expr; line: number };
-export type Statement = { kind: "declare" | "assign"; name: string; value: Expr; line: number } | { kind: "expression"; value: Expr; line: number } | { kind: "if"; condition: Expr; yes: Statement[]; no: Statement[]; line: number } | { kind: "while"; condition: Expr; body: Statement[]; line: number };
+export type VariableType = "integer" | "number" | "boolean";
+export type Statement = { kind: "declare"; name: string; value: Expr; type: VariableType; constant: boolean; line: number } | { kind: "assign"; name: string; value: Expr; line: number } | { kind: "expression"; value: Expr; line: number } | { kind: "if"; condition: Expr; yes: Statement[]; no: Statement[]; line: number } | { kind: "while"; condition: Expr; body: Statement[]; line: number };
 export interface Program { globals: Statement[]; setup: Statement[]; loop: Statement[] }
 const apis = new Set(["pinMode", "digitalWrite", "digitalRead", "analogRead", "analogWrite", "delay", "Serial.begin", "Serial.print", "Serial.println", "DHT.temperature", "DHT.humidity"]);
 export function tokenize(source: string): Token[] {
@@ -59,9 +60,11 @@ export function parseProgram(source: string): Program {
       return { kind: "if", condition, yes: block, no, line: token.line };
     }
     if (["const", "int", "float", "double", "bool", "long", "unsigned", "byte"].includes(token.value)) {
-      while (["const", "int", "float", "double", "bool", "long", "unsigned", "byte"].includes(peek().value)) take();
+      const modifiers: string[] = [];
+      while (["const", "int", "float", "double", "bool", "long", "unsigned", "byte"].includes(peek().value)) modifiers.push(take().value);
+      const type: VariableType = modifiers.includes("bool") ? "boolean" : modifiers.some((value) => value === "float" || value === "double") ? "number" : "integer";
       const variable = name(); const value: Expr = peek().value === "=" ? (take(), expression()) : { kind: "value", value: 0, line: token.line }; expect(";");
-      return { kind: "declare", name: variable, value, line: token.line };
+      return { kind: "declare", name: variable, value, type, constant: modifiers.includes("const"), line: token.line };
     }
     if (tokens[index + 1]?.value === "=" || ["++", "--"].includes(tokens[index + 1]?.value)) {
       const variable = name(); const operator = take();

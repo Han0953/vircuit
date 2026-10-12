@@ -46,7 +46,7 @@ test("icon-only theme picker supports hover, click, keyboard and reduced motion"
   expect(await page.evaluate(() => localStorage.getItem("vircuit-theme"))).toBe("system");
 });
 
-test("theme transition fallback works without View Transition and skips reduced-motion animation", async ({ page }) => {
+test("theme colors work without page snapshots or body fades and respect reduced motion", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.addInitScript(() => {
     Object.defineProperty(document, "startViewTransition", { value: undefined, configurable: true });
@@ -61,13 +61,18 @@ test("theme transition fallback works without View Transition and skips reduced-
   await toggle.click();
   await page.getByRole("menuitemradio", { name: "Gelap" }).click();
   await expect(page.locator("html")).toHaveClass(/dark/);
-  await expect(page.locator("body")).toHaveAttribute("data-theme-fades", "1");
+  await expect(page.locator("body")).not.toHaveAttribute("data-theme-fades");
+  await expect(page.locator('[data-home-zone="hero"]')).toHaveAttribute("data-theme-visible", "true");
+  await expect(page.locator('[data-home-zone="hero"]')).toHaveCSS("transition-duration", "0.24s");
+  await expect(page.locator('[data-home-zone="closing"]')).toHaveCSS("transition-duration", "0s");
   await expect(page.locator("body")).toHaveCSS("opacity", "1");
   await page.emulateMedia({ reducedMotion: "reduce" });
   await toggle.click();
   await page.getByRole("menuitemradio", { name: "Terang" }).click();
   await expect(page.locator("html")).toHaveClass(/light/);
-  await expect(page.locator("body")).toHaveAttribute("data-theme-fades", "1");
+  await expect(page.locator("body")).not.toHaveAttribute("data-theme-fades");
+  const reducedDuration = await page.locator('[data-home-zone="hero"]').evaluate((element) => parseFloat(getComputedStyle(element).transitionDuration));
+  expect(reducedDuration).toBeLessThanOrEqual(.001);
 });
 
 for (const width of [360, 430, 768]) test(`mobile navigation fills the viewport and restores focus at ${width}`, async ({ page }) => {

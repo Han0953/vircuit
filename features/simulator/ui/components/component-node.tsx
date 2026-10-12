@@ -12,7 +12,8 @@ export const ComponentNode = memo(function ComponentNode({ data, selected, id }:
   const component = data.component;
   const definition = getDefinition(component.type);
   const output = useSimulation((s) => s.outputs[component.id] ?? 0);
-  const value = useSimulation((s) => s.inputs[component.id]?.[component.type === "button" ? "pressed" : "value"] ?? component.properties.value ?? component.properties.pressed ?? 0);
+  const inputKey = component.type === "button" ? "pressed" : component.type === "ldr" ? "light" : component.type === "pir" ? "motion" : "value";
+  const value = useSimulation((s) => s.inputs[component.id]?.[inputKey] ?? component.properties[inputKey] ?? definition.defaults[inputKey] ?? 0);
   const temperature = useSimulation((s) => s.inputs[component.id]?.temperature ?? component.properties.temperature);
   const humidity = useSimulation((s) => s.inputs[component.id]?.humidity ?? component.properties.humidity);
   const layout = useMemo(() => visualLayout(definition), [definition]);

@@ -20,6 +20,7 @@ import { ResizableWorkspace } from "./resizable-workspace";
 import { DraftRecovery } from "@/features/projects/ui/draft-recovery";
 import { Autosave } from "@/features/projects/ui/autosave";
 import { FloatingCirra } from "@/features/ai/ui/floating-cirra";
+import controls from "./workspace-controls.module.css";
 
 const subscribeDesktop = (listener: () => void) => { const query = window.matchMedia("(min-width: 1024px)"); query.addEventListener("change", listener); return () => query.removeEventListener("change", listener); };
 
@@ -68,7 +69,7 @@ function WorkspaceContent() {
   const panelTitle = mobilePanel === "parts" ? "Parts" : mobilePanel === "properties" ? "Properties" : workspaceTabs.find((item) => item.id === mobilePanel)?.label;
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background">
+    <div data-workspace-shell className={`${controls.workspace} flex h-full min-h-0 flex-col overflow-hidden bg-background`}>
       <Autosave />
       <a href="#workspace-canvas" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-md focus:bg-surface focus:p-4 focus:ring-2 focus:ring-ring">Lewati ke canvas</a>
       <WorkspaceTopbar onOpenAI={() => window.dispatchEvent(new Event("vircuit:open-cirra"))} />
@@ -118,7 +119,7 @@ function WorkspaceContent() {
             <SheetTitle>{panelTitle}</SheetTitle>
             <SheetDescription>Tutup panel untuk kembali ke canvas.</SheetDescription>
           </SheetHeader>
-          <div className="min-h-0 flex-1 overflow-hidden">
+          <div className={`min-h-0 flex-1 ${mobilePanel === "parts" || mobilePanel === "properties" ? "overflow-y-auto" : "overflow-hidden"}`}>
             {mobilePanel === "parts" ? <PartsPanel category={category} onCategoryChange={setCategory} /> : mobilePanel === "properties" ? <PropertiesPanel /> : <WorkspacePanelContent tab={mobilePanel} />}
           </div>
         </SheetContent>

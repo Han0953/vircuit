@@ -1,5 +1,6 @@
 import { buildCircuit } from "../graph/circuit";
 import type { ComponentInstance, Project } from "../types/project";
+import { getDefinition } from "../catalog/registry";
 export class Electronics {
   readonly graph;
   readonly inputs: Record<string, Record<string, number>> = {};
@@ -7,7 +8,7 @@ export class Electronics {
   readonly modes: Record<string, number> = {};
   constructor(readonly project: Project, readonly board: ComponentInstance) {
     this.graph = buildCircuit(project);
-    for (const c of project.components) this.inputs[c.id] = { ...c.properties };
+    for (const c of project.components) this.inputs[c.id] = { ...getDefinition(c.type).defaults, ...c.properties };
   }
   private net(id: string, pin: string) { return this.graph.netByPin.get(`${id}.${pin}`) ?? `${id}.${pin}`; }
   signal(id: string, pin: string, contacts = false): number | undefined {
@@ -24,7 +25,15 @@ export class Electronics {
     if (connected(this.board.id, "GND")) values.push(0);
     if (connected(this.board.id, "5V") || connected(this.board.id, "3V3")) values.push(1);
     for (const [pinId, value] of Object.entries(this.pins)) if (connected(this.board.id, pinId)) values.push(value);
-    for (const c of this.project.components) if (c.type === "pot" && pin !== "VCC" && pin !== "GND" && connected(c.id, "OUT") && this.powered(c.id)) values.push(Math.max(0, Math.min(100, this.inputs[c.id].value)) / 100);
+    if (pin !== "VCC" && pin !== "GND") for (const c of this.project.components) {
+      if (c.type === "pot" && connected(c.id, "OUT") && this.powered(c.id)) values.push(Math.max(0, Math.min(100, this.inputs[c.id].value)) / 100);
+      if (c.type === "ldr" && (connected(c.id, "AO") || connected(c.id, "DO")) && this.powered(c.id)) {
+        const light = Math.max(0, Math.min(100, this.inputs[c.id].light));
+        if (connected(c.id, "AO")) values.push(1 - light / 100);
+        if (connected(c.id, "DO")) values.push(Number(light <= Math.max(0, Math.min(100, this.inputs[c.id].threshold))));
+      }
+      if (c.type === "pir" && connected(c.id, "OUT") && this.powered(c.id)) values.push(Number(this.inputs[c.id].motion > 0));
+    }
     if (!values.length) return undefined;
     if (values.some((v) => v === 0) && values.some((v) => v > 0)) throw new Error("Konflik sinyal: output/power terhubung ke GND atau output lain. Periksa wiring.");
     return Math.max(...values);
@@ -36,6 +45,7 @@ export class Electronics {
       if (c.type === "led") result[c.id] = this.signal(c.id, "K") === 0 ? this.signal(c.id, "A") ?? 0 : 0;
       if (c.type === "relay") result[c.id] = Number(this.powered(c.id) && (this.signal(c.id, "IN") ?? 0) > 0.5);
       if (c.type === "fan") result[c.id] = this.signal(c.id, "-", true) === 0 ? this.signal(c.id, "+", true) ?? 0 : 0;
+      if (c.type === "buzzer") result[c.id] = Number(this.signal(c.id, "-") === 0 && (this.signal(c.id, "+") ?? 0) > 0.5);
     }
     return result;
   }

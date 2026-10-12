@@ -40,9 +40,22 @@ Patterns leave the central reading area quiet. Hardware materials in
 `--section-border`, `--section-accent`, `--section-pattern`, `--section-glow`
 and `--section-ambient` drive local UI surfaces, text, controls and SVG colors.
 Selected `inverse` sections use navy in Light and pale blue in Dark. Registered
-color properties interpolate gradient illumination and pattern colors; scoped
-280ms transitions also cover text, surfaces and borders. Existing next-themes
-and the marketing theme toggle remain the source of theme state.
+color properties interpolate board/filter accent changes on decorative layers
+only. `MarketingThemeMotion` uses one IntersectionObserver to limit these 240ms
+interaction transitions to visible sections; nested sections own their duration.
+During a theme swap, next-themes suppresses color interpolation across the page.
+Surfaces, foreground and patterns switch together; only visible atmosphere layers
+get a short 180ms opacity fade. Offscreen layers stay idle. This avoids painting
+every foreground element and gradient for the whole transition. Inherited tokens
+on section ancestors never interpolate each frame. Existing next-themes and
+the marketing theme toggle remain the source of theme state.
+
+Theme selection performs no full-page View Transition capture or body-opacity
+animation. Selection/Escape and mobile Sheet close restore keyboard focus with
+`preventScroll`; outside clicks retain their own focus. No forced scroll position restoration,
+Lenis restart or ScrollTrigger refresh is used for theme changes. The public
+header has a 64px inner row (65px including border), small logo and constant
+8px backdrop blur on its translucent strip. Blur is never animated.
 
 HomepageExperience and PublicMotion own decorative scroll timelines through
 their existing GSAP contexts. Feature-story and learning-roadmap backgrounds
@@ -102,3 +115,28 @@ Reports: `marketing-backgrounds-checkpoint.json`,
 `marketing-backgrounds-layout-themes.json` and `marketing-backgrounds-final.json`
 under `playwright-report/`. Physical devices, Safari and production field
 performance remain unverified. No deploy or commit was performed.
+
+### Theme / navbar fix verification — 2026-10-12
+
+- Final `pnpm lint`, `pnpm typecheck`, `pnpm build`: PASS.
+- `pnpm test`: 221 passed / 6 opt-in live checks skipped.
+- Final affected Playwright suite: 26/26 passed. This includes all five routes,
+  Light/Dark/System, real desktop pointer and mobile touch input, focus restore,
+  sticky header, 360–1440px hero fit, no-JS/reduced motion, reversible backgrounds,
+  filter accents and existing 3D budgets. Full application E2E was not rerun.
+- Thirty Light/Dark interaction samples across five routes at 360/430/1440px
+  recorded zero scroll displacement, including mobile Sheet close. Tests use
+  screen-coordinate input because Locator.click itself can scroll sticky controls.
+  No application scroll compensation was added.
+- Local headless Edge theme samples: rAF p95 16.7–49.6ms. These include menu
+  close and painting; they are not field INP or a universal zero-jank guarantee.
+  Warm story scroll remains p95 16.7ms mobile / 16.8ms desktop, with the unchanged
+  251,649-byte deferred world. Measurements use a local production build.
+- Fifteen final navbar screenshots are retained under `playwright-report/theme/`;
+  representative desktop/mobile screenshots were visually inspected. Detailed
+  measurements are in `playwright-report/theme-final.json` (ignored).
+
+The mobile scroll bug came from the Sheet's default focus return to its sticky
+trigger. Both Sheet and theme-menu close now use explicit `preventScroll`.
+Full-page snapshots and repeated theme-color painting were removed; only the
+visible atmosphere fades. Physical devices and Safari remain unverified.

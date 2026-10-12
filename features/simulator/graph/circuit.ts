@@ -27,6 +27,7 @@ export function validateCircuit(project: Project, graph = buildCircuit(project))
     if (new Set(supply.map((p) => p.id)).size > 1) add(`supply-${net}`, "Rail 5V dan 3V3 tidak boleh dihubungkan langsung.");
   }
   for (const c of project.components) {
+    if (getDefinition(c.type).support === "visual-only" && getDefinition(c.type).category !== "Boards") add(`visual-only-${c.id}`, `${c.label}: visual saja. ${getDefinition(c.type).supportNote ?? "Runtime belum didukung."}`, "warning", c.id);
     if (c.type === "resistor" && !(c.properties.resistance > 0)) add(`resistor-${c.id}`, "Resistansi harus lebih besar dari nol.", "error", c.id);
     if (getDefinition(c.type).category !== "Boards" && !getDefinition(c.type).groups && !project.wires.some((w) => w.from.componentId === c.id || w.to.componentId === c.id)) add(`floating-${c.id}`, `${c.label} belum terhubung.`, "warning", c.id);
   }

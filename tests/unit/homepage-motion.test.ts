@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { catalog } from "@/features/simulator/catalog/registry";
-import { componentMotion, primaryTypes } from "@/components/marketing/scenes/component-motion-registry";
+import { componentMotion, primaryTypes, secondaryTypes } from "@/components/marketing/scenes/component-motion-registry";
 import { assembled, createStoryChannel, sampleStory, storySegments } from "@/components/marketing/scenes/story-config";
 import { storyWireRoutes, unoHeaderPads, unoPins } from "@/components/marketing/scenes/three/hardware-layout";
 describe("homepage motion contract", () => {
@@ -14,8 +14,9 @@ describe("homepage motion contract", () => {
       expect(Math.max(...before.camera.map((value, axis) => Math.abs(value - after.camera[axis])))).toBeLessThan(.001);
     }
   });
-  it("covers the actual catalog with accessible fallback and valid motion ranges", () => {
-    expect(Object.keys(componentMotion).sort()).toEqual(catalog.map((c) => c.key).sort());
+  it("keeps the curated marketing showcase valid as the simulator catalog expands", () => {
+    expect(Object.keys(componentMotion).sort()).toEqual([...primaryTypes, ...secondaryTypes].sort());
+    for (const type of Object.keys(componentMotion)) expect(catalog.some((c) => c.key === type)).toBe(true);
     expect(Object.values(componentMotion).filter((c) => c.renderer === "webgl")).toHaveLength(6);
     for (const motion of Object.values(componentMotion)) {
       expect(motion.range[0]).toBeLessThan(motion.range[1]);

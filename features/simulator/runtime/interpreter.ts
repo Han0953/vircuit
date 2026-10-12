@@ -1,8 +1,9 @@
-import { CodeError, type Expr, type Program, type Statement } from "./language";
+import { CodeError, type Expr, type Program, type Statement, type VariableType } from "./language";
 export type Value = number | string;
 export interface RuntimeApi { call: (name: string, args: Value[], line: number) => Value }
 export class Interpreter {
   private globals = new Map<string, Value>();
+  private declarations = new WeakMap<Map<string, Value>, Map<string, { type: VariableType; constant: boolean }>>();
   private remaining = 20000;
   private generator: Generator<number>;
   constructor(program: Program, private api: RuntimeApi, constants: Record<string, Value> = {}) {
@@ -37,7 +38,17 @@ export class Interpreter {
       if (statement.kind === "declare" || statement.kind === "assign") {
         const target = statement.kind === "declare" || locals.has(statement.name) ? locals : this.globals;
         if (statement.kind === "assign" && !target.has(statement.name)) throw new CodeError(`Variabel tidak dikenal: ${statement.name}`, statement.line);
-        target.set(statement.name, this.evaluate(statement.value, locals));
+        let declarations = this.declarations.get(target);
+        if (!declarations) { declarations = new Map(); this.declarations.set(target, declarations); }
+        if (statement.kind === "declare") declarations.set(statement.name, { type: statement.type, constant: statement.constant });
+        const declaration = declarations.get(statement.name);
+        if (statement.kind === "assign" && (declaration?.constant || (!declaration && this.globals.has(statement.name)))) throw new CodeError(`Konstanta tidak dapat diubah: ${statement.name}`, statement.line);
+        let value = this.evaluate(statement.value, locals);
+        if (declaration) {
+          if (typeof value !== "number" || !Number.isFinite(value)) throw new CodeError(`Nilai numerik tidak valid: ${statement.name}`, statement.line);
+          value = declaration.type === "integer" ? Math.trunc(value) : declaration.type === "boolean" ? Number(Boolean(value)) : value;
+        }
+        target.set(statement.name, value);
       } else if (statement.kind === "if") yield* this.execute(this.evaluate(statement.condition, locals) ? statement.yes : statement.no, locals);
       else if (statement.kind === "while") { while (this.evaluate(statement.condition, locals)) { this.guard(statement.line); yield* this.execute(statement.body, locals); } }
       else if (statement.value.kind === "call" && statement.value.name === "delay") {
