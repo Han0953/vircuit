@@ -1,4 +1,5 @@
 import gsap from "gsap";
+import { requestSceneRefresh } from "../scenes/scene-refresh";
 
 // Called inside the existing GSAP matchMedia/context. That owner also reverts
 // these timelines, including breakpoint changes and client route navigation.
@@ -14,11 +15,27 @@ export function addBackgroundMotion(timeline: gsap.core.Timeline, backdrop: Elem
 }
 
 export function animateMarketingBackgrounds(root: HTMLElement, desktop: boolean) {
-  root.querySelectorAll<HTMLElement>("[data-marketing-background][data-bg-motion='scroll']").forEach((backdrop) => {
-    const section = backdrop.parentElement!;
-    addBackgroundMotion(gsap.timeline({ scrollTrigger: {
-      id: `background:${backdrop.dataset.marketingBackground}`,
-      trigger: section, start: "top 95%", end: "bottom 15%", scrub: .35,
-    } }), backdrop, desktop);
-  });
+  const context = gsap.context(() => {}, root);
+  let disposed = false;
+  let cancelRefresh: (() => void) | undefined;
+  const observer = new IntersectionObserver((entries) => {
+    if (disposed) return;
+    context.add(() => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const backdrop = entry.target as HTMLElement;
+        observer.unobserve(backdrop);
+        addBackgroundMotion(gsap.timeline({ scrollTrigger: {
+          id: `background:${backdrop.dataset.marketingBackground}`,
+          trigger: backdrop.parentElement!, start: "top 95%", end: "bottom 15%", scrub: .35,
+        } }), backdrop, desktop);
+      }
+    });
+    if (entries.some((entry) => entry.isIntersecting)) {
+      cancelRefresh?.();
+      cancelRefresh = requestSceneRefresh();
+    }
+  }, { rootMargin: "300px" });
+  root.querySelectorAll<HTMLElement>("[data-marketing-background][data-bg-motion='scroll']").forEach((backdrop) => observer.observe(backdrop));
+  return () => { disposed = true; observer.disconnect(); cancelRefresh?.(); context.revert(); };
 }

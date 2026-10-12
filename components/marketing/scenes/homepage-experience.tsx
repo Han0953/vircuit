@@ -29,6 +29,7 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
   const [channel] = useState(createCinematicChannel);
   const [owner, setOwner] = useState<Owner>("none");
   const [portal, setPortal] = useState<HTMLDivElement | null>(null);
+  const canvasElement = useRef<HTMLDivElement | null>(null);
   const [Renderer, setRenderer] = useState<ComponentType<CinematicWorldProps> | null>(null);
   const failed = useRef(false);
   const currentSlot = useRef<HTMLElement | null>(null);
@@ -47,157 +48,170 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
     const element = document.createElement("div");
     element.className = `${styles.cinematicCanvas} component-art`;
     element.setAttribute("aria-hidden", "true");
+    canvasElement.current = element;
     const frame = requestAnimationFrame(() => setPortal(element));
-    return () => { cancelAnimationFrame(frame); element.remove(); };
+    return () => { cancelAnimationFrame(frame); element.remove(); canvasElement.current = null; };
   }, []);
 
-  useGSAP(() => {
-    const page = root.current;
-    if (!page) return;
-    const media = gsap.matchMedia();
-    const targets = collectHomeTargets(page);
-    targets.forEach(({ element, id, treatment }) => { element.dataset.homeTarget = id; element.dataset.homeTreatment = treatment; });
-    page.dataset.motionTargets = String(targets.length);
-    media.add({ all: "(min-width: 0px)", reduced: "(prefers-reduced-motion: reduce)", desktop: "(min-width: 1024px)", tall: "(min-height: 700px)" }, (context) => {
-      const { reduced, desktop, tall } = context.conditions!;
-      page.dataset.homeMotion = reduced ? "reduced" : "full";
-      page.dataset.boardsSticky = !reduced && tall ? "true" : "false";
-      page.dataset.webglPreferred = String(!reduced && "WebGL2RenderingContext" in window);
-      let entrances: IntersectionObserver | undefined;
-      if (!reduced) {
-        animateMarketingBackgrounds(page, !!desktop);
-        const entranceTargets = targets.filter(({ treatment }) => treatment !== "scene" && treatment !== "disclosure");
-        const byElement = new Map(entranceTargets.map((target) => [target.element, target]));
-        const revealParts = entranceTargets.flatMap(({ element, treatment }) => {
-          const inner = treatment === "sequence" ? Array.from(element.querySelectorAll("h3,p,a,svg,span,strong")).filter((child) => !child.querySelector("h3,p,a,svg,span,strong")) : [];
-          const parts = inner.length ? inner : [element];
-          parts.forEach((part, index) => {
-            part.setAttribute("data-home-reveal", "");
-            (part as HTMLElement | SVGElement).style.setProperty("--home-reveal-delay", `${Math.min(.24, index * (desktop ? homeMotion.stagger : homeMotion.mobileStagger))}s`);
+  useGSAP((_context, contextSafe) => {
+    if (!contextSafe) return;
+    let cleanup: (() => void) | undefined;
+    let task = 0;
+    const initialize = contextSafe(() => {
+      const page = root.current;
+      if (!page) return;
+      const media = gsap.matchMedia();
+      const targets = collectHomeTargets(page);
+      targets.forEach(({ element, id, treatment }) => { element.dataset.homeTarget = id; element.dataset.homeTreatment = treatment; });
+      page.dataset.motionTargets = String(targets.length);
+      media.add({ all: "(min-width: 0px)", reduced: "(prefers-reduced-motion: reduce)", desktop: "(min-width: 1024px)", tall: "(min-height: 700px)" }, (context) => {
+        const { reduced, desktop, tall } = context.conditions!;
+        page.dataset.homeMotion = reduced ? "reduced" : "full";
+        page.dataset.boardsSticky = !reduced && tall ? "true" : "false";
+        page.dataset.webglPreferred = String(!reduced && "WebGL2RenderingContext" in window);
+        let entrances: IntersectionObserver | undefined;
+        let stopBackgrounds: (() => void) | undefined;
+        if (!reduced) {
+          stopBackgrounds = animateMarketingBackgrounds(page, !!desktop);
+          const entranceTargets = targets.filter(({ treatment }) => treatment !== "scene" && treatment !== "disclosure");
+          const byElement = new Map(entranceTargets.map((target) => [target.element, target]));
+          const revealParts: Element[] = [];
+          page.style.setProperty("--home-reveal-duration", `${desktop ? homeMotion.entrance : homeMotion.mobileEntrance}s`);
+          page.style.setProperty("--home-reveal-travel", `${desktop ? homeMotion.desktopTravel : homeMotion.mobileTravel}px`);
+          // One observer, not a ScrollTrigger for every paragraph. Fast jumps only animate
+          // the actual destination; skipped content remains fully visible by default.
+          entrances = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const target = byElement.get(entry.target as HTMLElement);
+              if (target) {
+                const inner = target.treatment === "sequence" ? Array.from(target.element.querySelectorAll("h3,p,a,svg,span,strong")).filter((child) => !child.querySelector("h3,p,a,svg,span,strong")) : [];
+                const parts = inner.length ? inner : [target.element];
+                parts.forEach((part, index) => {
+                  part.setAttribute("data-home-reveal", "");
+                  (part as HTMLElement | SVGElement).style.setProperty("--home-reveal-delay", `${Math.min(.24, index * (desktop ? homeMotion.stagger : homeMotion.mobileStagger))}s`);
+                });
+                revealParts.push(...parts);
+                target.element.dataset.homePlayed = "true";
+              }
+              entrances?.unobserve(entry.target);
+            }
+          }, { rootMargin: "0px 0px -24px 0px" });
+          entranceTargets.forEach(({ element }) => entrances?.observe(element));
+          context.add(() => () => {
+            revealParts.forEach((part) => { part.removeAttribute("data-home-reveal"); (part as HTMLElement | SVGElement).style.removeProperty("--home-reveal-delay"); });
+            entranceTargets.forEach(({ element }) => { delete element.dataset.homePlayed; });
           });
-          return parts;
-        });
-        page.style.setProperty("--home-reveal-duration", `${desktop ? homeMotion.entrance : homeMotion.mobileEntrance}s`);
-        page.style.setProperty("--home-reveal-travel", `${desktop ? homeMotion.desktopTravel : homeMotion.mobileTravel}px`);
-        // One observer, not a ScrollTrigger for every paragraph. Fast jumps only animate
-        // the actual destination; skipped content remains fully visible by default.
-        entrances = new IntersectionObserver((entries) => {
-          for (const entry of entries) {
-            if (!entry.isIntersecting) continue;
-            const target = byElement.get(entry.target as HTMLElement);
-            if (target) target.element.dataset.homePlayed = "true";
-            entrances?.unobserve(entry.target);
+        }
+        const slots = Array.from(page.querySelectorAll<HTMLElement>("[data-cinematic-slot]"));
+        const story = page.querySelector<HTMLElement>("[data-stage]");
+        let disposed = false;
+        let loading = false;
+        let engaged = window.scrollY > 2;
+        let raf = 0;
+        let swap = 0;
+        let loadTimeout = 0;
+        const release = () => {
+          setSlotRenderer(currentSlot.current, "svg");
+        };
+        const select = (next: Owner) => {
+          if (next === activeOwner.current) return;
+          const previous = activeOwner.current;
+          activeOwner.current = next;
+          cancelAnimationFrame(swap);
+          if (previous !== "none" && previous !== "story" && next !== "none" && next !== "story") {
+            release(); setOwner(next); return;
           }
-        }, { rootMargin: "0px 0px -24px 0px" });
-        entranceTargets.forEach(({ element }) => entrances?.observe(element));
-        context.add(() => () => {
-          revealParts.forEach((part) => { part.removeAttribute("data-home-reveal"); (part as HTMLElement | SVGElement).style.removeProperty("--home-reveal-delay"); });
-          entranceTargets.forEach(({ element }) => { delete element.dataset.homePlayed; });
-        });
-      }
-      const slots = Array.from(page.querySelectorAll<HTMLElement>("[data-cinematic-slot]"));
-      const story = page.querySelector<HTMLElement>("[data-stage]");
-      let disposed = false;
-      let loading = false;
-      let engaged = window.scrollY > 2;
-      let raf = 0;
-      let swap = 0;
-      let loadTimeout = 0;
-      const release = () => {
-        setSlotRenderer(currentSlot.current, "svg");
-      };
-      const select = (next: Owner) => {
-        if (next === activeOwner.current) return;
-        const previous = activeOwner.current;
-        activeOwner.current = next;
-        cancelAnimationFrame(swap);
-        if (previous !== "none" && previous !== "story" && next !== "none" && next !== "story") {
-          release(); setOwner(next); return;
-        }
-        // A blank ownership commit disposes the old Canvas before another renderer mounts.
-        release(); setOwner("none");
-        swap = requestAnimationFrame(() => { if (!disposed) setOwner(next); });
-      };
-      const update = () => {
-        raf = 0;
-        if (disposed) return;
-        const height = window.innerHeight;
-        const header = document.querySelector<HTMLElement>("[data-home-header]")?.offsetHeight ?? 80;
-        const storyBox = story?.getBoundingClientRect();
-        let next: Owner = "none";
-        let best = 0;
-        // Batch geometry reads before dataset/style writes to avoid layout thrashing on scroll.
-        const measurements = slots.map((slot) => {
-          const box = slot.getBoundingClientRect();
-          const zone = slot.dataset.cinematicSlot as CinematicZone;
-          const container = zone === "boards" ? slot.closest<HTMLElement>("[data-board-showcase]")! : slot.closest<HTMLElement>("[data-home-zone]")!;
-          const region = container.getBoundingClientRect();
-          const stage = container.querySelector<HTMLElement>("[data-board-stage]");
-          return { slot, box, zone, container, region, stageHeight: stage?.offsetHeight ?? box.height };
-        });
-        for (const { slot, box, zone, container, region, stageHeight } of measurements) {
-          const visible = Math.max(0, Math.min(height, box.bottom) - Math.max(header, box.top));
-          const progress = Math.max(0, Math.min(1, zone === "boards" && tall && !reduced
-            ? (header + 16 - region.top) / Math.max(1, region.height - stageHeight)
-            : (height * .8 - region.top) / Math.max(1, region.height + height * .4)));
-          const pose = sampleCinematic({ zone, progress, mobile: !desktop });
-          slot.dataset.progress = progress.toFixed(3);
-          slot.dataset.activeBoard = pose.board;
-          const opacity = String(zone === "boards" && tall && !reduced ? pose.presence : 1);
-          slot.dataset.presence = opacity;
-          const fallback = slot.querySelector<HTMLElement>("[data-cinematic-fallback]");
-          if (fallback) fallback.style.opacity = slot.dataset.renderer === "webgl" ? "0" : opacity;
-          if (slot.dataset.renderer === "webgl" && portal) portal.style.opacity = opacity;
-          if (zone === "boards") {
-            container.dataset.activeBoard = pose.board;
-            const counter = container.querySelector("[data-board-counter]");
-            const count = `0${pose.index + 1} — 03`;
-            if (counter && counter.textContent !== count) counter.textContent = count;
-            const name = container.querySelector("[data-board-name]");
-            const label = reduced || !tall ? "Uno · Nano · ESP32" : ({ uno: "Arduino Uno R3", nano: "Arduino Nano · visual saja", esp32: "ESP32 · subset edukatif" })[pose.board];
-            if (name && name.textContent !== label) name.textContent = label;
-            const context = container.querySelector("[data-board-context]");
-            const contextText = reduced || !tall ? "Uno & ESP32: subset edukatif · Nano: visual saja" : ({ uno: "Digital I/O · Analog & PWM · ATmega328P", nano: "Board ringkas · Kenali pin · Visual saja", esp32: "GPIO · Analog & PWM · Wi-Fi tidak disimulasikan" })[pose.board];
-            if (context && context.textContent !== contextText) context.textContent = contextText;
+          // A blank ownership commit disposes the old Canvas before another renderer mounts.
+          release(); setOwner("none");
+          swap = requestAnimationFrame(() => { if (!disposed) setOwner(next); });
+        };
+        const update = () => {
+          raf = 0;
+          if (disposed) return;
+          const height = window.innerHeight;
+          const header = document.querySelector<HTMLElement>("[data-home-header]")?.offsetHeight ?? 80;
+          const storyBox = story?.getBoundingClientRect();
+          let next: Owner = "none";
+          let best = 0;
+          // Batch geometry reads before dataset/style writes to avoid layout thrashing on scroll.
+          const measurements = slots.map((slot) => {
+            const box = slot.getBoundingClientRect();
+            const zone = slot.dataset.cinematicSlot as CinematicZone;
+            const container = zone === "boards" ? slot.closest<HTMLElement>("[data-board-showcase]")! : slot.closest<HTMLElement>("[data-home-zone]")!;
+            const region = container.getBoundingClientRect();
+            const stage = container.querySelector<HTMLElement>("[data-board-stage]");
+            return { slot, box, zone, container, region, stageHeight: stage?.offsetHeight ?? box.height };
+          });
+          for (const { slot, box, zone, container, region, stageHeight } of measurements) {
+            const visible = Math.max(0, Math.min(height, box.bottom) - Math.max(header, box.top));
+            const progress = Math.max(0, Math.min(1, zone === "boards" && tall && !reduced
+              ? (header + 16 - region.top) / Math.max(1, region.height - stageHeight)
+              : (height * .8 - region.top) / Math.max(1, region.height + height * .4)));
+            const pose = sampleCinematic({ zone, progress, mobile: !desktop });
+            slot.dataset.progress = progress.toFixed(3);
+            slot.dataset.activeBoard = pose.board;
+            const opacity = String(zone === "boards" && tall && !reduced ? pose.presence : 1);
+            slot.dataset.presence = opacity;
+            const fallback = slot.querySelector<HTMLElement>("[data-cinematic-fallback]");
+            if (fallback) fallback.style.opacity = slot.dataset.renderer === "webgl" ? "0" : opacity;
+            if (slot.dataset.renderer === "webgl" && canvasElement.current) canvasElement.current.style.opacity = opacity;
+            if (zone === "boards") {
+              container.dataset.activeBoard = pose.board;
+              const counter = container.querySelector("[data-board-counter]");
+              const count = `0${pose.index + 1} — 03`;
+              if (counter && counter.textContent !== count) counter.textContent = count;
+              const name = container.querySelector("[data-board-name]");
+              const label = reduced || !tall ? "Uno · Nano · ESP32" : ({ uno: "Arduino Uno R3", nano: "Arduino Nano · visual saja", esp32: "ESP32 · subset edukatif" })[pose.board];
+              if (name && name.textContent !== label) name.textContent = label;
+              const context = container.querySelector("[data-board-context]");
+              const contextText = reduced || !tall ? "Uno & ESP32: subset edukatif · Nano: visual saja" : ({ uno: "Digital I/O · Analog & PWM · ATmega328P", nano: "Board ringkas · Kenali pin · Visual saja", esp32: "GPIO · Analog & PWM · Wi-Fi tidak disimulasikan" })[pose.board];
+              if (context && context.textContent !== contextText) context.textContent = contextText;
+            }
+            if (fallback && !reduced && visible > 0) fallback.style.transform = `translate(${pose.position[0] * 8}px, ${-pose.position[1] * 12}px) rotate(${pose.rotation[1] * 12}deg)`;
+            if (visible > best && visible >= Math.min(160, box.height * .5)) { best = visible; next = zone; }
+            if (zone === activeOwner.current) channel.publish({ zone, progress, mobile: !desktop });
           }
-          if (fallback && !reduced && visible > 0) fallback.style.transform = `translate(${pose.position[0] * 8}px, ${-pose.position[1] * 12}px) rotate(${pose.rotation[1] * 12}deg)`;
-          if (visible > best && visible >= Math.min(160, box.height * .5)) { best = visible; next = zone; }
-          if (zone === activeOwner.current) channel.publish({ zone, progress, mobile: !desktop });
-        }
-        if (storyBox && storyBox.top < height * .85 && storyBox.bottom > header + 16) next = "story";
-        if (!engaged || reduced || document.hidden || !("WebGL2RenderingContext" in window)) next = "none";
-        select(next);
-        // Warm the module on approach, but mount only the single permitted Canvas.
-        // No fixed delay or unbounded idle wait once the user reaches the board.
-        if (engaged && !reduced && !document.hidden && "WebGL2RenderingContext" in window && !loading && !failed.current && measurements.some(({ region }) => region.top < height + 600 && region.bottom > 0)) {
-          loading = true;
-          loadTimeout = window.setTimeout(() => { if (!disposed) fail(); }, 15000);
-          void import("./three/cinematic-world").then(({ default: World }) => { if (!disposed && !failed.current) setRenderer(() => World); }).catch(() => { if (!disposed) fail(); }).finally(() => clearTimeout(loadTimeout));
-        }
-      };
-      const schedule = () => { if (!disposed && !raf) raf = requestAnimationFrame(update); };
-      const scroll = () => { engaged = true; schedule(); };
-      window.addEventListener("scroll", scroll, { passive: true });
-      window.addEventListener("resize", schedule);
-      document.addEventListener("visibilitychange", schedule);
-      ScrollTrigger.addEventListener("refresh", schedule);
-      const resize = new ResizeObserver(schedule); resize.observe(page);
-      // Defer decorative 3D until the first paint; initial headline and CTA remain SSR content.
-      const initial = requestAnimationFrame(() => { raf = requestAnimationFrame(update); });
-      return () => {
-        disposed = true; cancelAnimationFrame(initial); cancelAnimationFrame(raf); cancelAnimationFrame(swap);
-        clearTimeout(loadTimeout);
-        entrances?.disconnect();
-        window.removeEventListener("scroll", scroll); window.removeEventListener("resize", schedule);
-        document.removeEventListener("visibilitychange", schedule); ScrollTrigger.removeEventListener("refresh", schedule); resize.disconnect();
-        release();
-        activeOwner.current = "none";
-        setOwner("none");
-        slots.forEach((slot) => { const fallback = slot.querySelector<HTMLElement>("[data-cinematic-fallback]"); if (fallback) fallback.style.removeProperty("transform"); });
-      };
+          if (storyBox && storyBox.top < height * .85 && storyBox.bottom > header + 16) next = "story";
+          if (!engaged || reduced || document.hidden || !("WebGL2RenderingContext" in window)) next = "none";
+          select(next);
+          // Warm the module on approach, but mount only the single permitted Canvas.
+          // No fixed delay or unbounded idle wait once the user reaches the board.
+          if (engaged && !reduced && !document.hidden && "WebGL2RenderingContext" in window && !loading && !failed.current && measurements.some(({ region }) => region.top < height + 600 && region.bottom > 0)) {
+            loading = true;
+            loadTimeout = window.setTimeout(() => { if (!disposed) fail(); }, 15000);
+            void import("./three/cinematic-world").then(({ default: World }) => { if (!disposed && !failed.current) setRenderer(() => World); }).catch(() => { if (!disposed) fail(); }).finally(() => clearTimeout(loadTimeout));
+          }
+        };
+        const schedule = () => { if (!disposed && !raf) raf = requestAnimationFrame(update); };
+        const scroll = () => { engaged = true; schedule(); };
+        window.addEventListener("scroll", scroll, { passive: true });
+        window.addEventListener("resize", schedule);
+        document.addEventListener("visibilitychange", schedule);
+        ScrollTrigger.addEventListener("refresh", schedule);
+        const resize = new ResizeObserver(schedule); resize.observe(page);
+        // Defer decorative 3D until the first paint; initial headline and CTA remain SSR content.
+        const initial = requestAnimationFrame(() => { raf = requestAnimationFrame(update); });
+        return () => {
+          disposed = true; cancelAnimationFrame(initial); cancelAnimationFrame(raf); cancelAnimationFrame(swap);
+          clearTimeout(loadTimeout);
+          entrances?.disconnect();
+          stopBackgrounds?.();
+          window.removeEventListener("scroll", scroll); window.removeEventListener("resize", schedule);
+          document.removeEventListener("visibilitychange", schedule); ScrollTrigger.removeEventListener("refresh", schedule); resize.disconnect();
+          release();
+          activeOwner.current = "none";
+          setOwner("none");
+          slots.forEach((slot) => { const fallback = slot.querySelector<HTMLElement>("[data-cinematic-fallback]"); if (fallback) fallback.style.removeProperty("transform"); });
+        };
+      });
+      cleanup = () => media.revert();
     });
-    return () => media.revert();
-  }, { scope: root, dependencies: [channel, fail, portal], revertOnUpdate: true });
+    // Selective hydration can run in a pointer event. Decorative setup must
+    // yield until that interaction has painted, while SSR content stays visible.
+    const frame = requestAnimationFrame(() => { task = window.setTimeout(initialize, 0); });
+    return () => { cancelAnimationFrame(frame); clearTimeout(task); cleanup?.(); };
+  }, { scope: root, dependencies: [channel, fail], revertOnUpdate: true });
 
   const cinematic = owner !== "none" && owner !== "story";
   useLayoutEffect(() => {

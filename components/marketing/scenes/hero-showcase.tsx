@@ -46,6 +46,7 @@ export function HeroShowcase({ scenes }: { scenes: ReactNode[] }) {
       });
     };
     const leave = () => {
+      if (!pointer && !box && !tilt) return;
       pointer = undefined; box = undefined;
       delete element.dataset.heroHovered;
       resetTilt();
@@ -131,8 +132,12 @@ export function HeroShowcase({ scenes }: { scenes: ReactNode[] }) {
     element.addEventListener("pointermove", move);
     window.addEventListener("resize", leave, { passive: true });
     window.addEventListener("scroll", scroll, { passive: true });
-    visibility(); reduced(); controller.start();
+    let startTask = 0;
+    const startFrame = requestAnimationFrame(() => {
+      startTask = window.setTimeout(() => { visibility(); reduced(); controller.start(); }, 0);
+    });
     return () => {
+      cancelAnimationFrame(startFrame); clearTimeout(startTask);
       controller.dispose(); playback.current = null; observer.disconnect(); tilt?.kill();
       reduce.removeEventListener("change", reduced);
       fine.removeEventListener("change", pointerMode);

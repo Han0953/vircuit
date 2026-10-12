@@ -59,7 +59,7 @@ Marketing:
 
 Tests: `tests/e2e/mobile-polish.spec.ts`, `cirra-ux.spec.ts`, `display-examples.spec.ts`, `marketing-theme-regression.spec.ts`, `wire-routing.spec.ts`, `homepage-performance.spec.ts`, dan `tests/unit/hardware-quality.test.ts`.
 
-## Validasi aktual
+## Validasi checkpoint awal
 
 - lint/typecheck/build: PASS.
 - Vitest: 309 PASS, 6 skipped.
@@ -68,7 +68,7 @@ Tests: `tests/e2e/mobile-polish.spec.ts`, `cirra-ux.spec.ts`, `display-examples.
 - Regresi mencakup canvas/placement/wiring/selection, Run/Stop/runtime, project/draft recovery, Cirra, dashboard akun fixture, marketing dan satu canvas/fallback/reversible 3D.
 - Snapshot: `playwright-report/workspace-island-390.png`, `fullscreen-menu-{360,390,430,768}.png`, `mobile-workspace-{360,390,430,768}.png`, dan `test-results/world-390-0.5.png`.
 
-### Pengukuran
+### Pengukuran checkpoint awal
 
 Sampel spotlight scroll produksi lokal pada viewport 390 dan 1440: interval frame p95 16.8ms, 7 draw calls, 2,688 triangles pada board saat sampling. Budget per board diuji maksimal 7 calls dan kurang dari 6,000 triangles. Interval rAF bukan pengukuran GPU FPS atau bukti perangkat 120Hz.
 
@@ -85,4 +85,39 @@ LCP dan CLS memenuhi budget existing (2.5s / 0.1); interaksi melampaui 200ms. Am
 
 Cold interaction masih perlu optimasi lanjutan pada startup/hydration sebelum budget tersebut dapat dinyatakan PASS. Android/iOS fisik, keyboard OS nyata, long-press selection handles, serta layar 120Hz belum diverifikasi. Pengujian menggunakan Edge lokal, touch/viewport/OS-theme emulation dan service fixtures. Tidak mengklaim 120 FPS pada semua perangkat.
 
-Refinement terkait backlog existing VIR-020/031/033/043/133/422/424/445; TODO dan status task tidak diubah.
+Pada checkpoint awal, refinement terkait backlog existing VIR-020/031/033/043/133/422/424/445; TODO dan status task tidak diubah.
+
+## Lanjutan optimasi startup — 12 Oktober 2026
+
+- Profil CPU cold-load menemukan setup homepage berulang akibat perubahan portal canvas, pekerjaan GSAP dalam hydration, serta permintaan refresh terpisah dari beberapa scene.
+- Portal canvas sekarang dibaca melalui ref oleh controller; pembuatannya tidak mengulang setup seluruh homepage. State renderer dan single-canvas ownership tetap dipakai.
+- Setup dekoratif homepage, scene dan hero dijadwalkan sesudah paint berikutnya, dengan pembatalan frame/task saat unmount. Konten SSR tetap lengkap.
+- Metadata reveal detail dan background timelines dibuat ketika elemen mendekati viewport. Background tetap statis sebelum itu; observer, GSAP context dan refresh dibersihkan pada pergantian route/media query.
+- Scene/background/public timelines memakai antrean refresh bersama. Permintaan digabung, menunggu anchor scroll selesai dan memberi kesempatan interaksi tampil sebelum pengukuran layout.
+- Hero tidak lagi membuat tween reset pointer ketika belum pernah diarahkan/dimiringkan.
+- Benchmark kini menunggu pengiriman Event Timing setelah interaksi, merekam sumber CLS, dan dapat menghasilkan CPU profile melalui `VIRCUIT_PROFILE_HOMEPAGE=1`. Budget existing tidak diubah. Test tanpa JavaScript mencakup seluruh section dan FAQ native.
+- Percobaan Suspense per section dibatalkan karena menghilangkan konten pada mode tanpa JavaScript; route/layout/source konten tidak berubah.
+
+Status tetap PARTIAL sampai cold interaction memenuhi budget. VIR-445 menjadi IN PROGRESS; tidak ditandai DONE.
+
+### Validasi lanjutan
+
+- `pnpm lint`, `pnpm typecheck`, `pnpm build`: PASS pada versi akhir.
+- `pnpm test`: 312 PASS, 6 skipped. Tiga test baru memeriksa penggabungan refresh, pembatalan owner, serta penundaan/cancellation ketika anchor scroll belum selesai.
+- Playwright batch `motion-regression`: 81 PASS, 2 FAIL, 0 flaky; kedua kegagalan hanya budget cold interaction. Meliputi hero/autoplay/pointer, single-canvas ownership, 3D/fallback/reverse scroll, Light/Dark/System, lima marketing routes, mobile navigation/workspace/keyboard sintetis/clipboard mock, native scroll dan no-JS.
+- Test no-JS dijalankan ulang pada versi akhir dengan assertion tambahan untuk SVG Uno dan ketiga board showcase: 1 PASS. Tidak dihitung sebagai skenario unik tambahan.
+- Screenshot hasil batch yang benar-benar ditinjau: `test-results/hero-hover-uno.png` dan `test-results/home-1440-system-final.png`.
+- Profil cold yang sama seperti checkpoint awal, hasil batch final:
+
+| Viewport | LCP | CLS | Interaksi maksimum teramati |
+| --- | --- | --- | --- |
+| 390 | 1,212ms | 0 | 376ms |
+| 1440 | 1,464ms | 0 | 456ms |
+
+Kedua interaksi masih melampaui 200ms. Hasil antarrun bervariasi; satu run desktop 176ms tidak dijadikan bukti bahwa masalah telah selesai. LCP/CLS memenuhi budget. Pengiriman Event Timing kini ditunggu 300ms setelah input agar entry yang belum dikirim tidak dianggap interaksi nol. Tidak ada penundaan interaksi sebelum pengukuran atau pelonggaran ambang.
+
+Scroll warm produksi lokal terukur p95 rAF 16.8ms pada 390/1440px. Spotlight board: 7 draw calls, 2,688 triangles; world learning: 33 draw calls, 6,880 triangles untuk seluruh rangkaian. Ini bukan GPU FPS, field INP, atau pembuktian 120Hz. Android/iOS fisik dan keyboard/native selection handles tetap belum diverifikasi.
+
+Laporan mesin: `playwright-report/motion-regression.json`. Spike startup/hydration masih membutuhkan profiling lanjutan. Tidak ada perubahan simulator/dashboard/auth/backend, dependency, commit atau deployment.
+
+File lanjutan: `components/marketing/backgrounds/background-motion.ts`, `components/marketing/scenes/{homepage-experience,hero-showcase,motion-scene,public-timelines,scene-refresh}`, `tests/e2e/homepage-performance.spec.ts`, `tests/unit/scene-refresh.test.ts`, dokumen ini dan `agent/docs/TODO.md`.

@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import styles from "../homepage.module.css";
+import { requestSceneRefresh } from "./scene-refresh";
 
 export type SceneKind = "hero" | "story" | "simulator" | "cirra" | "challenge" | "closing" | "catalog";
 
@@ -20,13 +21,9 @@ export function MotionScene({ kind, children }: { kind: SceneKind; children: Rea
     let disposed = false;
     let observer: IntersectionObserver | undefined;
     let initialized = false;
-    let refreshFrame = 0;
-    const refresh = () => {
-      if (disposed) return;
-      if (document.documentElement.hasAttribute("data-home-moving")) {
-        window.addEventListener("home-scroll-settled", refresh, { once: true });
-      } else refreshFrame = requestAnimationFrame(() => ScrollTrigger.refresh());
-    };
+    let setupFrame = 0;
+    let setupTask = 0;
+    let cancelRefresh: (() => void) | undefined;
     const initialize = contextSafe(async () => {
       if (initialized) return;
       initialized = true;
@@ -38,25 +35,32 @@ export function MotionScene({ kind, children }: { kind: SceneKind; children: Rea
           return animateScene(kind, root, match.conditions ?? {}, channel);
         }, root);
         void document.fonts.ready.then(() => {
-          refresh();
+          if (!disposed) cancelRefresh = requestSceneRefresh();
         });
       } catch {
         media.revert();
         root.removeAttribute("data-motion");
       }
     });
-    if (kind === "hero" || kind === "story") void initialize();
+    const schedule = () => {
+      if (initialized || setupFrame || setupTask) return;
+      setupFrame = requestAnimationFrame(() => {
+        setupFrame = 0;
+        setupTask = window.setTimeout(() => { setupTask = 0; void initialize(); }, 0);
+      });
+    };
+    if (kind === "hero" || kind === "story") schedule();
     else {
       observer = new IntersectionObserver((entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) { observer?.disconnect(); void initialize(); }
+        if (entries.some((entry) => entry.isIntersecting)) { observer?.disconnect(); schedule(); }
       }, { rootMargin: "400px" });
       observer.observe(root);
     }
     return () => {
       disposed = true;
       observer?.disconnect();
-      cancelAnimationFrame(refreshFrame);
-      window.removeEventListener("home-scroll-settled", refresh);
+      cancelAnimationFrame(setupFrame); clearTimeout(setupTask);
+      cancelRefresh?.();
       media.revert();
       root.removeAttribute("data-motion");
     };

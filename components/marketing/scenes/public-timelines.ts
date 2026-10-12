@@ -3,20 +3,21 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, validTreatment } from "./public-motion-config";
 import { motionDefinition } from "./public-motion-manifest";
 import { animateMarketingBackgrounds } from "../backgrounds/background-motion";
+import { requestSceneRefresh } from "./scene-refresh";
 
 export function animatePublic(root: HTMLElement, route: string) {
   gsap.registerPlugin(ScrollTrigger);
   const media = gsap.matchMedia();
   let observer: IntersectionObserver | undefined;
-  let frame = 0;
+  let cancelRefresh: (() => void) | undefined;
   const refresh = () => {
-    if (document.documentElement.hasAttribute("data-home-moving")) window.addEventListener("home-scroll-settled", refresh, { once: true });
-    else { cancelAnimationFrame(frame); frame = requestAnimationFrame(() => ScrollTrigger.refresh()); }
+    cancelRefresh?.();
+    cancelRefresh = requestSceneRefresh();
   };
   media.add({ desktop: "(min-width:1024px)", reduce: "(prefers-reduced-motion:reduce)", all: "(min-width:0px)" }, (match) => {
     const reduced = !!match.conditions?.reduce;
     const desktop = !!match.conditions?.desktop;
-    if (!reduced) animateMarketingBackgrounds(root, desktop);
+    const stopBackgrounds = !reduced ? animateMarketingBackgrounds(root, desktop) : undefined;
     const groups = Array.from(root.querySelectorAll<HTMLElement>("[data-motion-group]"));
     groups.forEach((group) => {
       const definition = motionDefinition(route, group.dataset.motionGroup ?? "");
@@ -90,6 +91,7 @@ export function animatePublic(root: HTMLElement, route: string) {
       root.addEventListener("focusin", focus);
       refresh();
       return () => {
+        stopBackgrounds?.();
         observer?.disconnect(); mutations.disconnect(); root.removeEventListener("focusin", focus);
         timelines.forEach((timeline) => timeline.revert()); context.revert();
         observed.forEach((target) => { delete target.dataset.revealed; });
@@ -97,8 +99,7 @@ export function animatePublic(root: HTMLElement, route: string) {
     }
   }, root);
   return () => {
-    media.revert(); observer?.disconnect(); cancelAnimationFrame(frame);
-    window.removeEventListener("home-scroll-settled", refresh);
+    media.revert(); observer?.disconnect(); cancelRefresh?.();
     delete root.dataset.motionReady;
     delete root.dataset.motionOwner;
     root.querySelectorAll<HTMLElement>("[data-motion-state]").forEach((item) => { delete item.dataset.motionState; delete item.dataset.motionMode; });
