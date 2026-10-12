@@ -4,7 +4,7 @@ export type Expr = { kind: "value"; value: number | string; line: number } | { k
 export type VariableType = "integer" | "number" | "boolean";
 export type Statement = { kind: "declare"; name: string; value: Expr; type: VariableType; constant: boolean; line: number } | { kind: "assign"; name: string; value: Expr; line: number } | { kind: "expression"; value: Expr; line: number } | { kind: "if"; condition: Expr; yes: Statement[]; no: Statement[]; line: number } | { kind: "while"; condition: Expr; body: Statement[]; line: number };
 export interface Program { globals: Statement[]; setup: Statement[]; loop: Statement[] }
-const apis = new Set(["pinMode", "digitalWrite", "digitalRead", "analogRead", "analogWrite", "delay", "Serial.begin", "Serial.print", "Serial.println", "DHT.temperature", "DHT.humidity"]);
+const apis = new Set(["pinMode", "digitalWrite", "digitalRead", "analogRead", "analogWrite", "delay", "Serial.begin", "Serial.print", "Serial.println", "DHT.temperature", "DHT.humidity", ...["LCD", "OLED"].flatMap((family) => ["begin", "clear", "setCursor", "print"].map((method) => `${family}.${method}`))]);
 export function tokenize(source: string): Token[] {
   if (source.length > 20000) throw new CodeError("Kode melebihi 20.000 karakter.", 1);
   const tokens: Token[] = []; let offset = 0; let line = 1;

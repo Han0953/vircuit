@@ -3,7 +3,8 @@ import { useId, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, Square, RotateCcw, Trash2, Ellipsis, ArrowDown } from "lucide-react";
+import { Send, Square, RotateCcw, Trash2, Ellipsis, ArrowDown, BookOpen, Bug, Lightbulb } from "lucide-react";
+import { OptionPicker } from "@/components/shared/option-picker";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { modeSchema, type CirraMode, type CirraRequest } from "../contracts";
@@ -61,7 +62,11 @@ export function CirraChat({ owner, scope, contextLabel, initialMode = "tutor", a
           onKeyDown={(event) => { if (enterSubmits({ key: event.key, shift: event.shiftKey, composing: composing.current || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229, desktop: desktopChatInput(), touch: touch.current }) && session.draft.trim()) { event.preventDefault(); void submit(); } }} />
         <div className="flex min-w-0 items-center justify-between gap-2">
           <label htmlFor={`${id}-mode`} className="sr-only">Mode</label>
-          <div className="flex min-w-0 items-center"><select aria-label="Mode" id={`${id}-mode`} className="min-h-11 min-w-0 max-w-44 rounded-lg bg-transparent px-2 text-xs focus-visible:ring-2 focus-visible:ring-ring" value={session.mode} disabled={chat.pending || chat.unavailable} onChange={(event) => updateSession(chat.key, { mode: modeSchema.parse(event.target.value), hintLevel: 1 })}>{modeSchema.options.map((mode) => <option key={mode} value={mode}>{labels[mode]}</option>)}</select>
+          <div className="flex min-w-0 items-center"><OptionPicker label="Mode" id={`${id}-mode`} compact value={session.mode} disabled={chat.pending || chat.unavailable} onChange={(mode) => updateSession(chat.key, { mode: modeSchema.parse(mode), hintLevel: 1 })} options={[
+            { value: "tutor", label: labels.tutor, description: "Pahami konsep dan langkah belajar.", icon: <BookOpen aria-hidden /> },
+            { value: "debugger", label: labels.debugger, description: "Bahas kode dan diagnostik rangkaian.", icon: <Bug aria-hidden /> },
+            { value: "project-assistant", label: labels["project-assistant"], description: "Susun ide dan kebutuhan proyek.", icon: <Lightbulb aria-hidden /> },
+          ]} />
           <DropdownMenu modal={false}><DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label="Opsi percakapan" disabled={chat.pending}><Ellipsis aria-hidden /></Button></DropdownMenuTrigger><DropdownMenuContent data-cirra-options side="top" align="start" className="max-w-72" onEscapeKeyDown={(event) => event.stopPropagation()}><p className="px-2 py-2 text-xs leading-relaxed text-text-secondary">Konteks terkait digunakan untuk menjawab. Hindari membagikan secret; chat tersimpan selama session ini.</p><DropdownMenuItem disabled={chat.pending} onSelect={chat.clear}><Trash2 aria-hidden />Bersihkan</DropdownMenuItem><DropdownMenuItem disabled={session.hintLevel === 3 || chat.pending} onSelect={() => updateSession(chat.key, { hintLevel: Math.min(3, session.hintLevel + 1) })}>Petunjuk level {session.hintLevel}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>
           {chat.pending ? <Button type="button" size="icon" aria-label="Hentikan" title="Hentikan jawaban" onClick={chat.cancel}><Square aria-hidden /></Button> : <Button type="submit" size="icon" disabled={!session.draft.trim()} aria-label="Kirim" title="Kirim pertanyaan"><Send aria-hidden /></Button>}
         </div>

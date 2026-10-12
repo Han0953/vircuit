@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ProjectControls } from "@/features/projects/ui/project-controls";
 import { usePersistence } from "@/features/projects/store";
 import { useProject } from "../../stores/project-store";
+import { ExampleLibrary } from "../components/example-library";
 
 export function WorkspaceTopbar({ onOpenAI }: { onOpenAI: (trigger: HTMLButtonElement) => void }) {
   const router = useRouter();
@@ -60,6 +61,7 @@ export function WorkspaceTopbar({ onOpenAI }: { onOpenAI: (trigger: HTMLButtonEl
             <UserRound aria-hidden="true" className="size-4" />{userId ? "Akun" : "Tamu"}
           </span>
           <ProjectControls key={userId ?? "guest"} />
+          <ExampleLibrary compact />
           <Button variant="ghost" onClick={(event) => onOpenAI(event.currentTarget)} aria-label="Buka panel Cirra" className="px-3">
             <Sparkles aria-hidden="true" />Cirra
           </Button>

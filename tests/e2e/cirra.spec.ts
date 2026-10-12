@@ -48,7 +48,7 @@ test("challenge Debugger and Assistant do not mutate circuit/code or complete ch
   await page.getByRole("button", { name: "Tantangan & evaluasi" }).click();
   await page.getByRole("button", { name: "Tanya Cirra tentang tantangan" }).click();
   const chat = page.getByRole("region", { name: "Percakapan Cirra" });
-  await expect(chat.getByLabel("Mode", { exact: true })).toHaveValue("debugger");
+  await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "debugger");
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Beri aku petunjuk untuk challenge ini"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("log")).toContainText("wiring dan kode aktual");
   await expect(page.locator(".react-flow__node")).toHaveCount(3);
@@ -66,7 +66,7 @@ test("challenge Debugger and Assistant do not mutate circuit/code or complete ch
   await page.getByRole("button", { name: "Minimalkan Cirra" }).click();
   await page.getByRole("link", { name: "Circuit", exact: true }).click();
   await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
-  await chat.getByLabel("Mode", { exact: true }).selectOption("project-assistant");
+  await chat.getByLabel("Mode", { exact: true }).click(); await page.getByRole("menuitemradio", { name: "Project Assistant", exact: true }).click();
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Aku mau membuat smart plant monitoring"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("log")).toContainText("komponen yang didukung");
   await expect(chat.getByRole("region", { name: "Rencana project" })).toBeVisible();
@@ -78,14 +78,14 @@ test("challenge Debugger and Assistant do not mutate circuit/code or complete ch
 test("new project planning and Problems handoff use the existing canvas without edits", async ({ page }) => {
   await login(page); await page.getByRole("region", { name: "Proyek terbaru" }).getByRole("button", { name: "Proyek baru", exact: true }).click(); await expect(page).toHaveURL(/\/simulator$/);
   await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
-  await page.getByLabel("Mode", { exact: true }).selectOption("project-assistant");
+  await page.getByLabel("Mode", { exact: true }).click(); await page.getByRole("menuitemradio", { name: "Project Assistant", exact: true }).click();
   const chat = page.getByRole("region", { name: "Percakapan Cirra" });
-  await expect(chat.getByLabel("Mode", { exact: true })).toHaveValue("project-assistant");
+  await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "project-assistant");
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Bantu aku merencanakan lampu sederhana"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("region", { name: "Rencana project" })).toBeVisible(); await expect(page.locator(".react-flow__node")).toHaveCount(0);
   await page.getByRole("tab", { name: "Problems", exact: true }).click(); await page.getByRole("button", { name: "Periksa rangkaian" }).click();
   await page.getByRole("button", { name: "Tanya Cirra", exact: true }).click();
-  await expect(chat.getByLabel("Mode", { exact: true })).toHaveValue("debugger");
+  await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "debugger");
   const sent = page.waitForRequest((request) => request.url().endsWith("/api/ai/cirra"));
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Jelaskan diagnostic ini"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   expect((await sent).postDataJSON().selectedProblemId).toBe("board-count");
@@ -95,7 +95,7 @@ test("mobile Cirra fits 360px, supports themes and leaves draft intact", async (
   await page.setViewportSize({ width: 360, height: 800 }); await login(page); await page.goto(lesson);
   for (const theme of ["Terang", "Gelap", "Sistem"]) {
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.getByRole("button", { name: /^Pilih tema:/ }).click(); await page.getByRole("menuitemradio", { name: theme }).click();
+    await page.getByRole("button", { name: /^Pilih tema tampilan/ }).click(); await page.getByRole("radio", { name: theme, exact: true }).click();
     await page.getByRole("button", { name: "Tanya Cirra", exact: true }).click();
     const chat = page.getByRole("region", { name: "Percakapan Cirra" }); await expect(chat.getByLabel("Pertanyaan untuk Cirra")).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

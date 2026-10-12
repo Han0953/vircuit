@@ -26,12 +26,12 @@ export function FloatingCirra({ desktop, blocked }: { desktop: boolean; blocked:
     if (!open) return;
     const escape = (event: KeyboardEvent) => {
       if (event.key === "Escape") { event.preventDefault(); close(); }
-      if (!desktop && event.key === "Tab" && !dialog.current?.contains(document.activeElement) && !document.activeElement?.closest("[data-cirra-options]")) {
+      if (!desktop && event.key === "Tab" && !dialog.current?.contains(document.activeElement) && !document.activeElement?.closest("[data-cirra-options],[data-option-menu]")) {
         event.preventDefault(); closeButton.current?.focus();
       }
     };
     const containFocus = (event: FocusEvent) => {
-      if (!desktop && event.target instanceof Element && !dialog.current?.contains(event.target) && !event.target.closest("[data-cirra-options]")) closeButton.current?.focus();
+      if (!desktop && event.target instanceof Element && !dialog.current?.contains(event.target) && !event.target.closest("[data-cirra-options],[data-option-menu]")) closeButton.current?.focus();
     };
     document.addEventListener("keydown", escape);
     document.addEventListener("focusin", containFocus);

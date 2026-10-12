@@ -2,12 +2,12 @@
 import { Copy, RotateCw, RotateCcw, Trash2, Undo2, Redo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { OptionPicker } from "@/components/shared/option-picker";
 import { useProject } from "../../stores/project-store";
 import { useCanvas } from "../../stores/canvas-store";
 import { getDefinition } from "../../catalog/registry";
 import { RuntimeControls } from "../components/runtime-controls";
 import { hasFootprint } from "../../geometry/breadboard-placement";
-import styles from "../workspace/workspace-controls.module.css";
 const propertyFields: Record<string, { label: string; min: number; max: number }> = {
   light: { label: "Cahaya virtual %", min: 0, max: 100 }, threshold: { label: "Ambang cahaya %", min: 0, max: 100 },
   motion: { label: "Gerakan (0 / 1)", min: 0, max: 1 }, distance: { label: "Jarak pratinjau (cm)", min: 2, max: 400 },
@@ -24,7 +24,12 @@ export function PropertiesPanel() {
   return <div className="space-y-4 p-4 text-sm">
     <div className="flex flex-wrap gap-1"><Button variant="ghost" aria-label="Undo" disabled={!canUndo} title="Undo · Ctrl+Z" onClick={store.undo}><Undo2 /></Button><Button variant="ghost" aria-label="Redo" disabled={!canRedo} title="Redo · Ctrl+Shift+Z" onClick={store.redo}><Redo2 /></Button></div>
     {selected.length > 1 && <p role="status" className="rounded-lg border bg-primary-soft p-3">{selected.length} item dipilih. Pilih satu item untuk mengubah properti.</p>}
-    {wire && <div className="space-y-2"><p>Wire: {wire.from.pinId} → {wire.to.pinId}</p><label>Warna kabel<select className={styles.select} value={wire.color} onChange={(e) => { const color = e.target.value; if (color === "blue" || color === "red" || color === "green" || color === "neutral") store.edit((p) => ({ ...p, wires: p.wires.map((w) => w.id === wire.id ? { ...w, color } : w) })); }}>{["blue", "red", "green", "neutral"].map((c) => <option key={c}>{c}</option>)}</select></label><Button variant="outline" onClick={() => store.remove([wire.id])}>Hapus kabel</Button></div>}
+    {wire && <div className="space-y-2"><p>Wire: {wire.from.pinId} → {wire.to.pinId}</p><p className="text-xs text-text-secondary">Warna kabel</p><OptionPicker label="Warna kabel" value={wire.color} onChange={(color) => { if (color === "blue" || color === "red" || color === "green" || color === "neutral") store.edit((p) => ({ ...p, wires: p.wires.map((w) => w.id === wire.id ? { ...w, color } : w) })); }} options={[
+      { value: "blue", label: "Biru", icon: <span aria-hidden className="size-3 shrink-0 rounded-full bg-primary" /> },
+      { value: "red", label: "Merah", icon: <span aria-hidden className="size-3 shrink-0 rounded-full bg-destructive" /> },
+      { value: "green", label: "Hijau", icon: <span aria-hidden className="size-3 shrink-0 rounded-full bg-success" /> },
+      { value: "neutral", label: "Netral", icon: <span aria-hidden className="size-3 shrink-0 rounded-full bg-foreground" /> },
+    ]} /><Button variant="outline" onClick={() => store.remove([wire.id])}>Hapus kabel</Button></div>}
     {!component ? <p className="text-text-secondary">Pilih komponen untuk melihat properti.</p> : <>
       <label className="block space-y-2">Nama<Input value={component.label} onChange={(e) => store.updateComponent(component.id, { label: e.target.value })} /></label>
       <p className="text-xs text-text-secondary">{component.type} · {component.rotation}°</p>

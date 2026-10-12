@@ -4,7 +4,7 @@
 
 Parts memakai compact SVG tiles dari renderer canvas yang sama (`ComponentVisual` + `visualLayout`), bukan gambar tiruan. Thumbnail memoized tidak subscribe tick runtime. Search mencakup nama, type dan kategori; tanpa search, chip kategori membatasi hasil. Setiap tile memiliki status dukungan, focus/pressed/drag feedback dan tetap bisa diklik atau diseret. Batas snapshot 100 komponen juga berlaku saat menambah/duplicate.
 
-Controls memakai tokens, rounded surfaces, menu Radix dan native wire-color select. Menu workspace beranimasi 180ms dengan reduced-motion branch. Mobile memakai sheet yang dapat scroll; tidak mengubah sidebar desktop atau sistem resize/Focus Mode.
+Controls memakai tokens, rounded surfaces dan menu Radix. Pilihan warna kabel, contoh program, board contoh dan mode Cirra memakai radio menu dengan selected indicator, keyboard navigation, icon/description serta feedback open/focus. Menu workspace beranimasi 180ms dengan reduced-motion branch. Mobile memakai sheet yang dapat scroll; tidak mengubah sidebar desktop atau sistem resize/Focus Mode.
 
 ## Selection dan history
 
@@ -27,8 +27,8 @@ Awal sesi: 13 entries (Uno, Nano, ESP32, tiga breadboard, LED, resistor, button,
 | `buzzer` | Active buzzer: +, − | Runtime on/off visual; tanpa audio/tone/noTone |
 | `hcsr04` | VCC, TRIG, ECHO, GND | Visual-only, jarak pratinjau 2–400 cm; tanpa trigger/echo/pulseIn |
 | `servo` | GND, VCC, SIG | Visual-only, horn property 0–180°; tanpa Servo library/pulse-control |
-| `lcd16x2` | I2C backpack: GND, VCC, SDA, SCL | Visual-only, alamat/kontras pratinjau; tanpa Wire/LiquidCrystal |
-| `oled` | I2C: GND, VCC, SCL, SDA | Visual-only, alamat pratinjau; tanpa Wire/SSD1306 |
+| `lcd16x2` | I2C backpack: GND, VCC, SDA, SCL | Runtime teks virtual 16×2, alamat/kontras; tanpa Wire/LiquidCrystal |
+| `oled` | I2C: GND, VCC, SCL, SDA | Runtime teks virtual 21×8, alamat; tanpa Wire/SSD1306/graphics API |
 
 Pin order adalah contract modul yang ditampilkan; bukan klaim semua varian hardware mempunyai urutan sama. LDR adalah module empat pin, bukan bare photoresistor. Visual-only items diberi label di Parts, Properties dan warning Problems; tidak menghasilkan output program palsu. Semua tambahan memakai numeric properties dan snapshot v1 existing; tidak ada migration, synthetic wire atau format project baru.
 
@@ -79,3 +79,17 @@ Tidak ada fallback pada tiga fixture tersebut. Stress scene masih memiliki frame
 - [Adafruit monochrome OLED](https://learn.adafruit.com/monochrome-oled-breakouts?view=all): I2C variant distinction.
 
 Tidak ada asset hardware eksternal yang disalin.
+
+## Display dan contoh rangkaian — refinement 12 Oktober 2026
+
+LCD/OLED kini menampilkan data program dari worker, bukan teks demo statis. API subset eksplisit: `LCD.begin(39)`, `LCD.clear()`, `LCD.setCursor(kolom, baris)`, `LCD.print(teks/angka)`; OLED memakai nama `OLED` dan alamat default desimal 60. Alamat mengikuti Properties, harus unik pada bus. SDA/SCL terhubung ke A4/A5 pada Uno atau GPIO21/GPIO22 pada ESP32, dengan VCC dan GND. Bus terputus, tertukar, short, alamat salah, cursor di luar batas atau pemanggilan sebelum begin menghasilkan diagnostic. Tidak mendukung library Arduino native atau grafis OLED.
+
+Buffer dibatasi dimensi layar; print terpotong pada akhir baris tanpa wrap. Clear mengosongkan layar/cursor. Stop mempertahankan output terakhir; Reset atau runtime baru mengosongkan buffer. Output hanya berada di runtime store dan tidak masuk snapshot, history, autosave atau IndexedDB. Bridge mempertahankan object identity jika isi display tidak berubah.
+
+Galeri berisi 12 contoh executable untuk Uno dan ESP32: Blink, LED, Button, Potentiometer/PWM, DHT22/Relay/Fan, Traffic Light, LDR, PIR, active Buzzer, LCD/analog, OLED/DHT22 dan Serial counter. Thumbnail SVG berasal dari snapshot komponen/pin/kabel aktual, memakai renderer canvas yang sama. Tidak menambahkan asset gambar atau dependency.
+
+Opsi **Gunakan rangkaian contoh juga** membuka snapshot v1 sebagai draft lokal baru setelah mengarsipkan project aktif, termasuk clean cloud draft. Cloud identity tidak dipindahkan ke contoh dan tidak ada cloud write otomatis. Arsip tersedia di menu Proyek. Bila opsi dimatikan, hanya kode diganti sesuai board aktif; circuit/draft identity tetap, dan Undo dapat memulihkan kode. Penggantian kode langsung di Code Workspace juga meminta konfirmasi. Recovery/storage failure tidak boleh menimpa draft aktif secara diam-diam.
+
+Tambahan suite: `display-runtime` menguji API, dimensi, wiring, alamat, reset dan isolation buffer; `examples` menjalankan seluruh 24 kombinasi contoh/board melalui SimulationEngine, round-trip serialization, sensor/output behavior dan draft safety; browser `display-examples` memeriksa data LCD/OLED nyata, archive/reload, code-only/Undo, keyboard menus dan galeri 360/390/430px dalam Light/Dark/System.
+
+Validasi refinement lokal: lint/typecheck/build PASS; Vitest 302 PASS / 6 skipped; sembilan browser suites (`display-examples`, `runtime-audit`, `simulator`, `workspace`, `workspace-upgrade`, `persistence`, `wire-routing`, `cirra`, `cirra-ux`) 40 PASS / 0 failed / 0 flaky. Pengujian mobile mencakup focus trap menu Cirra yang dipindahkan ke portal. Tema dashboard pada suite existing memakai radio semantics actual; browser assertions menunggu navigasi selesai sebelum shortcut Undo. Screenshot: `playwright-report/examples-gallery-desktop.png`, `examples-program-dropdown.png`, `lcd-live-data.png`, `oled-live-data.png`, `examples-{light-360,dark-390,system-430}.png`. Ini Edge lokal/fixture services dan mobile emulation, bukan bukti perangkat fisik atau remote Supabase/Gemini.

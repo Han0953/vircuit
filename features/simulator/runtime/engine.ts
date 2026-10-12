@@ -4,10 +4,12 @@ import { projectSchema } from "../schemas/project-schema";
 import { CodeError, parseProgram } from "./language";
 import { Interpreter, type Value } from "./interpreter";
 import { Electronics } from "./electronics";
+import { DisplayRuntime } from "./displays";
 import type { Project } from "../types/project";
 export class SimulationEngine {
   readonly electronics: Electronics;
   readonly interpreter: Interpreter;
+  readonly displays: DisplayRuntime;
   serial = "";
   time = 0;
   private serialStarted = false;
@@ -17,11 +19,13 @@ export class SimulationEngine {
     if (error) throw new Error(error.message);
     const board = project.components.find((c) => ["uno", "esp32"].includes(c.type))!;
     this.electronics = new Electronics(project, board);
+    this.displays = new DisplayRuntime(this.electronics);
     const constants: Record<string, Value> = { LED_BUILTIN: board.type === "esp32" ? 2 : 13 };
     for (let i = 0; i < 6; i++) constants[`A${i}`] = 14 + i;
     this.interpreter = new Interpreter(parseProgram(project.code.source), { call: (name, args, line) => this.call(name, args, line) }, constants);
   }
   private call(name: string, args: Value[], line: number): Value {
+    if (name.startsWith("LCD.") || name.startsWith("OLED.")) return this.displays.call(name, args, line);
     const arity: Record<string, number> = { pinMode: 2, digitalWrite: 2, digitalRead: 1, analogRead: 1, analogWrite: 2, "Serial.begin": 1, "Serial.print": 1, "Serial.println": 1, "DHT.temperature": 1, "DHT.humidity": 1 };
     if (args.length !== arity[name]) throw new CodeError(`${name} membutuhkan ${arity[name]} argumen.`, line);
     if (name.startsWith("Serial.")) {
@@ -57,7 +61,7 @@ export class SimulationEngine {
     }
     throw new CodeError(`API tidak didukung: ${name}`, line);
   }
-  step() { const delay = this.interpreter.step(); const outputs = this.electronics.outputs(); this.time += delay; return { delay, outputs, time: this.time, serial: this.serial }; }
+  step() { const delay = this.interpreter.step(); const outputs = this.electronics.outputs(); this.time += delay; return { delay, outputs, displays: this.displays.snapshot(), time: this.time, serial: this.serial }; }
   input(id: string, property: string, value: number) {
     const component = this.electronics.project.components.find((c) => c.id === id);
     const allowed = component?.type === "button" ? ["pressed"] : component?.type === "pot" ? ["value"] : component?.type === "dht22" ? ["temperature", "humidity"] : component?.type === "ldr" ? ["light", "threshold"] : component?.type === "pir" ? ["motion"] : [];

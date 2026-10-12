@@ -14,7 +14,7 @@ class TestWorker {
   constructor() { TestWorker.instances.push(this); }
   postMessage(message: WorkerRequest) { this.messages.push(message); }
   terminate() { this.terminated = true; }
-  state(time: number) { this.onmessage?.(new MessageEvent<WorkerResponse>("message", { data: { type: "STATE", outputs: { led: 1 }, serial: "on", time } })); }
+  state(time: number) { this.onmessage?.(new MessageEvent<WorkerResponse>("message", { data: { type: "STATE", outputs: { led: 1 }, displays: {}, serial: "on", time } })); }
 }
 
 describe("simulation worker lifecycle boundary", () => {

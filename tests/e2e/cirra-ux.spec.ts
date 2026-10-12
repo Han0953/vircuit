@@ -42,7 +42,7 @@ test("desktop Enter, Shift+Enter, IME and unified mode history retain a lesson d
   await expect(chat.locator('[data-message-role="user"]')).toHaveCount(0);
   await input.dispatchEvent("compositionend"); await input.fill("Pertanyaan Tutor"); await input.press("Enter");
   await expect(chat.locator('[data-message-role="assistant"]')).toHaveCount(1);
-  await chat.getByLabel("Mode", { exact: true }).selectOption("debugger");
+  await chat.getByLabel("Mode", { exact: true }).click(); await page.getByRole("menuitemradio", { name: "Debugger", exact: true }).click();
   const request = page.waitForRequest("**/api/ai/cirra");
   await input.fill("Pertanyaan Debugger"); await input.press("Enter");
   expect((await request).postDataJSON().mode).toBe("debugger");
@@ -50,9 +50,9 @@ test("desktop Enter, Shift+Enter, IME and unified mode history retain a lesson d
   await expect(chat.locator('[data-message-role="user"][data-message-mode="tutor"]')).toHaveCount(1);
   await expect(chat.locator('[data-message-role="user"][data-message-mode="debugger"]')).toHaveCount(1);
   await expect.poll(async () => (await entrances(page)).length).toBe(4);
-  await input.fill("Draft belum dikirim"); await page.keyboard.press("Escape");
+  await input.fill("Draft belum dikirim"); await input.focus(); await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Tanya Cirra", exact: true }).click();
-  await expect(input).toHaveValue("Draft belum dikirim"); await expect(chat.getByLabel("Mode", { exact: true })).toHaveValue("debugger");
+  await expect(input).toHaveValue("Draft belum dikirim"); await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "debugger");
   await expect(chat.locator('[data-message-role="assistant"]')).toHaveCount(2);
   expect((await entrances(page)).length).toBe(4);
   expect(await chat.locator("article").evaluateAll((elements) => elements.flatMap((el) => el.getAnimations()).length)).toBe(0);
@@ -78,7 +78,8 @@ test("smart scroll keeps reading position on reply, mode changes and reopen", as
   const top = await log.evaluate((el) => el.scrollTop); release();
   await expect(chat.getByRole("log")).toContainText("Jawaban terbaru"); await expect(chat.locator(".cirra-typing")).toHaveCount(0);
   expect(await log.evaluate((el) => el.scrollTop)).toBeCloseTo(top, 0);
-  await chat.getByLabel("Mode", { exact: true }).selectOption("project-assistant"); expect(await log.evaluate((el) => el.scrollTop)).toBeCloseTo(top, 0);
+  await chat.getByLabel("Mode", { exact: true }).click(); await page.getByRole("menuitemradio", { name: "Project Assistant", exact: true }).click(); expect(await log.evaluate((el) => el.scrollTop)).toBeCloseTo(top, 0);
+  await expect(page.getByRole("menu")).toHaveCount(0); await chat.getByLabel("Pertanyaan untuk Cirra").focus();
   await page.keyboard.press("Escape"); await page.getByRole("button", { name: "Tanya Cirra", exact: true }).click();
   expect(await log.evaluate((el) => el.scrollTop)).toBeCloseTo(top, 0);
   await chat.getByRole("button", { name: "Ke pesan terbaru" }).click();
@@ -111,6 +112,11 @@ test("touch Enter creates a newline; visible viewport, focus and reduced motion 
   await page.getByRole("button", { name: "Buka panel Cirra" }).tap();
   await expect(page.getByRole("button", { name: "Minimalkan Cirra" })).toBeFocused();
   const chat = page.getByRole("region", { name: "Percakapan Cirra" }), input = chat.getByLabel("Pertanyaan untuk Cirra");
+  await chat.getByLabel("Mode", { exact: true }).tap();
+  expect(await page.getByRole("menu").evaluate((el) => el.contains(document.activeElement))).toBe(true);
+  await page.getByRole("menuitemradio", { name: "Debugger", exact: true }).tap();
+  await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "debugger");
+  await expect(page.getByRole("menu")).toHaveCount(0);
   await input.tap(); await input.fill("Baris mobile"); await input.press("Enter"); await expect(input).toHaveValue("Baris mobile\n");
   await expect(chat.locator('[data-message-role="user"]')).toHaveCount(0);
   await page.evaluate(() => {

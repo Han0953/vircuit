@@ -54,7 +54,7 @@ test("orthogonal obstacle detours retain pin centers, selection, themes and work
   await edge.dispatchEvent("click");
   await expect(edge.locator(".wire-highlight")).toHaveClass(/is-selected/);
   const revision = await page.getByTestId("circuit-canvas").getAttribute("data-routing-revision");
-  await page.getByLabel("Warna kabel").selectOption("red");
+  await page.getByLabel("Warna kabel", { exact: true }).click(); await page.getByRole("menuitemradio", { name: "Merah", exact: true }).click();
   await page.getByRole("separator", { name: "Ubah lebar Parts" }).focus(); await page.keyboard.press("ArrowRight");
   await page.getByRole("separator", { name: "Ubah tinggi panel bawah" }).focus(); await page.keyboard.press("ArrowUp");
   await page.locator(".react-flow__controls-zoomin").click();

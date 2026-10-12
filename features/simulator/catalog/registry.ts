@@ -35,8 +35,8 @@ export const catalog: ComponentDefinition[] = [
   { ...definition("pir", "PIR Sensor", "Sensors", [pin("VCC", "power"), pin("OUT", "digital"), pin("GND", "ground")], { motion: 0 }), supportNote: "Gerakan virtual mengubah OUT melalui digitalRead. Tidak memodelkan warm-up atau delay sensor fisik." },
   { ...definition("buzzer", "Buzzer aktif", "Actuators", [pin("+"), pin("-")]), supportNote: "Output on/off visual melalui digitalWrite. Tanpa audio; tone/noTone belum didukung." },
   { ...definition("servo", "Servo Motor", "Actuators", [pin("GND", "ground"), pin("VCC", "power"), pin("SIG", "digital")], { angle: 90 }), support: "visual-only", supportNote: "Sudut 0–180° dari properti. Servo library dan pulse-control belum disimulasikan." },
-  { ...definition("lcd16x2", "LCD 16×2 (I2C)", "Displays", [pin("GND", "ground"), pin("VCC", "power"), pin("SDA", "data"), pin("SCL", "data")], { address: 39, contrast: 50 }), support: "visual-only", supportNote: "Pratinjau LCD dengan backpack I2C. Wire/LiquidCrystal dan output teks program belum didukung." },
-  { ...definition("oled", "OLED 128×64 (I2C)", "Displays", [pin("GND", "ground"), pin("VCC", "power"), pin("SCL", "data"), pin("SDA", "data")], { address: 60 }), support: "visual-only", supportNote: "Pratinjau modul I2C empat pin. Wire/SSD1306 dan output program belum didukung." },
+  { ...definition("lcd16x2", "LCD 16×2 (I2C)", "Displays", [pin("GND", "ground"), pin("VCC", "power"), pin("SDA", "data"), pin("SCL", "data")], { address: 39, contrast: 50 }), supportNote: "Teks 16×2 melalui API virtual LCD.begin/clear/setCursor/print. SDA/SCL: Uno A4/A5, ESP32 GPIO21/22. Bukan library LiquidCrystal/Wire." },
+  { ...definition("oled", "OLED 128×64 (I2C)", "Displays", [pin("GND", "ground"), pin("VCC", "power"), pin("SCL", "data"), pin("SDA", "data")], { address: 60 }), supportNote: "Teks 21×8 melalui API virtual OLED.begin/clear/setCursor/print. Cursor berupa kolom/baris teks, bukan pixel. Bukan library SSD1306/Wire." },
 ];
 export function getDefinition(type: string) {
   const result = catalog.find((definition) => definition.key === type);

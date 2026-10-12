@@ -1,9 +1,10 @@
 import type { ComponentInstance } from "../../types/project";
 import type { VisualLayout } from "./pin-layout";
+import type { DisplayState } from "../../runtime/displays";
 
 export const extendedTypes = ["ldr", "hcsr04", "pir", "buzzer", "servo", "lcd16x2", "oled"];
 
-export function ExtendedVisual({ component, layout, value, output }: { component: ComponentInstance; layout: VisualLayout; value: number; output: number }) {
+export function ExtendedVisual({ component, layout, value, output, display }: { component: ComponentInstance; layout: VisualLayout; value: number; output: number; display?: DisplayState }) {
   const { width: w, height: h } = layout;
   const type = component.type;
   return <g data-hardware={type}>
@@ -47,13 +48,15 @@ export function ExtendedVisual({ component, layout, value, output }: { component
       <rect x={28} y={25} width={w - 56} height={111} rx={4} fill="var(--part-chip)" stroke="var(--part-metal)" strokeWidth={3} />
       <rect x={42} y={38} width={w - 84} height={84} fill="var(--part-terminal)" />
       {[62, 92].map((y) => Array.from({ length: 16 }, (_, n) => <rect key={`${y}-${n}`} x={49 + n * 18} y={y - 15} width={13} height={22} fill="var(--part-pcb-dark)" opacity={.3} />))}
-      <g opacity={.2 + Math.max(0, Math.min(100, component.properties.contrast ?? 50)) / 125}><text x={53} y={64} fill="var(--part-silkscreen)" fontSize={17} fontFamily="monospace">LCD 16x2</text><text x={53} y={94} fill="var(--part-silkscreen)" fontSize={15} fontFamily="monospace">VISUAL SAJA</text></g>
+      <g data-display-output opacity={.2 + Math.max(0, Math.min(100, component.properties.contrast ?? 50)) / 125}>{display?.lines.map((text, row) => <text key={row} x={Array.from(text, (_, column) => 49 + column * 18).join(" ")} y={64 + row * 30} fill="var(--part-silkscreen)" fontSize={20} fontFamily="monospace" xmlSpace="preserve" style={{ whiteSpace: "pre" }}>{text}</text>)}</g>
+      <text x={w / 2} y={149} textAnchor="middle" fill="var(--part-silkscreen)" fontSize={9}>LCD 16×2 · I2C</text>
       {[14, w - 14].flatMap((x) => [18, h - 46].map((y) => <circle key={`${x}-${y}`} cx={x} cy={y} r={4} fill="var(--part-metal)" />))}
     </>}
     {type === "oled" && <>
       <rect x={7} y={7} width={w - 14} height={h - 35} rx={5} fill="var(--part-pcb)" stroke="var(--part-outline)" strokeWidth={2} />
       <rect x={16} y={27} width={w - 32} height={113} fill="var(--part-chip)" stroke="var(--part-metal)" />
-      <text x={w / 2} y={63} textAnchor="middle" fill="var(--part-silkscreen)" fontSize={15}>OLED</text><text x={w / 2} y={88} textAnchor="middle" fill="var(--part-silkscreen)" fontSize={12}>128 × 64</text><text x={w / 2} y={116} textAnchor="middle" fill="var(--part-silkscreen)" fontSize={9}>VISUAL SAJA</text>
+      <text x={w / 2} y={21} textAnchor="middle" fill="var(--part-silkscreen)" fontSize={9}>OLED 128×64 · I2C</text>
+      <g data-display-output>{display?.lines.map((text, row) => <text key={row} x={22} y={42 + row * 12} fill="var(--part-silkscreen)" fontSize={9} fontFamily="monospace" xmlSpace="preserve" style={{ whiteSpace: "pre" }}>{text}</text>)}</g>
     </>}
     {layout.anchors.map(({ pin, x, y }) => <g key={pin.id} data-visual-pin={pin.id}><path d={`M${x} ${y - 15}v15`} stroke="var(--part-metal)" strokeWidth={4} /><circle cx={x} cy={y} r={3} fill="var(--part-gold)" stroke="var(--part-outline)" /><text x={x} y={y - 20} textAnchor="middle" fontSize={9} fill={type === "buzzer" || type === "servo" ? "var(--foreground)" : "var(--part-silkscreen)"}>{pin.label}</text></g>)}
   </g>;
