@@ -25,7 +25,7 @@ export async function listProjectPage(query: unknown, readOnly = false, pageSize
 }
 export function databaseError(error: { code?: string } | null) {
   if (!error) return;
-  if (error.code === "40001") throw new RequestError("Revision berbeda. Perubahan lokal tetap disimpan. Buka versi cloud atau simpan sebagai proyek baru.", 409);
+  if (error.code === "PT409" || error.code === "40001") throw new RequestError("Revision berbeda. Perubahan lokal tetap disimpan. Buka versi cloud atau simpan sebagai proyek baru.", 409);
   if (error.code === "42501") throw new RequestError("Proyek tidak ditemukan atau akses ditolak.", 404);
   if (error.code === "22023") throw new RequestError("Snapshot tidak valid.", 400);
   throw new RequestError("Penyimpanan cloud belum dapat diakses. Draft lokal tetap tersedia.", 503);
@@ -42,7 +42,9 @@ export async function listProjects() {
 }
 export async function saveProject(request: Request) {
   requireSameOrigin(request);
-  const { client } = await authenticatedClient();
+  const { client, user } = await authenticatedClient();
+  const expectedAccount = request.headers.get("X-Vircuit-Account");
+  if (expectedAccount && expectedAccount !== user.id) throw new RequestError("Sesi akun berubah. Draft lokal tetap tersedia; masuk kembali sebelum menyimpan.", 401);
   const input = saveRequestSchema.safeParse(await limitedJson(request, 2_000_000));
   if (!input.success) throw new RequestError("Snapshot, ID, judul, atau revisi tidak valid.", 400);
   return saveSnapshot(client, input.data);

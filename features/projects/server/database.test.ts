@@ -24,6 +24,7 @@ describe("PostgreSQL migration / real authenticated RLS contexts", () => {
       grant usage on schema auth to authenticated, anon; grant execute on function auth.uid() to authenticated, anon;
       insert into auth.users values('${a}'),('${b}');`);
     await db.exec(readFileSync("supabase/migrations/20261007050923_auth_project_persistence.sql", "utf8"));
+    await db.exec(readFileSync("supabase/migrations/20261012183635_project_revision_conflict_http.sql", "utf8"));
   }, 30000);
   afterAll(() => db.close());
   it("atomically creates and replays one save without duplicate snapshots", async () => {
@@ -33,7 +34,7 @@ describe("PostgreSQL migration / real authenticated RLS contexts", () => {
     expect(first.revision).toBe(1);
     expect((await save(null, 0, operation)).rows[0].result).toEqual(first);
     expect((await db.query("select * from public.project_snapshots")).rows).toHaveLength(1);
-    await expect(save(projectId, 0)).rejects.toThrow("Revision conflict");
+    await expect(save(projectId, 0)).rejects.toMatchObject({ code: "PT409", message: "Revision conflict" });
     expect((await save(projectId, 1)).rows[0].result.revision).toBe(2);
   });
   it("isolates User B from all User A rows and mutations", async () => {
@@ -55,7 +56,7 @@ describe("PostgreSQL migration / real authenticated RLS contexts", () => {
     await expect(save(projectId, 2, crypto.randomUUID(), { ...payload, schemaVersion: 2 } as unknown as typeof payload)).rejects.toThrow("Invalid project");
     await expect(save(projectId, 2, crypto.randomUUID(), { ...payload, code: {} } as unknown as typeof payload)).rejects.toThrow("Invalid project");
     await expect(save(projectId, 2, crypto.randomUUID(), { ...payload, viewport: { x: 0, y: 0, zoom: 99 } })).rejects.toThrow("Invalid viewport");
-    await expect(db.query("select public.delete_project($1,1)", [projectId])).rejects.toThrow("Revision conflict");
+    await expect(db.query("select public.delete_project($1,1)", [projectId])).rejects.toMatchObject({ code: "PT409", message: "Revision conflict" });
     await db.query("select public.delete_project($1,2)", [projectId]);
     expect((await db.query("select * from public.project_snapshots")).rows).toHaveLength(0);
   });

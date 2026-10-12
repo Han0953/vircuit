@@ -6,9 +6,9 @@ export async function detachDeletedProject(owner: string, projectId: string) {
   const scope = `user:${owner}`;
   const active = usePersistence.getState();
   if (active.userId === owner && active.ready && active.draft?.cloud?.id === projectId) {
-    await replaceDraft(newDraft(scope, active.draft.project));
+    await replaceDraft({ ...newDraft(scope, active.draft.project), cloudPaused: true });
   } else {
     const draft = await readDraft(scope);
-    if (draft?.cloud?.id === projectId) await writeDraft({ ...newDraft(scope, draft.project), updatedAt: Math.max(Date.now(), draft.updatedAt + 1) }, draft.updatedAt);
+    if (draft?.cloud?.id === projectId) await writeDraft({ ...newDraft(scope, draft.project), cloudPaused: true, updatedAt: Math.max(Date.now(), draft.updatedAt + 1) }, draft.updatedAt);
   }
 }

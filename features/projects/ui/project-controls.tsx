@@ -26,6 +26,7 @@ export function ProjectControls({ compact = false, secondary }: { compact?: bool
   const busy = usePersistence((s) => s.busy);
   const status = usePersistence((s) => s.status);
   const error = usePersistence((s) => s.error);
+  const failure = usePersistence((s) => s.failure);
   const name = useProject((s) => s.project.metadata.name);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(name);
@@ -74,6 +75,7 @@ export function ProjectControls({ compact = false, secondary }: { compact?: bool
     {!compact && secondary}
     </div>
     {(error || message) && <span role="alert" className={compact ? "absolute inset-x-2 top-full z-30 rounded-md border bg-surface p-3 text-xs text-destructive break-words" : "max-w-full text-xs text-destructive"}>{error || message}</span>}
+    {failure === "conflict" && <Button variant="outline" disabled={busy || loading} onClick={() => void showProjects()}>Selesaikan konflik</Button>}
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader><DialogTitle>Proyek</DialogTitle><DialogDescription>Kelola proyek aktif, arsip draft lokal, dan proyek yang tersimpan di akun.</DialogDescription></DialogHeader>
@@ -95,6 +97,10 @@ export function ProjectControls({ compact = false, secondary }: { compact?: bool
           <Button variant="outline" disabled={busy || loading} onClick={() => void action(async () => { await newProject(); setOpen(false); })}><Plus aria-hidden />Proyek baru</Button>
 
           {userId && <Button variant="outline" disabled={busy || loading} onClick={() => void action(async () => { await saveAsNew(); setOpen(false); })}>Simpan sebagai proyek baru</Button>}
+          {failure === "conflict" && <Button variant="outline" disabled={busy || loading} onClick={() => {
+            const id = usePersistence.getState().draft?.cloud?.id;
+            if (id && window.confirm("Buka versi cloud? Perubahan lokal dicadangkan ke arsip draft.")) void action(async () => { await openCloudProject(id, true); setOpen(false); });
+          }}>Buka versi cloud</Button>}
         </div>
         <CircuitPanel />
         {!!archives.length && <section aria-label="Arsip draft lokal" className="space-y-2 border-t pt-3"><h2 className="text-sm font-semibold">Arsip draft lokal</h2><p className="text-xs text-text-secondary">Perubahan yang belum disimpan tetap diarsipkan ketika berganti proyek.</p>{archives.map((item) => <div key={item.scope} className="flex items-center gap-2 rounded-md border p-2"><p className="min-w-0 flex-1 truncate text-sm">{item.project.metadata.name}</p><Button variant="outline" disabled={busy || loading} onClick={() => void action(async () => {
@@ -107,7 +113,12 @@ export function ProjectControls({ compact = false, secondary }: { compact?: bool
           <div className="flex items-center justify-between"><h2 className="text-sm font-semibold">Proyek tersimpan</h2><Button variant="ghost" disabled={loading || busy} onClick={() => void action(async () => { setProjects(await listCloudProjects()); })}>Muat ulang</Button></div>
           {loading ? <p role="status" className="text-sm">Memuat…</p> : !projects.length && <p className="text-sm text-text-secondary">Belum ada proyek tersimpan.</p>}
           {projects.map((project) => <div key={project.id} className="flex items-center gap-2 rounded-md border p-3"><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{project.title}</p><p className="text-xs text-text-secondary">Revisi {project.revision}</p></div>
-            <Button variant="outline" disabled={busy || loading} onClick={() => void action(async () => { await openCloudProject(project.id); setOpen(false); })}>Buka</Button>
+            <Button variant="outline" disabled={busy || loading} onClick={() => void action(async () => {
+              const active = usePersistence.getState().draft;
+              const dirty = active?.cloud?.id === project.id && active.localRevision !== active.savedLocalRevision;
+              if (dirty && !window.confirm("Buka versi cloud? Perubahan lokal dicadangkan ke arsip draft.")) return;
+              await openCloudProject(project.id, dirty); setOpen(false);
+            })}>Buka</Button>
             <Button variant="ghost" size="icon" disabled={busy || loading} aria-label={`Hapus ${project.title}`} onClick={() => { if (window.confirm(`Hapus proyek “${project.title}” dari akun?`)) void action(async () => { await deleteCloudProject(project.id, project.revision); setProjects(await listCloudProjects()); }); }}><Trash2 aria-hidden /></Button></div>)}
         </section> : <p className="text-sm text-text-secondary">Pilih Simpan untuk masuk dan memindahkan draft ini ke akun.</p>}
       </DialogContent>

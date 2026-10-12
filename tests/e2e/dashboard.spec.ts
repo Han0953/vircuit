@@ -32,19 +32,19 @@ test.beforeEach(async ({ request, page }) => {
 test("dashboard guards, real application listing, account-wide search and pagination (local provider)", async ({ page }) => {
   await page.goto("/dashboard/projects"); await expect(page).toHaveURL(/\/masuk\?next=/);
   await login(page);
-  await expect(page.locator("h3")).toHaveCount(6);
-  await expect(page.locator("h3").first()).toHaveText("Proyek 001");
+  await expect(page.locator("h4")).toHaveCount(6);
+  await expect(page.locator("h4").first()).toHaveText("Proyek 001");
   await page.screenshot({ path: "test-results/dashboard-desktop.png", fullPage: true });
   await page.getByRole("link", { name: "Lihat semua proyek" }).click();
-  await expect(page.locator("h3")).toHaveCount(24);
+  await expect(page.locator("h4")).toHaveCount(24);
   await page.getByRole("link", { name: "Berikutnya" }).click();
-  await expect(page.locator("h3").first()).toHaveText("Proyek 025");
-  await page.getByLabel("Cari di semua proyek akun").fill("Proyek 105");
+  await expect(page.locator("h4").first()).toHaveText("Proyek 025");
+  await page.getByLabel("Cari proyek sirkuit").fill("Proyek 105");
   await page.getByRole("button", { name: "Cari", exact: true }).click();
-  await expect(page.locator("h3")).toHaveText(["Proyek 105"]);
-  await page.getByLabel("Cari di semua proyek akun").fill("tidak-ada");
+  await expect(page.locator("h4")).toHaveText(["Proyek 105"]);
+  await page.getByLabel("Cari proyek sirkuit").fill("tidak-ada");
   await page.getByRole("button", { name: "Cari", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Tidak ada proyek yang cocok" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Tidak ada proyek yang sesuai" })).toBeVisible();
 });
 test("server-confirmed rename/delete, conflict, and dashboard-only logout", async ({ page, request }) => {
   await login(page);
@@ -88,7 +88,7 @@ test("new intent once, open URL, local conflict, save and dashboard navigation",
   await page.reload(); await expect(page.getByRole("heading", { name: "Proyek tanpa judul" })).toBeVisible();
   expect((await readDraft(page)).id).toBe(draft.id);
   await page.getByRole("button", { name: "Kembali ke dashboard" }).click();
-  await page.getByRole("link", { name: "Buka Proyek 001", exact: true }).click();
+  await page.getByRole("link", { name: "Buka proyek Proyek 001", exact: true }).click();
   await expect(page).toHaveURL(/\/simulator$/);
   await expect(page.getByRole("heading", { name: "Proyek 001" })).toBeVisible();
   const circuit = fixture({ board: "uno", led: "led" }, [], "void setup(){}void loop(){}");
@@ -98,7 +98,7 @@ test("new intent once, open URL, local conflict, save and dashboard navigation",
   if (await page.getByRole("dialog").isVisible()) await page.keyboard.press("Escape");
   await expect(page.locator(".react-flow__node")).toHaveCount(2);
   await page.getByRole("button", { name: "Kembali ke dashboard" }).click();
-  await page.getByRole("link", { name: "Buka Proyek 001", exact: true }).click();
+  await page.getByRole("link", { name: "Buka proyek Proyek 001", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText("Perubahan lokal belum tersimpan");
   await page.getByRole("button", { name: "Lanjutkan draft lokal" }).click();
   await expect(page.locator(".react-flow__node")).toHaveCount(2);
@@ -123,7 +123,7 @@ test("mobile navigation, empty/error states and themes", async ({ page, request 
   await page.setViewportSize({ width: 360, height: 800 });
   await request.post(`${provider}/__fixture/reset`, { data: { count: 0 } });
   await login(page);
-  await expect(page.getByRole("heading", { name: "Belum ada proyek" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Belum ada proyek tersimpan" })).toBeVisible();
   await page.getByRole("button", { name: "Buka navigasi" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
@@ -135,14 +135,14 @@ test("mobile navigation, empty/error states and themes", async ({ page, request 
   await request.post(`${provider}/__fixture/reset`, { data: { failure: true } });
   await page.reload();
   await expect(page.getByRole("alert").filter({ hasText: "cloud belum dapat diakses" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Belum ada proyek" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Belum ada proyek tersimpan" })).toHaveCount(0);
   await request.post(`${provider}/__fixture/reset`, { data: { count: 3 } });
   await page.getByRole("button", { name: "Coba lagi" }).click();
-  await expect(page.locator("h3")).toHaveCount(3);
+  await expect(page.locator("h4")).toHaveCount(3);
   for (const theme of ["light", "dark", "system"]) {
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.getByRole("button", { name: /^Pilih tema:/ }).click();
-    await page.getByRole("menuitemradio", { name: theme === "light" ? "Terang" : theme === "dark" ? "Gelap" : "Sistem" }).click();
+    await page.getByRole("button", { name: /^Pilih tema tampilan/ }).click();
+    await page.getByRole("radio", { name: theme === "light" ? "Terang" : theme === "dark" ? "Gelap" : "Sistem", exact: true }).click();
     await expect(page.locator("html")).toHaveClass(theme === "light" ? /light/ : /dark/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
     if (theme === "light") await page.screenshot({ path: "test-results/dashboard-mobile-light.png", fullPage: true });

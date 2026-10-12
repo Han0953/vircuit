@@ -34,6 +34,12 @@ describe("cloud API authorization / validation", () => {
     await expect(saveProject(request(input()))).rejects.toMatchObject({ status: 401 });
     expect(client.rpc).not.toHaveBeenCalled();
   });
+  it("rejects an in-flight account switch without using the client header as ownership", async () => {
+    const switched = request(input());
+    switched.headers.set("X-Vircuit-Account", crypto.randomUUID());
+    await expect(saveProject(switched)).rejects.toMatchObject({ status: 401 });
+    expect(client.rpc).not.toHaveBeenCalled();
+  });
   it("rejects ownership spoof and malformed snapshots", async () => {
     await expect(saveProject(request({ ...input(), user_id: id }))).rejects.toMatchObject({ status: 400 });
     await expect(saveProject(request({ ...input(), payload: { schemaVersion: 2 } }))).rejects.toMatchObject({ status: 400 });
@@ -44,8 +50,8 @@ describe("cloud API authorization / validation", () => {
     expect(await saveProject(request(input()))).toEqual({ id, revision: 1 });
     expect(client.rpc.mock.calls[0][1]).not.toHaveProperty("user_id");
   });
-  it("returns conflict and rejects foreign delete", async () => {
-    client.rpc.mockResolvedValue({ data: null, error: { code: "40001" } });
+  it.each(["PT409", "40001"])("returns conflict %s and rejects foreign delete", async (code) => {
+    client.rpc.mockResolvedValue({ data: null, error: { code } });
     await expect(saveProject(request(input()))).rejects.toMatchObject({ status: 409 });
     client.rpc.mockResolvedValue({ error: { code: "42501" } });
     await expect(deleteProject(request({ expectedRevision: 1 }, "DELETE"), id)).rejects.toMatchObject({ status: 404 });

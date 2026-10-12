@@ -2,7 +2,7 @@ import { z } from "zod";
 import { browserClient } from "@/lib/supabase/browser";
 import { useCanvas } from "../simulator/stores/canvas-store";
 import { resetSimulation } from "../simulator/worker/bridge";
-import { adoptGuest } from "./local/drafts";
+import { adoptGuest, readDraft, writeDraft } from "./local/drafts";
 import { logoutAccount } from "@/features/auth/logout";
 import { flushDraft, recoverDraft } from "./local/controller";
 import { cloudRequest, saveToCloud } from "./cloud/client";
@@ -32,6 +32,22 @@ async function initialize() {
   if (migrate && usePersistence.getState().ready) {
     try { await saveToCloud(); window.history.replaceState(null, "", window.location.pathname); } catch { /* Retry retains the exact operation and local draft. */ }
   }
+}
+export async function migrateGuestDraft(draftId: string) {
+  const state = usePersistence.getState();
+  const owner = state.userId;
+  if (!owner || !state.ready || state.busy || state.handoffBusy) throw new Error("Tunggu sesi dan draft siap sebelum memindahkan proyek.");
+  usePersistence.setState({ handoffBusy: true });
+  try {
+    await flushDraft();
+    const guest = await readDraft("guest");
+    if (!guest || guest.id !== draftId) throw new Error("Draft tamu berubah atau tidak tersedia. Muat ulang sebelum melanjutkan.");
+    if (!guest.saveIntent) await writeDraft({ ...guest, saveIntent: true, updatedAt: Math.max(Date.now(), guest.updatedAt + 1) }, guest.updatedAt);
+    if (usePersistence.getState().userId !== owner) throw new Error("Sesi berubah. Draft tamu tetap tersedia.");
+    if (!await adoptGuest(owner, draftId)) throw new Error("Draft tamu belum dapat dipindahkan.");
+    await recoverDraft(`user:${owner}`);
+    await saveToCloud();
+  } finally { usePersistence.setState({ handoffBusy: false }); }
 }
 export function watchAuth() {
   const channel = new BroadcastChannel("vircuit-auth");

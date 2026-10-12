@@ -16,6 +16,7 @@ import { ContinueLearning } from "@/features/progress/ui/continue-learning";
 import { PendingChallenges } from "@/features/challenges/ui/pending-challenges";
 import { challengeCatalog } from "@/features/challenges/registry";
 import { PracticeLaunchAction } from "@/features/learning/ui/practice-launch-action";
+import { GuestDraftNotice } from "@/features/projects/ui/guest-draft-notice";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -47,6 +48,7 @@ export default async function DashboardPage() {
 
   return (
     <DashboardMotionSection className="space-y-8 sm:space-y-10">
+      <GuestDraftNotice />
       {/* 1. Command Center Hero Section */}
       <section className="flex flex-col justify-between gap-5 border-b border-border/50 pb-6 sm:flex-row sm:items-center">
         <div className="space-y-2">

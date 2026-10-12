@@ -29,7 +29,7 @@ export async function recoverDraft(scope: string) {
     storedAt = recovered?.updatedAt ?? null;
     const draft = recovered ?? newDraft(scope, emptyProject());
     useProject.setState({ project: draft.project, past: [], future: [] });
-    usePersistence.setState({ ready: true, draft, status: draft.cloud && draft.savedLocalRevision === draft.localRevision ? "saved" : "unsaved" });
+    usePersistence.setState({ ready: true, draft, error: null, failure: null, status: draft.cloud && draft.savedLocalRevision === draft.localRevision ? "saved" : "unsaved" });
     observeProject();
     await flushDraft();
   } catch {
@@ -84,6 +84,6 @@ export async function replaceDraft(draft: Draft, backup = false) {
 export function clearPrivateState(owner: string) {
   if (usePersistence.getState().userId !== owner) return;
   suspend(); generation++;
-  usePersistence.setState({ ready: false, draft: null, userId: null, error: null, localError: null, status: "unsaved" });
+  usePersistence.setState({ ready: false, draft: null, userId: null, error: null, failure: null, localError: null, status: "unsaved" });
   useProject.setState({ project: emptyProject(), past: [], future: [] });
 }

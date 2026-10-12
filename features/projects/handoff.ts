@@ -25,7 +25,7 @@ export async function applyProjectCommand(command: ProjectCommand, choice?: "loc
       if (!choice) return "conflict";
       if (choice === "local") return "done";
     }
-    await openCloudProject(command.id);
+    await openCloudProject(command.id, choice === "cloud");
     return "done";
   }
   const key = `vircuit-new:${state.userId}:${command.id}`;

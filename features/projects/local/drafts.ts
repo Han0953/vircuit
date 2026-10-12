@@ -9,6 +9,7 @@ export const draftSchema = z.object({
   localRevision: z.number().int().nonnegative(), savedLocalRevision: z.number().int().min(-1),
   cloud: z.object({ id: z.uuid(), revision: z.number().int().positive(), owner: z.uuid() }).nullable(),
   saveIntent: z.boolean(), updatedAt: z.number(),
+  cloudPaused: z.boolean().default(false),
   guestSource: z.uuid().nullable().default(null),
   guestSourceRevision: z.number().int().nonnegative().nullable().default(null),
   learningContext: learningContextSchema.nullable().default(null),
@@ -16,7 +17,7 @@ export const draftSchema = z.object({
 });
 export type Draft = z.infer<typeof draftSchema>;
 export function newDraft(scope: string, project: Project): Draft {
-  return { id: crypto.randomUUID(), scope, project, localRevision: 0, savedLocalRevision: -1, cloud: null, saveIntent: false, updatedAt: Date.now(), pending: null, guestSource: null, guestSourceRevision: null, learningContext: null };
+  return { id: crypto.randomUUID(), scope, project, localRevision: 0, savedLocalRevision: -1, cloud: null, cloudPaused: false, saveIntent: false, updatedAt: Date.now(), pending: null, guestSource: null, guestSourceRevision: null, learningContext: null };
 }
 export class DraftConflict extends Error { constructor() { super("Draft berubah di tab lain. Muat ulang sebelum melanjutkan."); } }
 function openDatabase(): Promise<IDBDatabase> {

@@ -10,7 +10,7 @@ Rename menggunakan PATCH existing dan menghasilkan revision baru. Delete menggun
 
 ## Handoff workspace
 
-- `/simulator?new=<uuid>`: intent menjadi ID draft lokal account. Marker sessionStorage dan ID draft mencegah pengulangan pada refresh/back. Cloud project dibuat hanya saat Save pertama.
+- `/simulator?new=<uuid>`: intent menjadi ID draft lokal account. Marker sessionStorage dan ID draft mencegah pengulangan pada refresh/back. Draft kosong tidak membuat proyek cloud. Sejak 2026-10-13, edit pertama memicu autosave cloud; Save manual tetap tersedia. Lihat `docs/auth-persistence.md`.
 - `/simulator?project=<uuid>`: setelah recovery, snapshot cloud divalidasi sebelum mengganti proyek. Draft lama disimpan/diarsipkan. Draft dirty untuk proyek yang sama memerlukan pilihan lokal atau cloud.
 - Setelah berhasil, parameter command dibersihkan dengan replace navigation. Handoff terpisah dari early return session initialization sehingga navigasi dengan user yang sama tetap diproses.
 - Selama handoff, autosave ditahan. Kegagalan load tidak mengganti circuit lokal.

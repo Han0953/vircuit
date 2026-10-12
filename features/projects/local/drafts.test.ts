@@ -1,9 +1,15 @@
 import "fake-indexeddb/auto";
 import { describe, expect, it, vi } from "vitest";
 import { emptyProject } from "../../simulator/stores/project-store";
-import { adoptGuest, clearAccountDrafts, DraftConflict, newDraft, readDraft, removeMigratedGuest, writeDraft } from "./drafts";
+import { adoptGuest, clearAccountDrafts, DraftConflict, draftSchema, newDraft, readDraft, removeMigratedGuest, writeDraft } from "./drafts";
 
 describe("IndexedDB draft safety", () => {
+  it("accepts older draft envelopes without changing snapshot v1", () => {
+    const { cloudPaused, ...legacy } = newDraft("guest", emptyProject());
+    expect(cloudPaused).toBe(false);
+    const parsed = draftSchema.parse(legacy);
+    expect(parsed.cloudPaused).toBe(false); expect(parsed.project).toEqual(legacy.project);
+  });
   it("recovers a compatible snapshot with stable identity and code", async () => {
     const scope = crypto.randomUUID();
     expect(await readDraft(scope)).toBeNull();

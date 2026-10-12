@@ -6,6 +6,7 @@ import { flushDraft, recoverDraft } from "../local/controller";
 import { initializeWorkspace, watchAuth } from "../session";
 import { WorkspaceProjectHandoff } from "./workspace-project-handoff";
 import { PracticeHandoff } from "@/features/learning/ui/practice-handoff";
+import { GuestMigration } from "./guest-migration";
 
 export function DraftRecovery({ children }: { children: ReactNode }) {
   const ready = usePersistence((s) => s.ready);
@@ -24,6 +25,7 @@ export function DraftRecovery({ children }: { children: ReactNode }) {
   return <>
     <Suspense><WorkspaceProjectHandoff verified={verified} /></Suspense>
     <Suspense><PracticeHandoff verified={verified} /></Suspense>
+    <Suspense><GuestMigration verified={verified} /></Suspense>
     {!ready ? <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
       <p role={error || sessionError ? "alert" : "status"}>{error ?? (sessionError ? "Sesi belum dapat diverifikasi. Draft tidak diubah." : "Memulihkan draft lokal…")}</p>
       {(error || sessionError) && <Button onClick={start}>Coba lagi</Button>}

@@ -29,6 +29,7 @@ describe("delete keeps a detached local draft", () => {
     expect(useProject.getState().project.code.source).toBe("unsaved active code");
     expect(usePersistence.getState().draft?.cloud).toBeNull();
     expect(usePersistence.getState().draft?.pending).toBeNull();
+    expect(usePersistence.getState().draft?.cloudPaused).toBe(true);
     expect((await readDraft(draft.scope))?.project.code.source).toBe("unsaved active code");
   });
 });
