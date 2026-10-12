@@ -20,7 +20,7 @@ export function LessonCirra({ owner, lessonId, title }: { owner: string; lessonI
       const input = desktopChatInput() && openingInput.current !== "touch" ? panel.current?.querySelector<HTMLTextAreaElement>("textarea") : null;
       (input ?? close.current)?.focus({ preventScroll: true });
     }}>
-      <SheetHeader className="shrink-0 border-b px-3 py-2 pt-[max(0.5rem,env(safe-area-inset-top))]"><div className="flex items-center justify-between gap-3"><SheetTitle className="flex items-center gap-2 text-sm"><Sparkles aria-hidden className="size-4 text-ai" />Cirra</SheetTitle><SheetClose asChild><Button ref={close} variant="ghost" size="icon" aria-label="Tutup Cirra"><X aria-hidden /></Button></SheetClose></div><SheetDescription className="truncate text-xs" title={title}>{title}</SheetDescription></SheetHeader>
+      <SheetHeader className="shrink-0 border-b px-3 py-2 pt-[max(0.5rem,env(safe-area-inset-top))]"><div className="flex items-center justify-between gap-3"><SheetTitle className="flex items-center gap-2 text-sm"><Sparkles aria-hidden className="size-4 text-ai" />Cirra</SheetTitle><SheetClose asChild><Button ref={close} variant="ghost" size="icon" aria-label="Tutup Cirra" className="focus-visible:border-transparent focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground/50"><X aria-hidden /></Button></SheetClose></div><SheetDescription className="truncate text-xs" title={title}>{title}</SheetDescription></SheetHeader>
       <div className="min-h-0 flex-1"><CirraChat key={`${owner}:${lessonId}`} owner={owner} scope={lessonId} active={open} contextLabel={title} getContext={() => ({ lessonId })} /></div>
     </SheetContent>
   </Sheet>;

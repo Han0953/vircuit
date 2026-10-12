@@ -38,7 +38,7 @@ export async function submitChallenge(request: Request) {
   if (error?.code === "40001") throw new RequestError("Submission ID sudah dipakai untuk snapshot lain. Evaluasi ulang.", 409);
   if (error?.code === "42501") throw new RequestError("Project tidak ditemukan atau akses ditolak.", 404);
   if (error?.code === "P0001") throw new RequestError("Terlalu banyak percobaan. Coba lagi nanti.", 429);
-  if (error) throw new RequestError("Hasil belum tersinkronisasi. Preview dan draft lokal tetap tersedia.", 503);
+  if (error) throw new RequestError("Hasil belum tersinkronisasi. Hasil evaluasi dan draft lokal tetap tersedia.", 503);
   const attempt = z.object({ id: z.uuid(), passed: z.boolean(), fingerprint: z.string(), user_id: z.uuid() }).parse(data);
   if (attempt.user_id !== user.id || attempt.passed !== result.passed || attempt.fingerprint !== result.fingerprint) throw new RequestError("Konfirmasi hasil tidak sesuai. Coba lagi.", 503);
   return { verified: true as const, owner: user.id, operationId: input.operationId, attemptId: attempt.id, result };

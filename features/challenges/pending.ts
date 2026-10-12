@@ -24,7 +24,7 @@ export async function pendingSubmissions(owner: string): Promise<PendingSubmissi
 }
 export async function queueSubmission(owner: string, submission: Submission, preview: Evaluation) {
   const item = pendingSchema.parse({ key: `${owner}:${submission.operationId}`, owner, submission, preview, createdAt: Date.now() });
-  if (submission.operationId !== preview.submissionId || submission.challengeId !== preview.challengeId || submission.version !== preview.version) throw new Error("Preview tidak sesuai submission.");
+  if (submission.operationId !== preview.submissionId || submission.challengeId !== preview.challengeId || submission.version !== preview.version) throw new Error("Hasil evaluasi tidak sesuai dengan data yang dikirim.");
   const db = await open();
   try {
     return await new Promise<PendingSubmission>((resolve, reject) => {
@@ -35,7 +35,7 @@ export async function queueSubmission(owner: string, submission: Submission, pre
         try {
           const entries = pendingSchema.array().parse(read.result);
           const sameOperation = entries.find((old) => old.submission.operationId === submission.operationId);
-          if (sameOperation && sameOperation.preview.fingerprint !== preview.fingerprint) throw new Error("Submission ID sudah dipakai untuk snapshot lain.");
+          if (sameOperation && sameOperation.preview.fingerprint !== preview.fingerprint) throw new Error("Permintaan ini sudah dipakai untuk rangkaian lain.");
           const previous = entries.find((old) => old.preview.fingerprint === preview.fingerprint);
           if (previous) { result = previous; return; }
           if (entries.length >= 10) throw new Error("Antrean berisi 10 hasil. Sinkronkan hasil yang tertunda sebelum membuat submission baru.");

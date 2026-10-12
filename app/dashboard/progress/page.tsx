@@ -86,7 +86,7 @@ export default async function ProgressPage() {
             </h2>
           </div>
           <p className="text-xs text-text-secondary">
-            Penguasaan konsep perangkat keras, input/output digital, analog PWM, dan teknik debugging.
+            Penyelesaian materi per topik: elektronika, digital I/O, analog PWM, dan debugging.
           </p>
         </div>
 
@@ -106,7 +106,7 @@ export default async function ProgressPage() {
                     <div
                       data-motion="meter"
                       className="h-full rounded-full bg-cyan-500 transition-all duration-300"
-                      style={{ width: `${Math.max(percent, skill.completed > 0 ? 5 : 0)}%` }}
+                      style={{ width: `${percent}%` }}
                     />
                   </div>
                 </div>
@@ -155,7 +155,7 @@ export default async function ProgressPage() {
                       <div
                         data-motion="meter"
                         className="h-full rounded-full bg-primary"
-                        style={{ width: `${Math.max(modPercent, completed > 0 ? 5 : 0)}%` }}
+                        style={{ width: `${modPercent}%` }}
                       />
                     </div>
                   </div>

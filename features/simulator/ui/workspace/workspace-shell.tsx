@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { CodePanel } from "../panels/code-panel";
-import { Info, PanelLeft, SlidersHorizontal } from "lucide-react";
+import { PanelLeft, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -74,10 +74,6 @@ function WorkspaceContent() {
       <a href="#workspace-canvas" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-md focus:bg-surface focus:p-4 focus:ring-2 focus:ring-ring">Lewati ke canvas</a>
       <WorkspaceTopbar onOpenAI={() => window.dispatchEvent(new Event("vircuit:open-cirra"))} />
       <PracticeContextPanel />
-      <p id="workspace-unavailable" className="flex shrink-0 items-start gap-2 border-b bg-surface-muted px-4 py-2 text-xs leading-relaxed text-text-secondary">
-        <Info aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-        Simulasi edukatif · Arduino C/C++ subset. Draft disimpan lokal di browser ini. Ekspor JSON untuk cadangan.
-      </p>
       <main aria-label="Workspace Virtual Lab" className="flex min-h-0 flex-1 flex-col">
         <ResizableWorkspace
           sidebars={!code}

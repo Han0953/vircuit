@@ -21,7 +21,7 @@ export function buildContext(input: CirraRequest, facts: ContextFacts = {}, budg
   const sources = ["auth: server verified"];
   const truncated: string[] = [];
   const project = wantsProject(input) ? input.project : undefined;
-  if (project && (project.components.length > 40 || project.wires.length > 200 || project.components.reduce((n, c) => n + getDefinition(c.type).pins.length, 0) > 3000)) throw new RequestError("Rangkaian ini terlalu besar untuk konteks Cirra MVP. Maksimal 40 komponen, 200 kabel dan 3000 pin.", 413);
+  if (project && (project.components.length > 40 || project.wires.length > 200 || project.components.reduce((n, c) => n + getDefinition(c.type).pins.length, 0) > 3000)) throw new RequestError("Rangkaian ini melebihi kapasitas konteks Cirra. Maksimal 40 komponen, 200 kabel dan 3000 pin.", 413);
   const diagnostics: { id: string; message: string; line?: number; componentId?: string; source: string }[] = [];
   let circuit;
   let normalizedProject;

@@ -168,7 +168,7 @@ export default async function LearningPage() {
                       <div
                         data-motion="meter"
                         className="h-full rounded-full bg-primary"
-                        style={{ width: `${Math.max(modulePercent, completedCount > 0 ? 5 : 0)}%` }}
+                        style={{ width: `${modulePercent}%` }}
                       />
                     </div>
 

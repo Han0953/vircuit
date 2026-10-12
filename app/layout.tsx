@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     default: "Vircuit — Virtual Lab untuk Belajar IoT",
     template: "%s · Vircuit",
   },
-  description: "Virtual Circuit Learning & Simulation Platform.",
+  description: "Belajar IoT melalui materi terstruktur, rangkaian interaktif, dan simulasi di Virtual Lab Vircuit.",
   icons: {
     icon: "/Logo.webp",
     shortcut: "/Logo.webp",

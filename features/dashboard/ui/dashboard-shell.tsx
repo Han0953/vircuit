@@ -284,8 +284,8 @@ export function DashboardShell({
               <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-foreground">Lab & Drafts Siap</p>
-              <p className="truncate text-[11px] text-text-tertiary">Penyimpanan lokal aktif</p>
+              <p className="truncate font-medium text-foreground">Virtual Lab</p>
+              <p className="truncate text-[11px] text-text-tertiary">Rangkai, kode, simulasikan</p>
             </div>
             <Cpu className="size-3.5 text-text-tertiary shrink-0" aria-hidden="true" />
           </div>

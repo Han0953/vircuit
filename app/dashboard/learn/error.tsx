@@ -8,7 +8,7 @@ export default function LearningError({ reset }: { reset: () => void }) {
     <div role="alert" className="space-y-4 rounded-lg border bg-surface p-6">
       <h1 className="text-xl font-semibold">Materi belum dapat dimuat</h1>
       <p className="text-sm text-text-secondary">
-        Konten atau koneksi belum tersedia. Coba muat ulang.
+        Materi gagal dimuat. Periksa koneksi lalu coba lagi.
       </p>
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="default" onClick={reset}>

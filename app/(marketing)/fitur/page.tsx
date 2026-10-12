@@ -69,7 +69,7 @@ const featureGroups = [
         title: "Interactive Wiring",
         badge: "Smart Connectivity",
         description:
-          "Penghubungan pin-ke-pin interaktif dengan preview kabel dinamis, pemetaan node elektrik internal breadboard, serta identitas logis pin yang tetap terikat saat komponen dipindahkan.",
+          "Penghubungan pin-ke-pin interaktif dengan pratinjau kabel dinamis, pemetaan node elektrik internal breadboard, serta identitas logis pin yang tetap terikat saat komponen dipindahkan.",
         highlights: [
           "Identitas pin berbasis logika kelistrikan (componentId.pinId)",
           "Penataan warna kabel kustom untuk kerapian skema",
@@ -292,7 +292,7 @@ export function FiturPage() {
         description="Mulai dari papan microcontroller, hubungkan kabel pertamamu, dan jalankan kode simulasi tanpa perlu membuat akun terlebih dahulu."
         actions={
           <>
-            <SimulatorCtaButton label="Buka Simulator Sekarang" />
+            <SimulatorCtaButton label="Buka Virtual Lab" />
             <Button asChild variant="outline" className="h-12 px-6">
               <Link href={marketingRoutes.explore}>
                 <Layers aria-hidden="true" />

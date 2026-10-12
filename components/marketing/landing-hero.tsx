@@ -36,7 +36,7 @@ export function LandingHero() {
         <div data-hero-copy className="mt-6 flex gap-3">
           <Button asChild className="h-12 px-3 text-sm sm:px-6 sm:text-base">
             <Link href={marketingRoutes.simulator}>
-              Coba Simulator
+              Buka Virtual Lab
               <ArrowUpRight aria-hidden="true" className="size-5" />
             </Link>
           </Button>

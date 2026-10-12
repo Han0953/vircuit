@@ -83,9 +83,9 @@ export function ProjectCollection({
           className="space-y-3.5 border-dashed border-destructive/40 bg-destructive/5 p-6 text-center sm:text-left sm:flex sm:items-center sm:justify-between sm:space-y-0"
         >
           <div className="space-y-1">
-            <p className="font-semibold text-destructive">Penyimpanan Cloud Belum Terhubung</p>
+            <p className="font-semibold text-destructive">Proyek gagal dimuat</p>
             <p className="text-xs text-text-secondary leading-relaxed">
-              {error}. Tenang, draft sirkuit lokal di peramban ini tetap aman dan aktif.
+              {error} Draft lokal tidak diubah.
             </p>
           </div>
           <Button
@@ -95,7 +95,7 @@ export function ProjectCollection({
             className="gap-2 shrink-0 border-destructive/30 hover:bg-destructive/10"
           >
             <RefreshCcw className="size-3.5" aria-hidden="true" />
-            Coba Sinkronkan
+            Coba lagi
           </Button>
         </Card>
       ) : data && data.items.length === 0 ? (

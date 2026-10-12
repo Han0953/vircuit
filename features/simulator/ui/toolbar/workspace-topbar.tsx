@@ -27,11 +27,7 @@ export function WorkspaceTopbar({ onOpenAI }: { onOpenAI: (trigger: HTMLButtonEl
           onClick={() => {
             void flushDraft()
               .then(() => {
-                if (typeof window !== "undefined" && window.history.length > 1) {
-                  router.back();
-                } else {
-                  router.push(userId ? "/dashboard" : "/");
-                }
+                router.push(usePersistence.getState().userId ? "/dashboard" : "/");
               })
               .catch((cause: unknown) =>
                 usePersistence.setState({

@@ -9,48 +9,50 @@ interface OverviewKpiGridProps {
   totalChallenges: number;
   skillCount: number;
   isOffline?: boolean;
+  progressUnavailable?: boolean;
 }
 
 export function OverviewKpiGrid({
   projectCount,
   completedLessons,
-  totalLessons = 7,
+  totalLessons,
   completedChallenges,
-  totalChallenges = 6,
+  totalChallenges,
   skillCount,
   isOffline = false,
+  progressUnavailable = false,
 }: OverviewKpiGridProps) {
   const percentComplete = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
   const kpis = [
     {
-      title: "Proyek Tersimpan",
-      value: isOffline ? "Offline Draft" : `${projectCount} Proyek`,
-      subtitle: isOffline ? "Tersimpan di peramban" : projectCount > 0 ? "Siap dilanjutkan" : "Mulai sirkuit baru",
+      title: "Proyek terbaru",
+      value: isOffline ? "Data tidak tersedia" : `${projectCount} Proyek`,
+      subtitle: isOffline ? "Daftar akun gagal dimuat" : projectCount > 0 ? "Siap dilanjutkan" : "Mulai sirkuit baru",
       icon: FolderOpen,
       accent: "text-blue-500",
       bg: "bg-blue-500/10",
     },
     {
       title: "Materi Selesai",
-      value: `${completedLessons}/${totalLessons} Lesson`,
-      subtitle: `${percentComplete}% Kurikulum tuntas`,
+      value: progressUnavailable ? "Data tidak tersedia" : `${completedLessons}/${totalLessons} Materi`,
+      subtitle: progressUnavailable ? "Progress gagal dimuat" : `${percentComplete}% Kurikulum tuntas`,
       icon: BookOpen,
       accent: "text-emerald-500",
       bg: "bg-emerald-500/10",
     },
     {
       title: "Evaluasi Tantangan",
-      value: `${completedChallenges}/${totalChallenges} Terpenuhi`,
-      subtitle: completedChallenges > 0 ? "Verifikasi deterministik" : "Uji di Virtual Lab",
+      value: progressUnavailable ? "Data tidak tersedia" : `${completedChallenges}/${totalChallenges} Terpenuhi`,
+      subtitle: progressUnavailable ? "Progress gagal dimuat" : completedChallenges > 0 ? "Verifikasi deterministik" : "Uji di Virtual Lab",
       icon: ListChecks,
       accent: "text-amber-500",
       bg: "bg-amber-500/10",
     },
     {
-      title: "Keahlian IoT",
-      value: `${skillCount} Kompetensi`,
-      subtitle: "Digital, Analog, PWM & Debug",
+      title: "Topik kurikulum",
+      value: `${skillCount} Topik`,
+      subtitle: "Cakupan materi yang tersedia",
       icon: Award,
       accent: "text-cyan-500",
       bg: "bg-cyan-500/10",

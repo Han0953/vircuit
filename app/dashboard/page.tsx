@@ -95,6 +95,7 @@ export default async function DashboardPage() {
           totalChallenges={challenges.length}
           skillCount={derived.skills.length}
           isOffline={isOffline}
+          progressUnavailable={!progress.rows}
         />
       </section>
 
@@ -111,7 +112,7 @@ export default async function DashboardPage() {
                   <Sparkles className="size-4" aria-hidden="true" />
                 </span>
                 <span className="text-xs font-semibold text-text-tertiary uppercase tracking-wider">
-                  Mulai Jalur Belajar
+                  Materi belajar
                 </span>
               </div>
               <h3 className="mt-3 text-lg font-bold text-foreground">
@@ -191,12 +192,12 @@ export default async function DashboardPage() {
               Proyek Terbaru
             </h2>
             <p className="text-xs text-text-secondary">
-              Sirkuit yang tersimpan di akunmu atau draft lokal aktif.
+              Proyek akun yang terakhir diperbarui.
             </p>
           </div>
           <Button asChild variant="ghost" size="sm" className="gap-1.5 text-xs font-medium text-primary">
             <Link href="/dashboard/projects">
-              Semua Proyek ({projectItems.length})
+              Lihat semua proyek
               <ArrowRight className="size-3.5" aria-hidden="true" />
             </Link>
           </Button>

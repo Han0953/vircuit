@@ -29,10 +29,10 @@ export function ComingSoonAction({
           <ArrowUpRight aria-hidden="true" className="size-6" />
         </span>
         <DialogHeader className="text-left">
-          <DialogTitle>{destination} segera hadir</DialogTitle>
+          <DialogTitle>{destination} belum tersedia</DialogTitle>
           <DialogDescription className="leading-relaxed">
-            Bagian ini sedang disiapkan dan belum dapat digunakan. Silakan kembali
-            lagi untuk mencoba pengalaman belajar Vircuit.
+            Fitur ini belum dapat digunakan. Kamu tetap bisa belajar dan
+            bereksperimen melalui Virtual Lab.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

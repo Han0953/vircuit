@@ -64,7 +64,7 @@ export function ProjectControls() {
     {(error || message) && <span role="alert" className="max-w-full text-xs text-destructive">{error || message}</span>}
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
-        <DialogHeader><DialogTitle>Proyek</DialogTitle><DialogDescription>Kelola proyek aktif dan buka rangkaian milik akunmu.</DialogDescription></DialogHeader>
+        <DialogHeader><DialogTitle>Proyek</DialogTitle><DialogDescription>Kelola proyek aktif, arsip draft lokal, dan proyek yang tersimpan di akun.</DialogDescription></DialogHeader>
         <form className="space-y-3" onSubmit={(event) => {
           event.preventDefault();
           const parsed = titleSchema.safeParse(title);

@@ -15,13 +15,13 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "Harga",
   description:
-    "Skema paket dan akses Vircuit: Simulator inti tetap gratis untuk semua pengguna, dengan opsi Premium untuk kapasitas AI lebih besar.",
+    "Skema paket dan akses Vircuit: Virtual Lab inti gratis untuk semua pengguna. Pelajari akses akun dan rencana paket Premium.",
 };
 
 const freeFeatures = [
   "Core Virtual Lab tanpa batas waktu penggunaan",
   "Akses mode tamu langsung pakai tanpa login",
-  "Penyimpanan project lokal & cloud setelah login",
+  "Draft lokal untuk tamu; penyimpanan akun setelah login",
   "Arduino Uno dan ESP32; Nano visual-only",
   "Koleksi breadboard, komponen dasar, sensor & aktuator inti",
   "Editor kode Arduino-style subset dengan Serial Monitor",
@@ -134,7 +134,7 @@ export function HargaPage() {
 
             <div data-motion-group="plan.free.action" data-motion="actions" className="mt-8 border-t pt-6">
               <Button asChild className="w-full h-11">
-                <Link href={marketingRoutes.simulator}>Coba Simulator Gratis</Link>
+                <Link href={marketingRoutes.simulator}>Buka Virtual Lab Gratis</Link>
               </Button>
             </div>
           </article>
@@ -144,7 +144,7 @@ export function HargaPage() {
             <div>
               <div data-motion-group="plan.premium.identity" data-motion="identity" className="flex items-center justify-between">
                 <Badge variant="outline" className="font-mono text-xs">
-                  Segera Hadir
+                  Dalam perencanaan
                 </Badge>
                 <span className="font-mono text-xs text-text-secondary">KAPASITAS EKSTRA</span>
               </div>
@@ -175,7 +175,7 @@ export function HargaPage() {
 
             <div data-motion-group="plan.premium.action" data-motion="actions" className="mt-8 border-t pt-6">
               <Button disabled variant="outline" className="w-full h-11">
-                Segera Hadir
+                Dalam perencanaan
               </Button>
             </div>
           </article>
@@ -234,13 +234,13 @@ export function HargaPage() {
         description="Buka Virtual Lab Vircuit sekarang juga dan mulai rakit sirkuit pertamamu secara gratis."
         actions={
           <>
-            <SimulatorCtaButton label="Buka Simulator Langsung" />
+            <SimulatorCtaButton label="Buka Virtual Lab" />
             <Button asChild variant="outline" className="h-12 px-6">
               <Link href={marketingRoutes.features}>Pelajari Fitur Lengkap</Link>
             </Button>
           </>
         }
-        note="Tidak ada komitmen biaya apa pun pada tahap MVP."
+        note="Virtual Lab inti dapat digunakan gratis tanpa berlangganan."
       />
     </PublicMotion>
   );

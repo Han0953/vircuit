@@ -96,7 +96,7 @@ export function PublicNavbar() {
           </Button>
           <Button data-motion-group="nav.simulator" data-motion="control" asChild>
             <Link prefetch={false} href={marketingRoutes.simulator}>
-              Coba Simulator
+              Buka Virtual Lab
               <ArrowUpRight aria-hidden="true" />
             </Link>
           </Button>
@@ -104,7 +104,7 @@ export function PublicNavbar() {
 
         <div className="flex items-center gap-2 lg:hidden">
           <Button data-motion-group="nav.simulator" data-motion="control" asChild className="px-3">
-            <Link prefetch={false} href={marketingRoutes.simulator}>Coba Simulator</Link>
+            <Link prefetch={false} href={marketingRoutes.simulator}>Buka Virtual Lab</Link>
           </Button>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
@@ -156,7 +156,7 @@ export function PublicNavbar() {
                 <SheetClose asChild>
                   <Button asChild>
                     <Link href={marketingRoutes.simulator}>
-                      Coba Simulator
+                      Buka Virtual Lab
                       <ArrowUpRight aria-hidden="true" />
                     </Link>
                   </Button>

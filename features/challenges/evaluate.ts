@@ -24,7 +24,7 @@ export async function evaluateSubmission(raw: Submission, yieldControl?: () => P
   if (!challenge || challenge.version !== submission.version) throw new Error("Versi tantangan tidak tersedia. Buka kembali lesson.");
   const project = submission.project;
   const pinCount = project.components.reduce((sum, c) => sum + getDefinition(c.type).pins.length, 0);
-  if (project.components.length > 40 || project.wires.length > 200 || pinCount > 3000) throw new EvaluationLimitError("Evaluasi MVP dibatasi 40 komponen, 200 kabel dan 3000 pin. Sederhanakan rangkaian tantangan.");
+  if (project.components.length > 40 || project.wires.length > 200 || pinCount > 3000) throw new EvaluationLimitError("Evaluasi mendukung maksimal 40 komponen, 200 kabel dan 3000 pin. Sederhanakan rangkaian tantangan.");
   const bindings = resolveBindings(project, challenge, submission.bindings);
   const bytes = new TextEncoder().encode(canonical({ project, bindings, challenge: challenge.id, version: challenge.version, evaluator: EVALUATOR_VERSION, engine: ENGINE_VERSION }));
   const fingerprint = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)), (b) => b.toString(16).padStart(2, "0")).join("");

@@ -3,7 +3,7 @@ import { useCallback, useLayoutEffect, useRef } from "react";
 import { updateSession, useCirraSession, type ChatMessage } from "./session-store";
 
 export const nearBottom = (top: number, height: number, viewport: number) => height - viewport - top <= 64;
-export function useChatScroll(key: string, messages: ChatMessage[], active: boolean) {
+export function useChatScroll(key: string, messages: ChatMessage[], active: boolean, pending = false) {
   const log = useRef<HTMLDivElement>(null);
   const previous = useRef({ key, active: false, last: messages.at(-1)?.id });
   const anchor = useRef<{ id: string; offset: number } | null>(null);
@@ -34,7 +34,7 @@ export function useChatScroll(key: string, messages: ChatMessage[], active: bool
       if (target) el.scrollTop = target.offsetTop - anchor.current.offset;
     }
     remember();
-  }, [active, key, log, messages, remember]);
+  }, [active, key, log, messages, pending, remember]);
   useLayoutEffect(() => {
     const el = log.current;
     if (!active || !el) return;

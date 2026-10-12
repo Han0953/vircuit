@@ -24,7 +24,7 @@ test("homepage copy, destinations, FAQ and semantic fallback without JS", async 
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Belajar IoT");
   await expect(page.getByRole("link", { name: "Mulai Belajar", exact: true }).first()).toHaveAttribute("href", "/dashboard/learn");
-  await expect(page.getByRole("link", { name: "Coba Simulator", exact: true }).first()).toHaveAttribute("href", "/simulator");
+  await expect(page.getByRole("link", { name: "Buka Virtual Lab", exact: true }).first()).toHaveAttribute("href", "/simulator");
   await expect(page.locator("main")).not.toContainText(/segera hadir|sedang disiapkan|Rencana akses guest/);
   await page.locator("summary").filter({ hasText: "Apakah perlu login" }).click();
   await expect(page.locator("details[open]")).toContainText("sebagai tamu");
@@ -106,7 +106,7 @@ test("route transitions clean pin state and simulator stays public", async ({ pa
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.locator(".pin-spacer")).toHaveCount(1);
-  await page.getByRole("link", { name: "Coba Simulator", exact: true }).first().click();
+  await page.getByRole("link", { name: "Buka Virtual Lab", exact: true }).first().click();
   await expect(page).toHaveURL(/\/simulator$/);
   await expect(page.getByRole("button", { name: "Run", exact: true })).toBeVisible();
   await expect(page.locator(".pin-spacer")).toHaveCount(0);

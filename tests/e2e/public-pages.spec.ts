@@ -141,7 +141,7 @@ test("card choreography, reversible story and shared controls stay scoped", asyn
 });
 test("public content and FAQ remain available without JS", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false }); const page = await context.newPage();
-  for (const route of routes) { await page.goto(`/${route}`); await expect(page.getByRole("heading", { level: 1 })).toBeVisible(); await expect(page.getByRole("link", { name: /Coba Simulator|Mulai Gratis Sekarang/ }).first()).toBeVisible(); }
+  for (const route of routes) { await page.goto(`/${route}`); await expect(page.getByRole("heading", { level: 1 })).toBeVisible(); await expect(page.getByRole("link", { name: /Buka Virtual Lab|Mulai Gratis Sekarang/ }).first()).toBeVisible(); }
   await page.locator("summary").first().click(); await expect(page.locator("details[open] p")).toBeVisible(); await context.close();
 });
 test("failed public timeline import keeps readable content and usable FAQ", async ({ page }) => {

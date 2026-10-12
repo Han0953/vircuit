@@ -10,7 +10,7 @@ const footerLinks = [
   { label: "Jelajahi", href: marketingRoutes.explore },
   { label: "Harga", href: marketingRoutes.pricing },
   { label: "Masuk", href: marketingRoutes.login },
-  { label: "Coba Simulator", href: marketingRoutes.simulator },
+  { label: "Buka Virtual Lab", href: marketingRoutes.simulator },
 ] as const;
 
 export function PublicFooter() {

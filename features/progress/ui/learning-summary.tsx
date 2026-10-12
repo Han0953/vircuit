@@ -53,7 +53,7 @@ export function LearningSummary({
             <div
               data-motion="meter"
               className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-              style={{ width: `${Math.max(percentage, 4)}%` }}
+              style={{ width: `${percentage}%` }}
             />
           </div>
         </div>
@@ -79,11 +79,11 @@ export function LearningSummary({
 
       <div className="mt-5 pt-4 border-t border-border/50 flex items-center justify-between gap-2">
         <span className="text-xs text-text-tertiary">
-          Catatan tersimpan di profil akun
+          Berdasarkan penyelesaian materi di akun
         </span>
         <Button asChild variant="ghost" size="sm" className="gap-1.5 font-medium text-primary">
           <Link href="/dashboard/progress">
-            Lihat Analitik
+            Lihat progress
             <ArrowRight className="size-3.5" aria-hidden="true" />
           </Link>
         </Button>

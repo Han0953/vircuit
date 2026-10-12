@@ -22,7 +22,7 @@ export async function POST(request: Request, context: { params: Promise<{ action
       const { url, key } = supabaseEnv();
       const settingsResponse = await fetch(`${url}/auth/v1/settings`, { headers: { apikey: key }, cache: "no-store", signal: AbortSignal.timeout(5000) });
       const settings = z.object({ external: z.object({ google: z.boolean() }) }).safeParse(await settingsResponse.json());
-      if (!settingsResponse.ok || !settings.success || !settings.data.external.google) throw new RequestError("Login Google belum diaktifkan. Gunakan email untuk sementara.", 503);
+      if (!settingsResponse.ok || !settings.success || !settings.data.external.google) throw new RequestError("Login Google belum diaktifkan. Silakan masuk dengan email.", 503);
       const redirectTo = new URL("/auth/callback", request.url);
       redirectTo.searchParams.set("next", safeDestination(parsed.data.next));
       const { data, error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: redirectTo.href, skipBrowserRedirect: true } });

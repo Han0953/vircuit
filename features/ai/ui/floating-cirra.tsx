@@ -63,7 +63,7 @@ export function FloatingCirra({ desktop, blocked }: { desktop: boolean; blocked:
           if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
         }
       }}>
-      <div className="flex shrink-0 items-center justify-between border-b bg-surface px-3 pt-[env(safe-area-inset-top)]"><h2 className="flex items-center gap-2 text-sm font-semibold"><Sparkles aria-hidden className="size-4 text-ai" />Cirra</h2><Button ref={closeButton} size="icon" variant="ghost" aria-label="Minimalkan Cirra" onClick={close}><X aria-hidden /></Button></div>
+      <div className="flex shrink-0 items-center justify-between border-b bg-surface px-3 pt-[env(safe-area-inset-top)]"><h2 className="flex items-center gap-2 text-sm font-semibold"><Sparkles aria-hidden className="size-4 text-ai" />Cirra</h2><Button ref={closeButton} size="icon" variant="ghost" aria-label="Minimalkan Cirra" className="focus-visible:border-transparent focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground/50" onClick={close}><X aria-hidden /></Button></div>
       <div className="workspace-cirra-body min-h-0 flex-1">{visited && <WorkspaceCirra active={open && !blocked} />}</div>
     </section>
     <TooltipProvider><Tooltip><TooltipTrigger asChild><Button ref={bubble} aria-label="Buka Cirra" aria-expanded={open} className="pointer-events-auto absolute right-3 bottom-3 size-11 rounded-full shadow-md" onClick={() => { if (open) close(); else window.dispatchEvent(new Event("vircuit:open-cirra")); }}><Sparkles aria-hidden /></Button></TooltipTrigger><TooltipContent side="left">Cirra · Tutor, Debugger, Project Assistant</TooltipContent></Tooltip></TooltipProvider>

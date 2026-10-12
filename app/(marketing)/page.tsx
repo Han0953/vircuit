@@ -13,7 +13,7 @@ import { HomepageExperience } from "@/components/marketing/scenes/homepage-exper
 
 export const metadata: Metadata = {
   title: { absolute: "Vircuit — Belajar IoT dengan Membangunnya" },
-  description: "Belajar IoT melalui materi, rangkaian, kode, dan simulasi edukatif. Coba Virtual Lab tanpa login, latih pemahaman lewat challenge, dan belajar bersama Cirra.",
+  description: "Belajar IoT melalui materi, rangkaian, kode, dan simulasi edukatif. Buka Virtual Lab tanpa login, latih pemahaman lewat challenge, dan belajar bersama Cirra.",
 };
 
 export default function HomePage() {
