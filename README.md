@@ -1,7 +1,7 @@
 <div align="center">
 
-  <!-- Dynamic Animated Header Wave -->
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:090d16,40:0052cc,80:0088ff,100:00d2ff&height=220&section=header&text=VIRCUIT&fontSize=72&fontColor=ffffff&fontAlignY=38&desc=Virtual%20Circuit%20%26%20IoT%20Learning%20Laboratory&descAlignY=58&descSize=20" width="100%" alt="Vircuit Header" />
+  <!-- Standalone High-Craft Animated Header Banner -->
+  <img src="./public/banner.svg" width="100%" alt="Vircuit Header Banner" />
 
   <!-- Animated Typing Tagline -->
   <a href="https://vircuit.vercel.app">
@@ -312,8 +312,8 @@ Untuk panduan teknis mendalam, baca dokumen di folder [`agent/docs/`](file:///c:
 
 <div align="center">
 
-  <!-- Dynamic Animated Footer Wave -->
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:00d2ff,40:0088ff,80:0052cc,100:090d16&height=130&section=footer" width="100%" alt="Vircuit Footer" />
+  <!-- Standalone High-Craft Footer Wave -->
+  <img src="./public/footer.svg" width="100%" alt="Vircuit Footer Banner" />
 
   <p>
     <b>Vircuit</b> • Dibuat dengan dedikasi untuk masa depan edukasi Internet of Things Indonesia.<br />

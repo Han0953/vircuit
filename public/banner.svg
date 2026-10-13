@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050811" />
+      <stop offset="40%" stop-color="#091122" />
+      <stop offset="75%" stop-color="#0b1730" />
+      <stop offset="100%" stop-color="#050a16" />
+    </linearGradient>
+
+    <!-- Glowing Accent Gradients -->
+    <linearGradient id="primary-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0066ff" />
+      <stop offset="50%" stop-color="#00c6ff" />
+      <stop offset="100%" stop-color="#00f2fe" />
+    </linearGradient>
+
+    <linearGradient id="text-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="45%" stop-color="#f0f9ff" />
+      <stop offset="80%" stop-color="#7dd3fc" />
+      <stop offset="100%" stop-color="#00d2ff" />
+    </linearGradient>
+
+    <linearGradient id="wire-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0052cc" stop-opacity="0.2" />
+      <stop offset="50%" stop-color="#00b4d8" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#00f5d4" stop-opacity="0.9" />
+    </linearGradient>
+
+    <linearGradient id="wire-blue" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#003580" stop-opacity="0.2" />
+      <stop offset="50%" stop-color="#2563eb" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.9" />
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="subtle-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Grid Pattern -->
+    <pattern id="pcb-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#1e293b" stroke-width="0.75" stroke-opacity="0.4" />
+      <circle cx="0" cy="0" r="1.5" fill="#00d2ff" fill-opacity="0.3" />
+    </pattern>
+  </defs>
+
+  <style>
+    @keyframes pulse-node {
+      0%, 100% { r: 3.5px; opacity: 0.8; }
+      50% { r: 5px; opacity: 1; }
+    }
+    @keyframes trace-flow {
+      0% { stroke-dashoffset: 200; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .node-anim { animation: pulse-node 3s infinite ease-in-out; }
+    .trace-anim { stroke-dasharray: 12 8; animation: trace-flow 15s linear infinite; }
+  </style>
+
+  <!-- Background Base -->
+  <rect width="1200" height="360" fill="url(#bg-grad)" />
+
+  <!-- PCB Grid Overlay -->
+  <rect width="1200" height="360" fill="url(#pcb-grid)" />
+
+  <!-- Radial Vignette to focus center -->
+  <radialGradient id="vignette" cx="50%" cy="50%" r="65%">
+    <stop offset="0%" stop-color="#00c6ff" stop-opacity="0.08" />
+    <stop offset="50%" stop-color="#0066ff" stop-opacity="0.03" />
+    <stop offset="100%" stop-color="#000000" stop-opacity="0.8" />
+  </radialGradient>
+  <rect width="1200" height="360" fill="url(#vignette)" />
+
+  <!-- Circuit Trace Lines Left Side -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 0 60 L 140 60 L 200 120 L 320 120 L 360 160 L 440 160" fill="none" stroke="url(#wire-cyan)" stroke-width="2.5" class="trace-anim" />
+    <path d="M 0 180 L 100 180 L 160 240 L 280 240 L 340 180 L 400 180" fill="none" stroke="url(#wire-blue)" stroke-width="2" />
+    <path d="M 60 360 L 120 300 L 220 300 L 260 260 L 380 260" fill="none" stroke="url(#wire-cyan)" stroke-width="1.8" />
+
+    <!-- Left Nodes / Vias -->
+    <circle cx="140" cy="60" r="4" fill="#00f5d4" filter="url(#subtle-glow)" class="node-anim" />
+    <circle cx="200" cy="120" r="4.5" fill="#00c6ff" filter="url(#glow)" />
+    <circle cx="360" cy="160" r="3.5" fill="#38bdf8" />
+    <circle cx="160" cy="240" r="4" fill="#60a5fa" />
+    <circle cx="260" cy="260" r="3.5" fill="#00f5d4" />
+
+    <!-- Circuit Trace Lines Right Side -->
+    <path d="M 1200 60 L 1060 60 L 1000 120 L 880 120 L 840 160 L 760 160" fill="none" stroke="url(#wire-cyan)" stroke-width="2.5" class="trace-anim" />
+    <path d="M 1200 180 L 1100 180 L 1040 240 L 920 240 L 860 180 L 800 180" fill="none" stroke="url(#wire-blue)" stroke-width="2" />
+    <path d="M 1140 360 L 1080 300 L 980 300 L 940 260 L 820 260" fill="none" stroke="url(#wire-cyan)" stroke-width="1.8" />
+
+    <!-- Right Nodes / Vias -->
+    <circle cx="1060" cy="60" r="4" fill="#00f5d4" filter="url(#subtle-glow)" class="node-anim" />
+    <circle cx="1000" cy="120" r="4.5" fill="#00c6ff" filter="url(#glow)" />
+    <circle cx="840" cy="160" r="3.5" fill="#38bdf8" />
+    <circle cx="1040" cy="240" r="4" fill="#60a5fa" />
+    <circle cx="940" cy="260" r="3.5" fill="#00f5d4" />
+  </g>
+
+  <!-- Decorative Circuit IC Chips Left & Right -->
+  <g fill="#0b1730" stroke="#1e3a8a" stroke-width="1.5">
+    <!-- Left IC -->
+    <rect x="180" y="225" width="40" height="30" rx="4" />
+    <circle cx="190" cy="235" r="2" fill="#00d2ff" />
+    <!-- Right IC -->
+    <rect x="980" y="225" width="40" height="30" rx="4" />
+    <circle cx="1010" cy="235" r="2" fill="#00d2ff" />
+  </g>
+
+  <!-- Central Logo Icon / Mark -->
+  <g transform="translate(600, 95)" filter="url(#glow)">
+    <!-- Hex / Diamond Circuit Node Badge -->
+    <circle cx="0" cy="0" r="46" fill="#0c192c" stroke="url(#primary-glow)" stroke-width="2.5" />
+    <circle cx="0" cy="0" r="36" fill="none" stroke="#00d2ff" stroke-width="1" stroke-dasharray="4 3" opacity="0.6" />
+    
+    <!-- Microchip Icon SVG -->
+    <g transform="translate(-20, -20)" fill="none" stroke="#00f2fe" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="6" width="28" height="28" rx="4" fill="#0b1730" />
+      <path d="M15 15h10v10H15z" fill="#0066ff" fill-opacity="0.4" />
+      <!-- Pins -->
+      <path d="M12 2v4 M20 2v4 M28 2v4" />
+      <path d="M12 34v4 M20 34v4 M28 34v4" />
+      <path d="M2 12h4 M2 20h4 M2 28h4" />
+      <path d="M34 12h4 M34 20h4 M34 28h4" />
+    </g>
+  </g>
+
+  <!-- Central Main Brand Text -->
+  <!-- VIRCUIT Brand Title -->
+  <text x="600" y="200" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif" font-weight="900" font-size="58" letter-spacing="6" fill="url(#text-grad)" filter="url(#subtle-glow)">
+    VIRCUIT
+  </text>
+
+  <!-- Subtitle Tagline -->
+  <text x="600" y="235" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif" font-weight="600" font-size="16" letter-spacing="4" fill="#38bdf8">
+    VIRTUAL CIRCUIT &amp; IOT LEARNING LABORATORY
+  </text>
+
+  <!-- Pill Badges at Bottom Center -->
+  <g transform="translate(600, 275)">
+    <!-- Pill 1: Virtual Lab -->
+    <g transform="translate(-240, 0)">
+      <rect x="-85" y="-14" width="170" height="28" rx="14" fill="#0c1d38" stroke="#1e40af" stroke-width="1.2" />
+      <text x="0" y="4" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="600" fill="#93c5fd" letter-spacing="0.5">⚡ VIRTUAL CIRCUIT LAB</text>
+    </g>
+    <!-- Pill 2: In-Browser C++ -->
+    <g transform="translate(0, 0)">
+      <rect x="-80" y="-14" width="160" height="28" rx="14" fill="#0c1d38" stroke="#0284c7" stroke-width="1.2" />
+      <text x="0" y="4" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="600" fill="#38bdf8" letter-spacing="0.5">💻 ARDUINO &amp; ESP32</text>
+    </g>
+    <!-- Pill 3: Cirra AI -->
+    <g transform="translate(240, 0)">
+      <rect x="-80" y="-14" width="160" height="28" rx="14" fill="#181335" stroke="#7e22ce" stroke-width="1.2" />
+      <text x="0" y="4" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="600" fill="#c084fc" letter-spacing="0.5">🤖 CIRRA AI ASSISTANT</text>
+    </g>
+  </g>
+
+  <!-- Bottom Accent Border Glow Line -->
+  <path d="M 0 358 L 480 358 L 520 352 L 680 352 L 720 358 L 1200 358" fill="none" stroke="url(#primary-glow)" stroke-width="2.5" opacity="0.9" filter="url(#subtle-glow)" />
+</svg>

@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" width="100%" height="100%">
+  <defs>
+    <linearGradient id="footer-bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#050811" />
+      <stop offset="50%" stop-color="#0b1730" />
+      <stop offset="100%" stop-color="#050811" />
+    </linearGradient>
+
+    <linearGradient id="neon-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0066ff" stop-opacity="0.1" />
+      <stop offset="30%" stop-color="#00c6ff" stop-opacity="0.9" />
+      <stop offset="70%" stop-color="#00f5d4" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0066ff" stop-opacity="0.1" />
+    </linearGradient>
+
+    <linearGradient id="wire-fade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.1" />
+      <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#2563eb" stop-opacity="0.1" />
+    </linearGradient>
+
+    <pattern id="footer-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#00d2ff" stroke-width="0.5" stroke-opacity="0.08" />
+    </pattern>
+
+    <filter id="f-glow" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <style>
+    @keyframes pulseNode {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.4); opacity: 1; }
+    }
+    @keyframes lineFlow {
+      0% { stroke-dashoffset: 200; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .pulse-node { animation: pulseNode 3s ease-in-out infinite; transform-origin: center; }
+    .flow-line { stroke-dasharray: 20, 10; animation: lineFlow 6s linear infinite; }
+  </style>
+
+  <!-- Background -->
+  <rect width="1200" height="120" fill="url(#footer-bg)" rx="12" />
+  <rect width="1200" height="120" fill="url(#footer-grid)" rx="12" />
+
+  <!-- Circuit Traces Top & Middle -->
+  <path d="M 0 30 L 250 30 L 320 60 L 600 60 L 680 30 L 950 30 L 1020 70 L 1200 70" 
+        fill="none" stroke="url(#wire-fade)" stroke-width="1.5" />
+  
+  <path d="M 0 75 L 180 75 L 240 45 L 500 45 L 560 75 L 880 75 L 940 45 L 1200 45" 
+        fill="none" stroke="url(#wire-fade)" stroke-width="1.2" stroke-dasharray="8 6" />
+
+  <!-- Main Glow Wave -->
+  <path d="M 0 60 Q 300 15, 600 60 T 1200 60" 
+        fill="none" stroke="url(#neon-glow)" stroke-width="3" filter="url(#f-glow)" class="flow-line" />
+
+  <!-- Solder Nodes & Terminals -->
+  <circle cx="250" cy="30" r="3.5" fill="#00f5d4" />
+  <circle cx="320" cy="60" r="3" fill="#38bdf8" />
+  <circle cx="600" cy="60" r="5" fill="#00f2fe" class="pulse-node" />
+  <circle cx="680" cy="30" r="3" fill="#38bdf8" />
+  <circle cx="950" cy="30" r="3.5" fill="#00f5d4" />
+  <circle cx="1020" cy="70" r="3" fill="#60a5fa" />
+  
+  <!-- Subtle center text -->
+  <text x="600" y="95" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif" font-size="12" font-weight="600" fill="#94a3b8" letter-spacing="3">
+    VIRCUIT &bull; VIRTUAL HARDWARE &bull; LAB WITHOUT LIMITS
+  </text>
+</svg>
