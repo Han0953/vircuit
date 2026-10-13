@@ -49,7 +49,7 @@ test("learning is protected, preserves destination, renders real ordered content
   await expect(page.getByRole("heading", { name: "Materi tidak ditemukan" })).toBeVisible();
   await page.goto("/dashboard/learn/no-course");
   await expect(page.getByRole("heading", { name: "Materi tidak ditemukan" })).toBeVisible();
-  await page.goto("/dashboard"); await page.getByRole("link", { name: "Buka Belajar", exact: true }).click();
+  await page.goto("/dashboard"); await page.getByRole("link", { name: "Belajar", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Belajar dengan praktik" })).toBeVisible();
 });
 test("practice confirms replacement, backs up circuit, runs, restores context and returns to lesson", async ({ page }) => {
@@ -99,13 +99,13 @@ test("mobile learning navigation, keyboard focus, all themes and handoff failure
   await expect(page.getByRole("button", { name: "Daftar lesson", exact: true })).toBeFocused();
   for (const theme of ["Terang", "Gelap", "Sistem"]) {
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.getByRole("button", { name: /^Pilih tema:/ }).click();
-    await page.getByRole("menuitemradio", { name: theme }).click();
+    await page.getByRole("button", { name: /^Pilih tema tampilan/ }).click();
+    await page.getByRole("radio", { name: theme, exact: true }).click();
     await expect(page.locator("html")).toHaveClass(theme === "Terang" ? /light/ : /dark/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
   await page.screenshot({ path: "test-results/learning-mobile.png", fullPage: true });
-  await page.getByRole("button", { name: "Buka navigasi", exact: true }).click();
+  await page.getByRole("button", { name: "Buka navigasi menu", exact: true }).click();
   await page.getByRole("dialog").getByRole("link", { name: "Belajar", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Belajar dengan praktik" })).toBeVisible();
   await page.goto(lesson);

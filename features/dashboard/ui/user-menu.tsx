@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, LogOut, UserRound } from "lucide-react";
+import Link from "next/link";
+import { Download, LogOut, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -13,14 +14,15 @@ import { usePersistence } from "@/features/projects/store";
 import { pendingSubmissions } from "@/features/challenges/pending";
 
 export type DashboardIdentity = { id: string; name: string; email: string };
-export function UserMenu({ user }: { user: DashboardIdentity }) {
+export function UserMenu({ user, logoutOnly = false, disabled = false }: { user: DashboardIdentity; logoutOnly?: boolean; disabled?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [pendingResults, setPendingResults] = useState(0);
-  async function prepare() {
+  async function prepare(approved = false) {
+    if (!approved && !window.dispatchEvent(new CustomEvent("vircuit-before-logout", { cancelable: true, detail: { proceed: () => void prepare(true) } }))) return;
     setOpen(true); setPending(true); setError("");
     try {
       const state = usePersistence.getState();
@@ -44,15 +46,15 @@ export function UserMenu({ user }: { user: DashboardIdentity }) {
     const link = document.createElement("a"); link.href = url; link.download = `vircuit-${draft.id}.json`; link.click(); URL.revokeObjectURL(url);
   }
   return <div className="flex items-center gap-1.5">
-    <ThemePopover />
-    <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Menu akun"><UserRound aria-hidden /></Button></DropdownMenuTrigger>
+    {logoutOnly ? <Button variant="outline" disabled={disabled} onClick={() => void prepare()}><LogOut aria-hidden />Keluar akun</Button> : <><ThemePopover />
+    <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Menu akun"><span aria-hidden className="flex size-8 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary">{user.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}</span></Button></DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-w-[calc(100vw-2rem)]">
         <DropdownMenuLabel className="max-w-64 break-all">{user.name}<span className="block text-xs font-normal text-text-secondary">{user.email}</span></DropdownMenuLabel>
-        <DropdownMenuSeparator /><DropdownMenuItem onSelect={() => void prepare()}><LogOut aria-hidden />Keluar akun</DropdownMenuItem>
+        <DropdownMenuSeparator /><DropdownMenuItem asChild><Link href="/dashboard/pengaturan"><Settings2 aria-hidden />Pengaturan</Link></DropdownMenuItem><DropdownMenuItem onSelect={() => void prepare()}><LogOut aria-hidden />Keluar akun</DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>
+    </DropdownMenu></>}
     <Dialog open={open} onOpenChange={(value) => { if (!pending) setOpen(value); }}><DialogContent className="max-h-[90dvh] overflow-y-auto">
-      <DialogHeader><DialogTitle>Keluar dari akun?</DialogTitle><DialogDescription>Cache proyek akun di perangkat ini akan dibersihkan. Proyek cloud dan draft lokal tetap tersimpan.</DialogDescription></DialogHeader>
+      <DialogHeader><DialogTitle>Keluar dari akun?</DialogTitle><DialogDescription>Cache draft dan arsip akun di perangkat ini akan dibersihkan. Proyek cloud dan draft tamu tetap tersimpan. Unduh cadangan perubahan akun yang belum tersimpan sebelum keluar.</DialogDescription></DialogHeader>
       {pendingResults > 0 && <p role="status" className="text-sm">{pendingResults} hasil tantangan belum tersinkronisasi. Keluar akan menghapus antrean lokal akun ini. Pilih Batal dan sinkronkan melalui dashboard jika hasilnya masih diperlukan.</p>}
       {drafts.length > 0 && <div className="space-y-2"><p className="text-sm">Unduh cadangan draft dan arsip yang masih diperlukan sebelum keluar.</p>{drafts.map((draft) => <Button key={draft.scope} variant="outline" className="w-full justify-start" onClick={() => download(draft)}><Download aria-hidden /><span className="truncate">{draft.project.metadata.name}</span></Button>)}</div>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}

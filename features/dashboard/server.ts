@@ -5,13 +5,13 @@ import { authenticatedClient, listProjectPage } from "@/features/projects/server
 import { RequestError } from "@/lib/request-security";
 import type { ProjectPage } from "@/features/projects/contracts";
 import { safeDestination } from "@/features/auth/redirect";
+import { safeProfileName } from "@/features/settings/contracts";
 
 export const dashboardIdentity = cache(async () => {
   try {
     const { client, user } = await authenticatedClient(true);
     const { data } = await client.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
-    const name = typeof data?.display_name === "string" && data.display_name.trim()
-      ? data.display_name.trim() : user.email ?? "Pengguna Vircuit";
+    const name = safeProfileName(data?.display_name, user.user_metadata);
     return { id: user.id, name, email: user.email ?? "" };
   } catch (error) {
     if (error instanceof RequestError && error.status === 401) {

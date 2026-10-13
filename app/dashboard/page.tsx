@@ -63,7 +63,7 @@ export default async function DashboardPage() {
             data-motion="header"
             className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl"
           >
-            Halo, {user.name}
+            Halo, {user.name}!
           </h1>
           <p
             data-motion="header"

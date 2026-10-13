@@ -56,15 +56,15 @@ test("protected challenges, server verification, completion and real dashboard p
   await page.getByRole("button", { name: "Kembali ke lesson" }).click();
   await expect(page.getByText("Materi selesai", { exact: true })).toBeVisible();
   await page.goto("/dashboard");
-  await expect(page.getByLabel("Progress belajar")).toContainText("1 dari 7 materi selesai");
-  await expect(page.getByLabel("Lanjutkan belajar")).toContainText("Tegangan dan Ground");
+  await expect(page.locator('[data-slot="card"]').filter({ hasText: "Kemajuan Kurikulum" })).toContainText("1 dari 7 Materi");
+  await expect(page.locator('[data-slot="card"]').filter({ has: page.getByRole("link", { name: "Lanjutkan Materi", exact: true }) })).toContainText("Tegangan dan Ground");
   await page.goto("/dashboard/progress");
-  await expect(page.getByLabel("Coverage keterampilan")).toContainText("Digital output: 1/2 materi selesai");
+  await expect(page.getByRole("region", { name: "Cakupan Keterampilan IoT" }).locator('[data-motion="item"]').filter({ hasText: "Digital output" })).toContainText("1/2 (50%)");
   await page.goto("/dashboard/learn/dasar-iot/tegangan-ground");
   await page.getByRole("button", { name: "Selesaikan materi" }).click();
   await expect(page.getByText("Materi selesai", { exact: true })).toBeVisible();
   await page.goto("/dashboard");
-  await expect(page.getByLabel("Progress belajar")).toContainText("2 dari 7 materi selesai");
+  await expect(page.locator('[data-slot="card"]').filter({ hasText: "Kemajuan Kurikulum" })).toContainText("2 dari 7 Materi");
 });
 test("failed sync survives refresh, retries immutable snapshot and leaves draft intact", async ({ page }) => {
   await login(page); await challenge(page); await code(page, blink);
@@ -86,7 +86,7 @@ test("failed sync survives refresh, retries immutable snapshot and leaves draft 
     return new Promise<{ project: { code: { source: string } }; learningContext: { challengeId: string } }>((resolve) => { const request = db.transaction("drafts").objectStore("drafts").get(scope); request.onsuccess = () => { db.close(); resolve(request.result); }; });
   }, `user:${owner}`);
   expect(draft.project.code.source).toBe(blink); expect(draft.learningContext.challengeId).toBe("challenge.blink");
-  await page.goto("/dashboard"); await expect(page.getByLabel("Progress belajar")).toContainText("1 dari 7");
+  await page.goto("/dashboard"); await expect(page.locator('[data-slot="card"]').filter({ hasText: "Kemajuan Kurikulum" })).toContainText("1 dari 7");
 });
 test("challenge sheet and progress remain accessible on mobile and all themes", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
@@ -103,13 +103,13 @@ test("challenge sheet and progress remain accessible on mobile and all themes", 
   await page.goto("/dashboard/progress");
   for (const theme of ["Terang", "Gelap", "Sistem"]) {
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.getByRole("button", { name: /^Pilih tema:/ }).click();
-    await page.getByRole("menuitemradio", { name: theme }).click();
+    await page.getByRole("button", { name: /^Pilih tema tampilan/ }).click();
+    await page.getByRole("radio", { name: theme, exact: true }).click();
     await expect(page.locator("html")).toHaveClass(theme === "Terang" ? /light/ : /dark/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
-  await page.getByRole("button", { name: "Buka navigasi", exact: true }).click();
-  await page.getByRole("dialog").getByRole("link", { name: "Tantangan", exact: true }).click();
+  await page.getByRole("button", { name: "Buka navigasi menu", exact: true }).click();
+  await page.getByRole("dialog").getByRole("link", { name: "Tantangan", exact: false }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Tantangan" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Mulai Tantangan", exact: true })).toHaveCount(6);
   for (const width of [430, 768, 1440]) {

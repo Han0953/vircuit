@@ -16,10 +16,14 @@ import { useWireRouting } from "./use-wire-routing";
 import { FlowElements } from "./flow-elements";
 import { circuitIds, isEditingText, updateSelection, validSelection } from "../../stores/selection";
 import { SelectionToolbar } from "../components/selection-toolbar";
+import { usePreferences } from "@/features/settings/preferences";
+import { usePersistence } from "@/features/projects/store";
 import "@xyflow/react/dist/style.css";
 const nodeTypes = { component: ComponentNode };
 const edgeTypes = { wire: CircuitWire };
 function CanvasContent() {
+  const owner = usePersistence((state) => state.userId);
+  const preferences = usePreferences(owner);
   const [preview, setPreview] = useState<{ component: ComponentInstance; placement: Placement } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [area, setArea] = useState(false);
@@ -62,6 +66,7 @@ function CanvasContent() {
     <SelectionToolbar area={area} onAreaChange={setArea} focusCanvas={focusCanvas} />
     <div className="min-h-0 flex-1"><ReactFlow<CircuitNode, CircuitEdge> nodes={nodes} edges={edges} edgeTypes={edgeTypes} connectionLineComponent={WireConnectionPreview} connectionMode={ConnectionMode.Loose} connectOnClick connectionRadius={30}
     elevateNodesOnSelect={false}
+    snapToGrid={preferences.snap} snapGrid={[20, 20]}
     isValidConnection={(c) => { const p = useProject.getState().project; return validConnection({ ...p, wires: p.wires.filter((w) => w.id !== reconnecting.current) }, { componentId: c.source, pinId: c.sourceHandle ?? "" }, { componentId: c.target, pinId: c.targetHandle ?? "" }); }}
     onReconnectStart={(_, edge) => { reconnecting.current = edge.id; }} onReconnectEnd={() => { reconnecting.current = null; }}
     onReconnect={(edge, c) => edit((p) => {
@@ -93,7 +98,7 @@ function CanvasContent() {
       routing.controller.endDrag();
     }} onPaneClick={() => { setNotice(null); useCanvas.getState().select([]); focusCanvas(); }} viewport={viewport} onViewportChange={(viewport) => edit((p) => ({ ...p, viewport }), false)} minZoom={0.25} maxZoom={4} panOnDrag={area ? [1, 2] : true} zoomOnPinch selectionKeyCode="Shift" multiSelectionKeyCode={["Shift", "Control", "Meta"]} selectionOnDrag={area} selectionMode={SelectionMode.Partial} panActivationKeyCode="Space" deleteKeyCode={null} colorMode={resolvedTheme === "dark" ? "dark" : "light"}
     onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }} onDrop={(e) => { e.preventDefault(); const type = e.dataTransfer.getData("application/vircuit-component"); if (catalog.some((c) => c.key === type)) useProject.getState().add(type, screenToFlowPosition({ x: e.clientX, y: e.clientY })); }}>
-    <Background variant={BackgroundVariant.Dots} gap={20} color="var(--border-strong)" />
+    {preferences.grid && <Background variant={BackgroundVariant.Dots} gap={20} color="var(--border-strong)" />}
     <Controls />
     <TapWirePreview />
     {preview && <PlacementPreview {...preview} />}

@@ -21,7 +21,7 @@ test.beforeEach(async ({ page, request }) => {
 test("guest Cirra is guarded while simulator remains public", async ({ page, request }) => {
   const response = await request.post("/api/ai/cirra", { headers: { origin: "http://localhost:3002" }, data: { requestId: crypto.randomUUID(), mode: "tutor", message: "Resistor?" } });
   expect(response.status()).toBe(401);
-  await page.goto("/simulator"); await page.getByRole("button", { name: "Buka panel Cirra" }).click();
+  await page.goto("/simulator"); await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Masuk untuk bertanya ke Cirra" })).toBeVisible();
   await expect(page.locator(".react-flow")).toBeVisible();
 });
@@ -69,7 +69,7 @@ test("challenge Debugger and Assistant do not mutate circuit/code or complete ch
   await chat.getByLabel("Mode", { exact: true }).click(); await page.getByRole("menuitemradio", { name: "Project Assistant", exact: true }).click();
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Aku mau membuat smart plant monitoring"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("log")).toContainText("komponen yang didukung");
-  await expect(chat.getByRole("region", { name: "Rencana project" })).toBeVisible();
+  await expect(chat.getByRole("region", { name: "Rencana proyek" })).toBeVisible();
   expect(await draftSnapshot(page)).toBe(original);
   expect((await chat.getByRole("log").boundingBox())!.height).toBeGreaterThan(80);
   await page.screenshot({ path: "test-results/cirra-desktop.png", fullPage: true });
@@ -82,7 +82,7 @@ test("new project planning and Problems handoff use the existing canvas without 
   const chat = page.getByRole("region", { name: "Percakapan Cirra" });
   await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "project-assistant");
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Bantu aku merencanakan lampu sederhana"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
-  await expect(chat.getByRole("region", { name: "Rencana project" })).toBeVisible(); await expect(page.locator(".react-flow__node")).toHaveCount(0);
+  await expect(chat.getByRole("region", { name: "Rencana proyek" })).toBeVisible(); await expect(page.locator(".react-flow__node")).toHaveCount(0);
   await page.getByRole("tab", { name: "Problems", exact: true }).click(); await page.getByRole("button", { name: "Periksa rangkaian" }).click();
   await page.getByRole("button", { name: "Tanya Cirra", exact: true }).click();
   await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "debugger");
@@ -101,13 +101,13 @@ test("mobile Cirra fits 360px, supports themes and leaves draft intact", async (
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.keyboard.press("Escape");
   }
-  await page.goto("/simulator"); await page.getByRole("button", { name: "Buka panel Cirra" }).click();
+  await page.goto("/simulator"); await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
   await expect(page.getByRole("button", { name: "Minimalkan Cirra" })).toBeFocused();
   await page.keyboard.press("Shift+Tab");
   expect(await page.getByRole("dialog", { name: "Asisten Cirra" }).evaluate((el) => el.contains(document.activeElement))).toBe(true);
   const chat = page.getByRole("region", { name: "Percakapan Cirra" }); await chat.getByLabel("Pertanyaan untuk Cirra").fill("Apa fungsi resistor?"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("log")).toContainText("resistor membatasi arus"); await page.keyboard.press("Escape"); await expect(page.locator(".react-flow")).toBeVisible();
-  await page.getByRole("button", { name: "Buka panel Cirra" }).click();
+  await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
   await expect.poll(async () => (await page.getByRole("dialog").boundingBox())?.y).toBeLessThan(1);
   await page.screenshot({ path: "test-results/cirra-mobile.png", fullPage: true });
 });

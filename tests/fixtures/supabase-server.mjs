@@ -2,10 +2,10 @@ import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
-import { initializeProgressDatabase, resetProgressDatabase, readProgressDatabase, writeLearningEvent, writeChallengeAttempt } from "./progress-db.mjs";
+import { initializeProgressDatabase, resetProgressDatabase, readProgressDatabase, writeLearningEvent, writeChallengeAttempt, readProfile, writeProfile, resetProfile } from "./progress-db.mjs";
 
 export const owner = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
-const user = { id: owner, email: "dashboard@example.test", aud: "authenticated", role: "authenticated", app_metadata: {}, user_metadata: {}, created_at: "2026-01-01T00:00:00Z" };
+const user = { id: owner, email: "dashboard@example.test", aud: "authenticated", role: "authenticated", app_metadata: {}, user_metadata: {}, identities: [{ provider: "email", user_id: owner, identity_id: owner }], email_confirmed_at: "2026-01-01T00:00:00Z", created_at: "2026-01-01T00:00:00Z", new_email: "" };
 const token = [Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url"), Buffer.from(JSON.stringify({ sub: owner, aud: "authenticated", role: "authenticated", exp: 2000000000 })).toString("base64url"), Buffer.alloc(32, 1).toString("base64url")].join(".");
 const blank = (name) => ({ schemaVersion: 1, metadata: { name }, components: [], wires: [], code: { language: "arduino-cpp-subset", source: "void setup() {}\nvoid loop() {}" }, viewport: { x: 0, y: 0, zoom: 1 }, settings: { boardId: null } });
 let rows = [];
@@ -40,12 +40,21 @@ export async function startSupabaseFixture() {
       if (mode === "project-assistant") result.blueprint = { goal: "Rencana project", constraints: ["Dukungan simulator masih subset."], components: [{ name: "Arduino Uno", catalogType: "uno", support: "partial" }], circuitPlan: ["Rencanakan koneksi input dan output."], programStructure: ["Baca input lalu kendalikan output."], testing: ["Uji rangkaian secara bertahap."] };
       return send({ candidates: [{ content: { role: "model", parts: [{ text: JSON.stringify(result) }] }, finishReason: "STOP" }], usageMetadata: { totalTokenCount: 30 } });
     }
-    if (url.pathname === "/__fixture/reset") { reset(body.count); await resetProgressDatabase(); failure = !!body.failure; return send({ ok: true }); }
+    if (url.pathname === "/__fixture/reset") { reset(body.count); await resetProgressDatabase(); await resetProfile(owner); user.new_email = ""; user.identities = [{ provider: body.oauth ? "google" : "email", user_id: owner, identity_id: owner }]; failure = !!body.failure; return send({ ok: true }); }
+    if (url.pathname === "/__fixture/failure") { failure = !!body.enabled; return send({ ok: true }); }
     if (url.pathname === "/__fixture/state") return send({ saves, count: rows.length, rows: rows.map(({ id, title, revision }) => ({ id, title, revision })) });
     if (url.pathname === "/__fixture/conflict") { conflict = !!body.enabled; return send({ ok: true }); }
     if (url.pathname === "/auth/v1/token") { active = true; return send({ access_token: token, refresh_token: "fixture-refresh", token_type: "bearer", expires_in: 3600, expires_at: 2000000000, user }); }
     const authenticated = active && request.headers.authorization === `Bearer ${token}`;
-    if (url.pathname === "/auth/v1/user") return authenticated ? send(user) : send({ message: "Invalid session" }, 401);
+    if (url.pathname === "/auth/v1/user") {
+      if (!authenticated) return send({ message: "Invalid session" }, 401);
+      if (request.method === "PUT") {
+        if (failure) return send({ message: "Fixture unavailable" }, 503);
+        if (body.email) user.new_email = body.email;
+      }
+      return send(user);
+    }
+    if (url.pathname === "/auth/v1/reauthenticate") return authenticated ? send({}) : send({ message: "Invalid session" }, 401);
     if (url.pathname === "/auth/v1/logout") { active = false; return send({}); }
     if (url.pathname === "/rest/v1/rpc/record_learning_event" || url.pathname === "/rest/v1/rpc/record_challenge_attempt") {
       // This marker is accepted only by this loopback fixture, never a cloud credential.
@@ -55,8 +64,12 @@ export async function startSupabaseFixture() {
       catch (error) { return send({ code: error.code ?? "503", message: "Local progress DB rejected input" }, 400); }
     }
     if (!authenticated) return send({ code: "42501", message: "Access denied" }, 403);
-    if (url.pathname === "/rest/v1/profiles") return send(request.headers.accept?.includes("object") ? { display_name: "Astra" } : [{ display_name: "Astra" }]);
     if (failure) return send({ code: "503", message: "Fixture unavailable" }, 503);
+    if (url.pathname === "/rest/v1/profiles") { const profile = await readProfile(owner); return send(request.headers.accept?.includes("object") ? profile : profile ? [profile] : []); }
+    if (url.pathname === "/rest/v1/rpc/update_my_profile") {
+      try { return send(await writeProfile(owner, body.p_display_name)); }
+      catch { return send({ code: "22023", message: "Profile rejected" }, 400); }
+    }
     if (url.pathname === "/rest/v1/learning_progress") return send(await readProgressDatabase(owner));
     if (url.pathname === "/rest/v1/projects") {
       let selected = rows.filter((item) => (!equal("user_id") || equal("user_id") === item.user_id) && (!equal("id") || equal("id") === item.id));

@@ -42,4 +42,13 @@ describe("auth server routes", () => {
     const hostile = new Request("https://vircuit.test/api/auth/logout", { method: "POST", headers: { Origin: "https://evil.test", "Content-Type": "application/json" }, body: "{}" });
     expect((await POST(hostile, { params: Promise.resolve({ action: "logout" }) })).status).toBe(403);
   });
+  it("supports bounded email-change confirmation hashes and returns to settings", async () => {
+    client.auth.verifyOtp.mockResolvedValue({ error: null });
+    const response = await GET(new Request("https://vircuit.test/auth/callback?token_hash=test-hash&type=email_change&next=%2Fdashboard%2Fpengaturan"));
+    expect(client.auth.verifyOtp).toHaveBeenCalledWith({ token_hash: "test-hash", type: "email_change" });
+    expect(response.headers.get("location")).toBe("https://vircuit.test/dashboard/pengaturan");
+    client.auth.verifyOtp.mockClear();
+    await GET(new Request("https://vircuit.test/auth/callback?token_hash=test-hash&type=magiclink&next=%2Fdashboard%2Fpengaturan"));
+    expect(client.auth.verifyOtp).not.toHaveBeenCalled();
+  });
 });

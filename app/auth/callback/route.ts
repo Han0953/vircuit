@@ -10,7 +10,10 @@ export async function GET(request: Request) {
   try {
     const supabase = await serverClient();
     if (code && code.length <= 4096) success = !(await supabase.auth.exchangeCodeForSession(code)).error;
-    else if (hash && hash.length <= 4096 && url.searchParams.get("type") === "email") success = !(await supabase.auth.verifyOtp({ token_hash: hash, type: "email" })).error;
+    else if (hash && hash.length <= 4096) {
+      const type = url.searchParams.get("type");
+      if (type === "email" || type === "email_change") success = !(await supabase.auth.verifyOtp({ token_hash: hash, type })).error;
+    }
   } catch { /* Never echo OAuth credentials or provider text. */ }
   const target = new URL(success ? next : `/masuk?error=callback&next=${encodeURIComponent(next)}`, url.origin);
   const response = NextResponse.redirect(target);

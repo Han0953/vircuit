@@ -4,6 +4,7 @@ import { useRef, type ReactNode } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { dashboardMotionTokens as tokens } from "./dashboard-motion-tokens";
+import { useReducedMotion } from "@/features/settings/preferences";
 
 // Register useGSAP plugin safely
 if (typeof window !== "undefined") {
@@ -22,6 +23,7 @@ export function DashboardMotionSection({
   delay = 0,
 }: DashboardMotionSectionProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isReduced = useReducedMotion();
 
   useGSAP(
     () => {
@@ -33,7 +35,6 @@ export function DashboardMotionSection({
       );
 
       // Honor prefers-reduced-motion preference immediately
-      const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (isReduced) {
         gsap.set(animatedElements, { clearProps: "all" });
         return;
@@ -142,7 +143,7 @@ export function DashboardMotionSection({
         });
       }
     },
-    { scope: containerRef, dependencies: [] }
+    { scope: containerRef, dependencies: [isReduced], revertOnUpdate: true }
   );
 
   return (

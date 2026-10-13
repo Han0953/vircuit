@@ -12,6 +12,7 @@ import {
   ListChecks,
   ChartNoAxesColumn,
   Cpu,
+  Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +28,7 @@ import { cloudRequest } from "@/features/projects/cloud/request";
 import { clearPrivateState } from "@/features/projects/local/controller";
 import { UserMenu, type DashboardIdentity } from "./user-menu";
 import { cn } from "@/lib/utils";
+import { PreferenceOwner, usePreferences } from "@/features/settings/preferences";
 
 interface NavLinkItem {
   href: string;
@@ -38,6 +40,7 @@ interface NavLinkItem {
 
 const navLinks: NavLinkItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, group: "main" },
+  { href: "/dashboard/pengaturan", label: "Pengaturan", icon: Settings2, group: "main" },
   { href: "/dashboard/learn", label: "Belajar", icon: BookOpen, group: "learn" },
   { href: "/dashboard/challenges", label: "Tantangan", icon: ListChecks, badge: "6", group: "learn" },
   { href: "/dashboard/progress", label: "Progress", icon: ChartNoAxesColumn, group: "learn" },
@@ -53,6 +56,7 @@ export function DashboardShell({
   children: ReactNode;
 }) {
   const pathname = usePathname();
+  const preferences = usePreferences(user.id);
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sessionError, setSessionError] = useState(false);
@@ -254,7 +258,7 @@ export function DashboardShell({
   );
 
   return (
-    <div data-dashboard-shell className="min-h-dvh bg-background no-scrollbar">
+    <PreferenceOwner.Provider value={user.id}><div data-dashboard-shell data-density={preferences.density} data-motion-preference={preferences.motion} data-reading={preferences.reading} className="min-h-dvh bg-background no-scrollbar">
       <a
         href="#dashboard-main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-60 focus:rounded-md focus:bg-primary focus:p-3 focus:text-primary-foreground focus:shadow-lg"
@@ -368,6 +372,6 @@ export function DashboardShell({
           <div className="relative space-y-8">{children}</div>
         </main>
       </div>
-    </div>
+    </div></PreferenceOwner.Provider>
   );
 }
