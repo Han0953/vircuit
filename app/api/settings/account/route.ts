@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       callback.searchParams.set("next", "/dashboard/pengaturan");
       const { data, error } = await client.auth.updateUser({ email: input.email }, { emailRedirectTo: callback.href });
       if (error) throw new RequestError("Perubahan email belum berhasil. Periksa alamat atau coba lagi nanti.", 400);
-      return Response.json({ message: data.user?.email === input.email ? "Email dikonfirmasi oleh penyedia autentikasi." : "Permintaan dikirim. Ikuti konfirmasi di email lama dan baru sesuai pengaturan keamanan akun.", pendingEmail: data.user?.new_email ?? "" }, { headers: { "Cache-Control": "private, no-store" } });
+      return Response.json({ message: data.user?.email === input.email ? "Alamat email berhasil diperbarui." : "Permintaan dikirim. Ikuti tautan konfirmasi di email lama dan baru.", pendingEmail: data.user?.new_email ?? "" }, { headers: { "Cache-Control": "private, no-store" } });
     }
     const { currentPassword, password, nonce } = input.values;
     const passwordAccount = accountInformation(user).hasPassword;

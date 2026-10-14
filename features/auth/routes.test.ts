@@ -26,6 +26,7 @@ describe("auth server routes", () => {
     client.auth.signInWithOAuth.mockResolvedValue({ data: { url: "https://auth.example.test/authorize" }, error: null });
     expect((await POST(request({ next: "//evil.test" }), { params: Promise.resolve({ action: "google" }) })).status).toBe(200);
     expect(client.auth.signInWithOAuth.mock.calls[0][0].options.redirectTo).toBe("https://vircuit.test/auth/callback?next=%2Fsimulator"); settings.mockRestore();
+    expect(client.auth.signInWithOAuth.mock.calls[0][0].options.queryParams).toEqual({ prompt: "select_account" });
   });
   it("exchanges callback and refuses external redirect on success/failure", async () => {
     client.auth.exchangeCodeForSession.mockResolvedValueOnce({ error: null }).mockResolvedValueOnce({ error: { message: "expired" } });

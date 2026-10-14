@@ -15,7 +15,7 @@ export async function initializeProgressDatabase(owner) {
   await db.query("insert into auth.users(id) values($1)", [owner]);
   await db.exec(readFileSync("supabase/migrations/20261007050923_auth_project_persistence.sql", "utf8"));
   await db.exec(readFileSync("supabase/migrations/20261007120000_challenges_progress.sql", "utf8"));
-  await db.exec(readFileSync("supabase/pending/settings_profile.sql", "utf8"));
+  await db.exec(readFileSync("supabase/migrations/20261014051844_settings_profile.sql", "utf8"));
   await db.query("insert into public.profiles(id,display_name) values($1,'Astra') on conflict(id) do update set display_name='Astra'", [owner]);
 }
 export function readProfile(owner) {

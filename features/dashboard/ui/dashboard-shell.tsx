@@ -11,7 +11,6 @@ import {
   Menu,
   ListChecks,
   ChartNoAxesColumn,
-  Cpu,
   Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,7 @@ import { BrandLogo } from "@/components/shared/brand-logo";
 import { cloudRequest } from "@/features/projects/cloud/request";
 import { clearPrivateState } from "@/features/projects/local/controller";
 import { UserMenu, type DashboardIdentity } from "./user-menu";
+import { LogoutButton } from "./logout-button";
 import { cn } from "@/lib/utils";
 import { PreferenceOwner, usePreferences } from "@/features/settings/preferences";
 
@@ -65,10 +65,11 @@ export function DashboardShell({
   // Monitor session validity
   useEffect(() => {
     let alive = true;
+    let leaving = false;
     async function check() {
       try {
         const value = await cloudRequest("/api/auth/session");
-        if (!alive) return;
+        if (!alive || leaving) return;
         if (!value || typeof value !== "object" || !("user" in value)) {
           throw new Error("Invalid session");
         }
@@ -91,8 +92,13 @@ export function DashboardShell({
     }
 
     const channel = new BroadcastChannel("vircuit-auth");
-    channel.onmessage = () => {
-      void check();
+    channel.onmessage = (event: MessageEvent<unknown>) => {
+      const message = event.data;
+      if (message && typeof message === "object" && "type" in message && message.type === "account-deleted" && "owner" in message && message.owner === user.id) {
+        leaving = true;
+        clearPrivateState(user.id);
+        window.location.replace("/masuk?account=deleted");
+      } else void check();
     };
     const focus = () => {
       void check();
@@ -280,19 +286,8 @@ export function DashboardShell({
           {renderNavigation()}
         </div>
 
-        {/* Sidebar Status Footer */}
-        <div className="mt-auto border-t border-border/60 pt-4">
-          <div className="flex items-center gap-2 rounded-md bg-surface-muted px-3 py-2 text-xs">
-            <span className="relative flex size-2 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-foreground">Virtual Lab</p>
-              <p className="truncate text-[11px] text-text-tertiary">Rangkai, kode, simulasikan</p>
-            </div>
-            <Cpu className="size-3.5 text-text-tertiary shrink-0" aria-hidden="true" />
-          </div>
+        <div className="mt-4 shrink-0 border-t border-border/60 pt-4">
+          <LogoutButton user={user} className="min-h-11 w-full justify-start gap-3 border-transparent bg-transparent text-text-secondary hover:border-destructive/20 hover:bg-destructive/5 hover:text-destructive" />
         </div>
       </aside>
 
@@ -318,15 +313,18 @@ export function DashboardShell({
                   <Menu className="size-5" aria-hidden="true" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 max-w-[85vw] p-5">
+              <SheetContent side="left" className="flex w-72 max-w-[85vw] flex-col p-5">
                 <SheetHeader className="px-0 pb-4 text-left">
                   <SheetTitle>
                     <BrandLogo size="default" />
                   </SheetTitle>
                   <SheetDescription>Command Center Edukasi IoT</SheetDescription>
                 </SheetHeader>
-                <div className="mt-4 overflow-y-auto no-scrollbar">
+                <div className="mt-4 min-h-0 flex-1 overflow-y-auto no-scrollbar">
                   {renderNavigation(() => setMobileOpen(false))}
+                </div>
+                <div className="shrink-0 border-t border-border/60 pt-4 pb-[env(safe-area-inset-bottom)]">
+                  <LogoutButton user={user} className="min-h-11 w-full justify-start gap-3 border-transparent bg-transparent text-text-secondary hover:border-destructive/20 hover:bg-destructive/5 hover:text-destructive" />
                 </div>
               </SheetContent>
             </Sheet>

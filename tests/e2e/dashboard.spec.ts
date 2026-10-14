@@ -69,8 +69,7 @@ test("server-confirmed rename/delete, conflict, and dashboard-only logout", asyn
   await expect(page.getByRole("dialog")).toContainText("Lampu laboratorium");
   await page.getByRole("button", { name: "Hapus proyek", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Lampu laboratorium" })).toHaveCount(0);
-  await page.getByRole("button", { name: "Menu akun" }).click();
-  await page.getByRole("menuitem", { name: "Keluar akun" }).click();
+  await page.locator("aside").getByRole("button", { name: "Keluar akun", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Keluar akun", exact: true }).click();
   await expect(page).toHaveURL(/\/masuk/);
   await page.goto("/dashboard"); await expect(page).toHaveURL(/\/masuk/);

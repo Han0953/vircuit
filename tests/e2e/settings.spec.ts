@@ -58,8 +58,7 @@ test("profile save, validation, failure, category preservation and live dashboar
   await page.getByRole("button", { name: "Tetap di pengaturan" }).click();
   await expect(page.getByRole("link", { name: "Dashboard", exact: true })).toBeFocused();
   await expect(page.getByLabel("Nama tampilan")).toHaveValue("Belum disimpan");
-  await page.getByRole("button", { name: "Menu akun" }).click();
-  await page.getByRole("menuitem", { name: "Keluar akun" }).click();
+  await page.locator("aside").getByRole("button", { name: "Keluar akun", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText("belum disimpan");
   await page.getByRole("button", { name: "Tetap di pengaturan" }).click();
   await page.evaluate(() => window.history.back());
@@ -67,6 +66,44 @@ test("profile save, validation, failure, category preservation and live dashboar
   await page.getByRole("button", { name: "Tetap di pengaturan" }).click();
   await expect(page).toHaveURL(/\/dashboard\/pengaturan$/);
   await page.getByRole("button", { name: "Batalkan perubahan", exact: true }).click();
+});
+
+test("sidebar logout replaces the status footer and is absent from the profile menu on desktop and mobile", async ({ page }, testInfo) => {
+  await login(page);
+  await page.getByRole("button", { name: "Menu akun" }).click();
+  await expect(page.getByRole("menuitem", { name: "Keluar akun" })).toHaveCount(0);
+  await expect(page.getByRole("menuitem", { name: "Pengaturan" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByText("Rangkai, kode, simulasikan", { exact: true })).toHaveCount(0);
+  const desktop = page.locator("aside").getByRole("button", { name: "Keluar akun", exact: true });
+  await expect(desktop).toBeVisible();
+  await desktop.click();
+  await expect(page.getByRole("dialog", { name: "Keluar dari akun?" })).toBeVisible();
+  await page.getByRole("button", { name: "Batal", exact: true }).click();
+  await expect(desktop).toBeFocused();
+  await page.screenshot({ path: testInfo.outputPath("settings-sidebar-desktop.png") });
+  for (const width of [360, 390, 430]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.getByRole("button", { name: "Buka navigasi menu" }).click();
+    const drawer = page.getByRole("dialog");
+    await expect.poll(async () => (await drawer.boundingBox())?.x ?? -1000).toBeGreaterThanOrEqual(-1);
+    const logout = drawer.getByRole("button", { name: "Keluar akun", exact: true });
+    await expect(logout).toBeVisible();
+    expect(await logout.evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    if (width === 390) await page.screenshot({ path: testInfo.outputPath("settings-sidebar-mobile.png") });
+    await logout.click();
+    const confirmation = page.getByRole("dialog", { name: "Keluar dari akun?" });
+    await expect(confirmation).toBeVisible();
+    if (width === 430) {
+      await confirmation.getByRole("button", { name: "Keluar akun", exact: true }).click();
+      await expect(page).toHaveURL(/\/masuk/);
+    } else {
+      await confirmation.getByRole("button", { name: "Batal", exact: true }).click();
+      await expect(logout).toBeFocused();
+      await page.keyboard.press("Escape");
+    }
+  }
 });
 
 test("account confirmation, password handling and existing logout", async ({ page }) => {
@@ -77,7 +114,10 @@ test("account confirmation, password handling and existing logout", async ({ pag
   await expect(page.getByRole("status").filter({ hasText: "Permintaan dikirim" })).toBeVisible();
   await expect(page.getByText("Menunggu konfirmasi:", { exact: false })).toContainText("new@example.test");
   await expect(page.getByText("dashboard@example.test", { exact: true })).toBeVisible();
-  await page.getByLabel("Kata sandi saat ini").fill("fixture-password");
+  await page.getByLabel("Kata sandi saat ini", { exact: true }).fill("fixture-password");
+  await page.getByRole("button", { name: "Tampilkan kata sandi saat ini", exact: true }).click();
+  await expect(page.getByLabel("Kata sandi saat ini", { exact: true })).toHaveAttribute("type", "text");
+  await page.getByRole("button", { name: "Sembunyikan kata sandi saat ini", exact: true }).click();
   await page.getByLabel("Kata sandi baru", { exact: true }).fill("new-password");
   await page.getByLabel("Konfirmasi kata sandi", { exact: true }).fill("mismatch-password");
   await page.getByRole("button", { name: "Simpan kata sandi" }).click();
@@ -88,10 +128,44 @@ test("account confirmation, password handling and existing logout", async ({ pag
   await expect(page.getByLabel("Kata sandi baru", { exact: true })).toHaveValue("");
   const stored = await page.evaluate(() => Object.values(localStorage));
   expect(stored.join(" ")).not.toContain("new-password");
-  await page.getByRole("button", { name: "Keluar akun", exact: true }).click();
+  await page.locator("main").getByRole("button", { name: "Keluar akun", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Keluar akun", exact: true }).click();
   await expect(page).toHaveURL(/masuk/);
   await page.goto("/dashboard/pengaturan"); await expect(page).toHaveURL(/masuk/);
+});
+
+test("login/register password visibility, private avatar upload/replace/delete and account deletion confirmation", async ({ page }) => {
+  for (const route of ["/masuk", "/daftar"]) {
+    await page.goto(route);
+    await page.getByLabel("Kata sandi", { exact: true }).fill("visibility-test");
+    await expect(page.getByLabel("Kata sandi", { exact: true })).toHaveAttribute("type", "password");
+    await page.getByRole("button", { name: "Tampilkan kata sandi", exact: true }).click();
+    await expect(page.getByLabel("Kata sandi", { exact: true })).toHaveAttribute("type", "text");
+    await page.getByRole("button", { name: "Sembunyikan kata sandi", exact: true }).click();
+    await expect(page.getByLabel("Kata sandi", { exact: true })).toHaveValue("visibility-test");
+  }
+  await login(page);
+  const png = await page.evaluate(() => { const canvas = document.createElement("canvas"); canvas.width = canvas.height = 32; canvas.getContext("2d")!.fillRect(0,0,32,32); return canvas.toDataURL("image/png").split(",")[1]; });
+  await page.getByLabel("Pilih foto profil").setInputFiles({ name: "photo.png", mimeType: "image/png", buffer: Buffer.from(png,"base64") });
+  await expect(page.getByRole("status").filter({ hasText: "Foto profil berhasil disimpan" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Ganti foto", exact: true })).toBeVisible();
+  await expect.poll(() => page.locator("img[src*='/api/settings/avatar']").first().evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBe(256);
+  await page.reload(); await expect(page.getByRole("button", { name: "Ganti foto", exact: true })).toBeVisible();
+  await page.getByLabel("Pilih foto profil").setInputFiles({ name: "invalid.svg", mimeType: "image/svg+xml", buffer: Buffer.from("<svg/>") });
+  await expect(page.locator("main").getByRole("alert")).toContainText("JPG, PNG, atau WebP");
+  await page.getByRole("button", { name: "Hapus foto", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Hapus foto", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Unggah foto", exact: true })).toBeVisible();
+  await category(page, "Akun & Keamanan");
+  await expect(page.locator("main")).not.toContainText("Supabase");
+  await category(page, "Data & Privasi");
+  await page.getByRole("button", { name: "Hapus akun", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Hapus akun permanen", exact: true })).toBeDisabled();
+  await page.getByLabel("Ketik HAPUS AKUN", { exact: true }).fill("HAPUS AKUN");
+  await page.getByLabel("Kata sandi untuk konfirmasi", { exact: true }).fill("fixture-password");
+  await page.getByRole("button", { name: "Hapus akun permanen", exact: true }).click();
+  await expect(page).toHaveURL(/\/masuk\?account=deleted/);
+  await expect(page.getByRole("status").filter({ hasText: "Akun berhasil dihapus" })).toBeVisible();
 });
 
 test("OAuth account offers verified password setup without assuming an existing password", async ({ page, request }) => {

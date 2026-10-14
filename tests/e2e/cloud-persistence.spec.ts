@@ -114,8 +114,7 @@ test("account autosave, offline replay, separate device, conflict, delete and re
     expect((await (await request.get(`${provider}/__fixture/state`)).json()).count).toBe(0);
     expect((await stored(page))?.cloud).toBeNull();
     await page.goto("/dashboard");
-    await page.getByRole("button", { name: "Menu akun" }).click();
-    await page.getByRole("menuitem", { name: "Keluar akun" }).click();
+    await page.locator("aside").getByRole("button", { name: "Keluar akun", exact: true }).click();
     await page.getByRole("dialog").getByRole("button", { name: "Keluar akun", exact: true }).click();
     await expect(page).toHaveURL(/\/masuk/);
     expect(await stored(page)).toBeNull();

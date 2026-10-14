@@ -8,13 +8,14 @@ import { LoaderCircle } from "lucide-react";
 import { BrandLogo } from "@/components/shared/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { loginSchema, registerSchema } from "../schema";
 import { safeDestination } from "../redirect";
 
-export function AuthForm({ register = false, next: destination, callbackError = false }: { register?: boolean; next?: string; callbackError?: boolean }) {
+export function AuthForm({ register = false, next: destination, callbackError = false, accountDeleted = false }: { register?: boolean; next?: string; callbackError?: boolean; accountDeleted?: boolean }) {
   const router = useRouter();
   const next = safeDestination(destination);
-  const [message, setMessage] = useState(callbackError ? "Autentikasi belum selesai atau tautan kedaluwarsa. Draft tetap tersedia." : "");
+  const [message, setMessage] = useState(callbackError ? "Autentikasi belum selesai atau tautan kedaluwarsa. Draft tetap tersedia." : accountDeleted ? "Akun berhasil dihapus. Kamu bisa masuk dengan akun lain atau membuat akun baru." : "");
   const [googleLoading, setGoogleLoading] = useState(false);
   const form = useForm<{ email: string; password: string }>({ resolver: zodResolver(register ? registerSchema : loginSchema), defaultValues: { email: "", password: "" } });
   const busy = form.formState.isSubmitting || googleLoading;
@@ -45,7 +46,7 @@ export function AuthForm({ register = false, next: destination, callbackError = 
       <p className="mt-2 text-sm text-text-secondary">Simpan proyek dan lanjutkan rangkaianmu. Simulator tetap tersedia tanpa akun.</p>
       <form noValidate onSubmit={form.handleSubmit(submit)} className="mt-6 space-y-4">
         <div><label htmlFor="auth-email" className="text-sm font-medium">Email</label><Input id="auth-email" type="email" autoComplete="email" disabled={busy} aria-invalid={!!form.formState.errors.email} aria-describedby="email-error" {...form.register("email")} /><p id="email-error" className="mt-1 text-xs text-destructive">{form.formState.errors.email?.message && "Masukkan email yang valid."}</p></div>
-        <div><label htmlFor="auth-password" className="text-sm font-medium">Kata sandi</label><Input id="auth-password" type="password" autoComplete={register ? "new-password" : "current-password"} disabled={busy} aria-invalid={!!form.formState.errors.password} aria-describedby="password-error" {...form.register("password")} /><p id="password-error" className="mt-1 text-xs text-destructive">{form.formState.errors.password?.message}</p></div>
+        <div><label htmlFor="auth-password" className="text-sm font-medium">Kata sandi</label><PasswordInput id="auth-password" autoComplete={register ? "new-password" : "current-password"} disabled={busy} aria-invalid={!!form.formState.errors.password} aria-describedby="password-error" {...form.register("password")} /><p id="password-error" className="mt-1 text-xs text-destructive">{form.formState.errors.password?.message}</p></div>
         <Button type="submit" disabled={busy} className="min-h-11 w-full">{form.formState.isSubmitting && <LoaderCircle aria-hidden className="animate-spin" />}{register ? "Daftar dengan email" : "Masuk dengan email"}</Button>
       </form>
       <Button variant="outline" disabled={busy} onClick={() => void google()} className="mt-3 min-h-11 w-full">{googleLoading && <LoaderCircle aria-hidden className="animate-spin" />}Lanjutkan dengan Google</Button>

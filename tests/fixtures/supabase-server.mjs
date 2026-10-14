@@ -13,6 +13,7 @@ let failure = false;
 let conflict = false;
 let saves = 0;
 let active = true;
+const avatars = new Map();
 function reset(count = 28) {
   rows = Array.from({ length: count }, (_, index) => {
     const id = `bbbbbbbb-bbbb-4bbb-8bbb-${String(index + 1).padStart(12, "0")}`;
@@ -20,6 +21,7 @@ function reset(count = 28) {
     return { id, title, revision: 1, user_id: owner, updated_at: new Date(Date.now() - (index + 1) * 60000).toISOString(), payload: blank(title), operations: new Map() };
   });
   failure = false; conflict = false; saves = 0; active = true;
+  avatars.clear();
 }
 reset();
 export async function startSupabaseFixture() {
@@ -28,7 +30,8 @@ export async function startSupabaseFixture() {
     const url = new URL(request.url, "http://127.0.0.1:3031");
     const send = (data, status = 200) => { response.writeHead(status, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3002", "Access-Control-Allow-Headers": "*" }); response.end(JSON.stringify(data)); };
     const chunks = []; for await (const chunk of request) chunks.push(chunk);
-    const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString()) : {};
+    const raw = Buffer.concat(chunks);
+    const body = chunks.length && request.headers["content-type"]?.includes("application/json") ? JSON.parse(raw.toString()) : {};
     const equal = (key) => url.searchParams.get(key)?.replace(/^eq\./, "");
     if (request.method === "OPTIONS") return send({});
     if (url.pathname === "/__fixture/gemini") {
@@ -55,7 +58,9 @@ export async function startSupabaseFixture() {
       return send(user);
     }
     if (url.pathname === "/auth/v1/reauthenticate") return authenticated ? send({}) : send({ message: "Invalid session" }, 401);
+    if (url.pathname === `/auth/v1/admin/users/${owner}` && request.method === "DELETE" && request.headers.apikey === "sb_secret_local_playwright_fixture") { rows = []; avatars.clear(); active = false; return send(user); }
     if (url.pathname === "/auth/v1/logout") { active = false; return send({}); }
+    if (url.pathname === "/storage/v1/object/profile-avatars" && request.method === "DELETE" && request.headers.apikey === "sb_secret_local_playwright_fixture") { avatars.delete(owner); return send([]); }
     if (url.pathname === "/rest/v1/rpc/record_learning_event" || url.pathname === "/rest/v1/rpc/record_challenge_attempt") {
       // This marker is accepted only by this loopback fixture, never a cloud credential.
       if (request.headers.apikey !== "sb_secret_local_playwright_fixture" || !active) return send({ code: "42501" }, 403);
@@ -65,6 +70,14 @@ export async function startSupabaseFixture() {
     }
     if (!authenticated) return send({ code: "42501", message: "Access denied" }, 403);
     if (failure) return send({ code: "503", message: "Fixture unavailable" }, 503);
+    if (url.pathname === "/storage/v1/object/list/profile-avatars") return send(avatars.has(owner) ? [{ name: "avatar.webp", updated_at: avatars.get(owner).updatedAt }] : []);
+    if (url.pathname === "/storage/v1/object/profile-avatars" && request.method === "DELETE") { avatars.delete(owner); return send([]); }
+    if (url.pathname === `/storage/v1/object/profile-avatars/${owner}/avatar.webp` || url.pathname === `/storage/v1/object/authenticated/profile-avatars/${owner}/avatar.webp`) {
+      if (request.method === "POST" || request.method === "PUT") { avatars.set(owner, { bytes: raw, updatedAt: new Date().toISOString() }); return send({ Key: `${owner}/avatar.webp` }); }
+      const photo = avatars.get(owner);
+      if (!photo) return send({ message: "Not found" }, 404);
+      response.writeHead(200, { "Content-Type": "image/webp" }); response.end(photo.bytes); return;
+    }
     if (url.pathname === "/rest/v1/profiles") { const profile = await readProfile(owner); return send(request.headers.accept?.includes("object") ? profile : profile ? [profile] : []); }
     if (url.pathname === "/rest/v1/rpc/update_my_profile") {
       try { return send(await writeProfile(owner, body.p_display_name)); }

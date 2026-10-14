@@ -6,13 +6,16 @@ import { RequestError } from "@/lib/request-security";
 import type { ProjectPage } from "@/features/projects/contracts";
 import { safeDestination } from "@/features/auth/redirect";
 import { safeProfileName } from "@/features/settings/contracts";
+import { avatarBucket } from "@/features/settings/avatar";
 
 export const dashboardIdentity = cache(async () => {
   try {
     const { client, user } = await authenticatedClient(true);
     const { data } = await client.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
     const name = safeProfileName(data?.display_name, user.user_metadata);
-    return { id: user.id, name, email: user.email ?? "" };
+    const avatar = await client.storage.from(avatarBucket).list(user.id, { limit: 1, search: "avatar.webp" });
+    const photo = avatar.data?.find((file) => file.name === "avatar.webp");
+    return { id: user.id, name, email: user.email ?? "", ...(photo ? { avatarUrl: `/api/settings/avatar?v=${encodeURIComponent(photo.updated_at ?? "")}` } : {}) };
   } catch (error) {
     if (error instanceof RequestError && error.status === 401) {
       const target = safeDestination((await headers()).get("x-vircuit-path") ?? "/dashboard");

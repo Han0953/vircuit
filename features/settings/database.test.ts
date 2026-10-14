@@ -9,7 +9,7 @@ describe("settings profile RPC / PostgreSQL ownership", () => {
     await db.exec(`create role anon; create role authenticated; create schema auth; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$; grant usage on schema auth to authenticated,anon; grant execute on function auth.uid() to authenticated,anon;`);
     await db.query("insert into auth.users values($1),($2)", [a, b]);
     await db.exec(readFileSync("supabase/migrations/20261007050923_auth_project_persistence.sql", "utf8"));
-    await db.exec(readFileSync("supabase/pending/settings_profile.sql", "utf8"));
+    await db.exec(readFileSync("supabase/migrations/20261014051844_settings_profile.sql", "utf8"));
   }, 30000);
   afterAll(() => db.close());
   it("creates/updates own profile while keeping direct writes and cross-user reads denied", async () => {

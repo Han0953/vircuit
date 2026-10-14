@@ -9,6 +9,7 @@ import type { DashboardIdentity } from "@/features/dashboard/ui/user-menu";
 import { profileSchema } from "../contracts";
 import { settingsRequest } from "../request";
 import { Feedback, SettingGroup, SettingsSection } from "./setting-controls";
+import { AvatarSettings } from "./avatar-settings";
 
 export function ProfileSettings({ user, onDirty }: { user: DashboardIdentity; onDirty: (dirty: boolean) => void }) {
   const router = useRouter();
@@ -18,7 +19,7 @@ export function ProfileSettings({ user, onDirty }: { user: DashboardIdentity; on
   const { isDirty, isSubmitting, errors } = form.formState;
   useEffect(() => onDirty(isDirty), [isDirty, onDirty]);
   return <SettingsSection title="Profil Saya" description="Identitas yang menyambutmu di setiap sesi belajar dan eksperimen.">
-    <SettingGroup><div className="flex items-center gap-4"><span aria-label={`Avatar ${user.name}`} className="flex size-16 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary-soft text-xl font-semibold text-primary">{user.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}</span><div className="min-w-0"><h3 className="font-medium">Avatar inisial</h3><p className="mt-1 text-sm text-text-secondary">Otomatis mengikuti nama profilmu.</p><p className="mt-1 text-xs text-text-secondary">Unggah foto belum tersedia.</p></div></div></SettingGroup>
+    <AvatarSettings user={user} />
     <form onSubmit={(event) => void form.handleSubmit(async (values) => {
       if (locked.current) return; locked.current = true; setFeedback({ message: "", error: false });
       try {

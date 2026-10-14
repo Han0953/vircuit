@@ -25,7 +25,7 @@ export async function POST(request: Request, context: { params: Promise<{ action
       if (!settingsResponse.ok || !settings.success || !settings.data.external.google) throw new RequestError("Login Google belum diaktifkan. Silakan masuk dengan email.", 503);
       const redirectTo = new URL("/auth/callback", request.url);
       redirectTo.searchParams.set("next", safeDestination(parsed.data.next));
-      const { data, error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: redirectTo.href, skipBrowserRedirect: true } });
+      const { data, error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: redirectTo.href, skipBrowserRedirect: true, queryParams: { prompt: "select_account" } } });
       if (error || !data.url) throw new RequestError("Google belum tersedia. Gunakan email atau coba lagi.", 503);
       return Response.json({ url: data.url }, { headers: { "Cache-Control": "no-store" } });
     }
