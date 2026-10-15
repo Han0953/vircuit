@@ -1,4 +1,5 @@
 import { AccessComparison } from "@/components/marketing/scenes/access-comparison";
+import { AnimatedDisclosure } from "@/components/marketing/animated-disclosure";
 import { PublicMotion } from "@/components/marketing/scenes/public-motion-page";
 import { SectionBackground } from "@/components/marketing/backgrounds/section-background";
 import { PublicArtwork } from "@/components/marketing/scenes/public-artwork";
@@ -215,12 +216,11 @@ export function HargaPage() {
             </h2>
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
+          <div className="mt-10 grid items-start gap-6 md:grid-cols-2">
             {faqs.map((faq) => (
-              <details data-motion-card key={faq.q} className={`${publicStyles.faq} rounded-lg border bg-surface p-6`}>
-                <summary data-motion-group={`faq.${faq.q}.question`} data-motion="control" className="font-semibold text-base">{faq.q}<ChevronDown aria-hidden="true" className="size-4" /></summary>
+              <AnimatedDisclosure name="pricing-faq" data-motion-card key={faq.q} className={`${publicStyles.faq} rounded-lg border bg-surface p-6`} summary={<summary data-motion-group={`faq.${faq.q}.question`} data-motion="control" className="font-semibold text-base">{faq.q}<ChevronDown aria-hidden="true" className="size-4" /></summary>}>
                 <p data-motion-group={`faq.${faq.q}.answer`} data-motion="text" className="mt-4 text-sm leading-relaxed text-text-secondary">{faq.a}</p>
-              </details>
+              </AnimatedDisclosure>
             ))}
           </div>
         </div>

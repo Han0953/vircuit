@@ -6,6 +6,7 @@
   .page :is(a,button,summary):hover > svg { translate: 2px -1px; }
   .page [data-motion-card] { transition: translate 180ms ease-out; }
   .page [data-motion-card]:hover { translate: 0 -2px; }
+  .page [data-motion-card][data-animated-disclosure]:hover { translate: 0; }
 }
 .page [data-hero] { padding-top: 0; }
 .page [data-hero] h1 { max-width: 18ch; }
@@ -58,7 +59,6 @@
 .faq summary::-webkit-details-marker { display: none; }
 .faq summary svg { flex-shrink: 0; transition: transform 200ms; }
 .faq[open] summary svg { transform: rotate(180deg); }
-.faq[open] p { animation: answer 250ms ease-out; }
 .footer { overflow: visible; }
 @keyframes answer { from { transform: translateY(-4px); opacity: .6; } to { transform: none; opacity: 1; } }
 @media (min-width:640px) { .section { padding-inline: 2rem; } }

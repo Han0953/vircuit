@@ -1,0 +1,7 @@
+.content { display: flow-root; }
+.disclosure { overflow-anchor: none; }
+.disclosure[data-animated-disclosure] > summary svg { transition: transform 320ms cubic-bezier(.22,.8,.25,1); }
+.disclosure[data-disclosure-expanded='false'][open] > summary svg { transform: rotate(0deg); }
+@media (prefers-reduced-motion: reduce) {
+  .disclosure[data-animated-disclosure] > summary svg { transition: none; }
+}

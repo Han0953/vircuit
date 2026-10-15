@@ -9,7 +9,14 @@ for (const [width, height] of [[360, 800], [390, 844], [430, 844], [768, 1024], 
     const hero = (await page.locator('[data-home-zone="hero"]').boundingBox())!;
     const header = (await page.locator("[data-home-header]").boundingBox())!;
     expect(await page.evaluate(() => scrollY)).toBe(0);
-    expect(hero.y).toBeGreaterThanOrEqual(header.y + header.height - 1);
+    // The transparent sticky header now sits over the hero background. Check
+    // actual content clearance rather than requiring a gap above the section.
+    expect(hero.y).toBeGreaterThanOrEqual(0);
+    for (const content of await page.locator('[data-home-zone="hero"] [data-hero-copy]:visible, [data-hero-2d]').all()) {
+      const box = (await content.boundingBox())!;
+      expect(box.y).toBeGreaterThanOrEqual(header.y + header.height - 1);
+      expect(box.y + box.height).toBeLessThanOrEqual(height + 1);
+    }
     expect(hero.y + hero.height).toBeLessThanOrEqual(height + 1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     await expect(page.locator('[data-home-zone="hero"] canvas')).toHaveCount(0);
@@ -33,7 +40,7 @@ for (const width of [360, 1440]) test(`Virtual Lab uses proportional component a
   await preview.screenshot({ path: `test-results/home-refined-lab-${width}.png` });
 });
 
-for (const zone of ["story", "boards"] as const) test(`${zone}: slow 3D delivery shows a neutral pending state, never a temporary 2D board`, async ({ page }) => {
+for (const zone of ["story", "boards"] as const) test(`${zone}: slow 3D delivery keeps the stage without loading text or a temporary 2D board`, async ({ page }) => {
   await page.route("**/_next/static/chunks/*.js", async (route) => {
     const response = await route.fetch();
     if ((await response.body()).toString().includes("WebGLRenderer")) await new Promise((resolve) => setTimeout(resolve, 2500));
@@ -45,10 +52,9 @@ for (const zone of ["story", "boards"] as const) test(`${zone}: slow 3D delivery
   const fallback = visual.locator(zone === "story" ? "[data-svg-fallback]" : "[data-cinematic-fallback]");
   await expect(page.locator("[data-home-experience]")).toHaveAttribute("data-webgl-preferred", "true");
   await expect(fallback).toBeHidden();
-  await expect(visual.getByText("Menyiapkan visual 3D")).toBeVisible();
+  await expect(page.getByText("Menyiapkan visual 3D")).toHaveCount(0);
   await expect(visual).toHaveAttribute("data-renderer", "webgl", { timeout: 20000 });
   await expect(fallback).toBeHidden();
-  await expect(visual.getByText("Menyiapkan visual 3D")).toBeHidden();
   await expect(page.locator("canvas")).toHaveCount(1);
   await page.unrouteAll({ behavior: "wait" });
 });

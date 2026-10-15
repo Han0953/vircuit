@@ -64,10 +64,11 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
       const targets = collectHomeTargets(page);
       targets.forEach(({ element, id, treatment }) => { element.dataset.homeTarget = id; element.dataset.homeTreatment = treatment; });
       page.dataset.motionTargets = String(targets.length);
-      media.add({ all: "(min-width: 0px)", reduced: "(prefers-reduced-motion: reduce)", desktop: "(min-width: 1024px)", tall: "(min-height: 700px)" }, (context) => {
-        const { reduced, desktop, tall } = context.conditions!;
+      media.add({ all: "(min-width: 0px)", reduced: "(prefers-reduced-motion: reduce)", desktop: "(min-width: 1024px)", tall: "(min-height: 700px)", mobileStage: "(max-width: 1023px) and (min-height: 620px)" }, (context) => {
+        const { reduced, desktop, tall, mobileStage } = context.conditions!;
+        const boardsSticky = !reduced && (tall || mobileStage);
         page.dataset.homeMotion = reduced ? "reduced" : "full";
-        page.dataset.boardsSticky = !reduced && tall ? "true" : "false";
+        page.dataset.boardsSticky = boardsSticky ? "true" : "false";
         page.dataset.webglPreferred = String(!reduced && "WebGL2RenderingContext" in window);
         let entrances: IntersectionObserver | undefined;
         let stopBackgrounds: (() => void) | undefined;
@@ -134,6 +135,9 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
           const storyBox = story?.getBoundingClientRect();
           let next: Owner = "none";
           let best = 0;
+          let approaching: Owner = "none";
+          let nearest = Infinity;
+          const warmBoundary = height * 1.75;
           // Batch geometry reads before dataset/style writes to avoid layout thrashing on scroll.
           const measurements = slots.map((slot) => {
             const box = slot.getBoundingClientRect();
@@ -145,13 +149,13 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
           });
           for (const { slot, box, zone, container, region, stageHeight } of measurements) {
             const visible = Math.max(0, Math.min(height, box.bottom) - Math.max(header, box.top));
-            const progress = Math.max(0, Math.min(1, zone === "boards" && tall && !reduced
+            const progress = Math.max(0, Math.min(1, zone === "boards" && boardsSticky
               ? (header + 16 - region.top) / Math.max(1, region.height - stageHeight)
               : (height * .8 - region.top) / Math.max(1, region.height + height * .4)));
             const pose = sampleCinematic({ zone, progress, mobile: !desktop });
             slot.dataset.progress = progress.toFixed(3);
             slot.dataset.activeBoard = pose.board;
-            const opacity = String(zone === "boards" && tall && !reduced ? pose.presence : 1);
+            const opacity = String(zone === "boards" && boardsSticky ? pose.presence : 1);
             slot.dataset.presence = opacity;
             const fallback = slot.querySelector<HTMLElement>("[data-cinematic-fallback]");
             if (fallback) fallback.style.opacity = slot.dataset.renderer === "webgl" ? "0" : opacity;
@@ -162,22 +166,28 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
               const count = `0${pose.index + 1} — 03`;
               if (counter && counter.textContent !== count) counter.textContent = count;
               const name = container.querySelector("[data-board-name]");
-              const label = reduced || !tall ? "Uno · Nano · ESP32" : ({ uno: "Arduino Uno R3", nano: "Arduino Nano · visual saja", esp32: "ESP32 · subset edukatif" })[pose.board];
+              const label = !boardsSticky ? "Uno · Nano · ESP32" : ({ uno: "Arduino Uno R3", nano: "Arduino Nano · visual saja", esp32: "ESP32 · subset edukatif" })[pose.board];
               if (name && name.textContent !== label) name.textContent = label;
               const context = container.querySelector("[data-board-context]");
-              const contextText = reduced || !tall ? "Uno & ESP32: subset edukatif · Nano: visual saja" : ({ uno: "Digital I/O · Analog & PWM · ATmega328P", nano: "Board ringkas · Kenali pin · Visual saja", esp32: "GPIO · Analog & PWM · Wi-Fi tidak disimulasikan" })[pose.board];
+              const contextText = !boardsSticky ? "Uno & ESP32: subset edukatif · Nano: visual saja" : ({ uno: "Digital I/O · Analog & PWM · ATmega328P", nano: "Board ringkas · Kenali pin · Visual saja", esp32: "GPIO · Analog & PWM · Wi-Fi tidak disimulasikan" })[pose.board];
               if (context && context.textContent !== contextText) context.textContent = contextText;
             }
             if (fallback && !reduced && visible > 0) fallback.style.transform = `translate(${pose.position[0] * 8}px, ${-pose.position[1] * 12}px) rotate(${pose.rotation[1] * 12}deg)`;
             if (visible > best && visible >= Math.min(160, box.height * .5)) { best = visible; next = zone; }
+            if (box.bottom > header + 16 && box.top < warmBoundary && box.top < nearest) { nearest = box.top; approaching = zone; }
             if (zone === activeOwner.current) channel.publish({ zone, progress, mobile: !desktop });
           }
-          if (storyBox && storyBox.top < height * .85 && storyBox.bottom > header + 16) next = "story";
+          if (storyBox) {
+            const visible = Math.max(0, Math.min(height, storyBox.bottom) - Math.max(header, storyBox.top));
+            if (visible > best && visible >= Math.min(160, storyBox.height * .5)) next = "story";
+            if (storyBox.bottom > header + 16 && storyBox.top < warmBoundary && storyBox.top < nearest) approaching = "story";
+          }
+          if (next === "none") next = approaching;
           if (!engaged || reduced || document.hidden || !("WebGL2RenderingContext" in window)) next = "none";
           select(next);
-          // Warm the module on approach, but mount only the single permitted Canvas.
-          // No fixed delay or unbounded idle wait once the user reaches the board.
-          if (engaged && !reduced && !document.hidden && "WebGL2RenderingContext" in window && !loading && !failed.current && measurements.some(({ region }) => region.top < height + 600 && region.bottom > 0)) {
+          // Fetch shared hardware code on first scroll; render the nearest stage
+          // before entry while retaining exclusive Canvas ownership.
+          if (engaged && !reduced && !document.hidden && "WebGL2RenderingContext" in window && !loading && !failed.current) {
             loading = true;
             loadTimeout = window.setTimeout(() => { if (!disposed) fail(); }, 15000);
             void import("./three/cinematic-world").then(({ default: World }) => { if (!disposed && !failed.current) setRenderer(() => World); }).catch(() => { if (!disposed) fail(); }).finally(() => clearTimeout(loadTimeout));

@@ -57,7 +57,9 @@ test(`theme changes preserve scroll and compact header at ${width}`, async ({ pa
     const header = page.locator("[data-home-header]");
     expect((await header.boundingBox())!.height).toBeLessThanOrEqual(65);
     const filter = await header.evaluate((element) => getComputedStyle(element).backdropFilter);
-    expect(filter).toBe("blur(8px)");
+    expect(filter).toBe("blur(12px)");
+    await expect(header).toHaveCSS("border-bottom-width", "0px");
+    await expect(header).toHaveCSS("box-shadow", "none");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     await page.screenshot({ path: `test-results/theme-header-${route.slice(1) || "home"}-${width}.png` });
   }

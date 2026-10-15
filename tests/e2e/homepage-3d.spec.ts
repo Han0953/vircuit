@@ -13,6 +13,27 @@ async function seek(page: Page, progress: number) {
   await expect.poll(async () => Number(await page.locator('[data-scene="story"]').getAttribute("data-progress"))).toBeCloseTo(progress, 1);
 }
 
+for (const width of [390, 1440]) test(`3D story is ready before entering the viewport at ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 });
+  await page.goto("/");
+  await expect(page.locator("[data-home-experience]")).toHaveAttribute("data-home-motion", "full");
+  await expect(page.locator("canvas")).toHaveCount(0);
+  await page.evaluate(() => scrollTo(0, 24));
+  await page.evaluate(() => {
+    const stage = document.querySelector<HTMLElement>("[data-stage]")!;
+    scrollTo(0, stage.getBoundingClientRect().top + scrollY - innerHeight - 250);
+  });
+  const world = page.locator('[data-scene="story"] [data-renderer]');
+  await expect(world).toHaveAttribute("data-renderer", "webgl", { timeout: 20000 });
+  expect(await page.locator("[data-stage]").evaluate((stage) => stage.getBoundingClientRect().top)).toBeGreaterThan(900);
+  await expect(page.locator("canvas")).toHaveCount(1);
+  await page.locator("canvas").evaluate((canvas) => { canvas.dataset.warmed = "true"; });
+  await seek(page, .35);
+  await expect(page.locator("canvas")).toHaveAttribute("data-warmed", "true");
+  await expect(world).toHaveAttribute("data-renderer", "webgl");
+  await expect(page.getByText("Menyiapkan visual 3D")).toHaveCount(0);
+});
+
 for (const width of [390, 1440]) test(`3D story reversible, demand rendered and fallback safe at ${width}`, async ({ page }, testInfo) => {
   await page.setViewportSize({ width, height: 900 });
   await page.goto("/");
@@ -60,9 +81,15 @@ test("WebGL unavailable keeps the animated SVG and three featured boards", async
   const first = await page.locator("[data-svg-fallback] [data-part='pot']").getAttribute("style");
   await seek(page, .2);
   expect(await page.locator("[data-svg-fallback] [data-part='pot']").getAttribute("style")).not.toBe(first);
-  for (const type of ["uno", "nano", "esp32"]) {
+  for (const [progress, type] of [[.15, "uno"], [.5, "nano"], [.84, "esp32"]] as const) {
+    await page.evaluate((p) => {
+      const container = document.querySelector<HTMLElement>("[data-board-showcase]")!;
+      const stage = container.querySelector<HTMLElement>("[data-board-stage]")!;
+      const header = document.querySelector<HTMLElement>("[data-home-header]")!.offsetHeight;
+      scrollTo(0, container.getBoundingClientRect().top + scrollY - header - 16 + (container.offsetHeight - stage.offsetHeight) * p);
+    }, progress);
+    await expect(page.locator("[data-board-showcase]")).toHaveAttribute("data-active-board", type);
     const item = page.locator(`[data-featured-board='${type}']`);
-    await item.scrollIntoViewIfNeeded();
     await expect(item.getByRole("heading")).toBeVisible();
     await expect(page.locator(`[data-featured-fallback='${type}'] svg`)).toHaveCount(1);
     const box = (await item.boundingBox())!;
@@ -129,6 +156,10 @@ for (const width of [390, 1440]) test(`deferred world and scroll frame budget at
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("data-home-scroll", width < 1024 ? "native" : "lenis");
   await expect(page.locator('[data-scene="story"]')).toHaveAttribute("data-motion", "story");
+  await expect(page.locator("[data-home-experience]")).toHaveAttribute("data-home-motion", "full");
+  // Desktop navigation also prefetches the four public routes. Settle that
+  // initial traffic before measuring additional scene downloads.
+  await page.waitForLoadState("networkidle");
   const scripts = () => page.evaluate(() => performance.getEntriesByType("resource").map((r) => r.name).filter((url) => url.includes("/_next/static/") && url.includes(".js")));
   const before = new Set(await scripts());
   for (const url of before) expect((await (await page.request.get(url)).body()).toString()).not.toContain("WebGLRenderer");

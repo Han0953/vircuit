@@ -23,14 +23,15 @@ export function BoardShowcase() {
     <SectionBackground scene="home-boards" />
     <SectionHeading id="components-heading" eyebrow="Board / Kenali titik awal eksperimenmu" title="Tiga bentuk. Dukungan yang jelas." description="Kenali board yang tersedia di Vircuit, lalu pilih langkah praktik sesuai dukungannya." />
     <div className={styles.boardShowcase} data-board-showcase>
-      <figure className={styles.boardStage} data-board-stage aria-label="Spotlight Arduino Uno, Arduino Nano, dan ESP32">
-        <div className={styles.boardRuler} aria-hidden="true"><span>VIRCUIT / BOARD STUDY</span><span data-board-counter>01 — 03</span></div>
+      <figure className={styles.boardFigure} aria-label="Spotlight Arduino Uno, Arduino Nano, dan ESP32">
+      <div className={styles.boardStage} data-board-stage>
+        <header className={styles.boardRuler}><span>VIRCUIT / BOARD STUDY</span><span data-board-counter>01 — 03</span></header>
         <CinematicSlot zone="boards" className={styles.boardViewport}>
           {featuredBoards.map((type) => <div key={type} data-featured-fallback={type}><BoardArtwork type={type} /></div>)}
         </CinematicSlot>
         <figcaption className={styles.boardCaption}><strong data-board-name>Uno · Nano · ESP32</strong><span data-board-context>Ilustrasi bentuk board · periksa dukungan sebelum praktik</span></figcaption>
-      </figure>
-      <div className={styles.boardChapters}>
+      </div>
+      <div className={styles.boardChapters} data-stage-details="boards">
         {featuredBoards.map((type, i) => <article className={styles.boardChapter} key={type} data-featured-board={type}>
           <p className={styles.eyebrow}>0{i + 1} / {copy[type].tag}</p>
           <h3>{copy[type].title}</h3>
@@ -39,6 +40,7 @@ export function BoardShowcase() {
           {type === "esp32" && <p className="mt-5 text-xs leading-relaxed text-text-secondary">Wi-Fi dan Bluetooth hardware tidak disimulasikan.</p>}
         </article>)}
       </div>
+      </figure>
     </div>
     <SectionLink href="/simulator" className="mt-8">Coba board di Virtual Lab</SectionLink>
   </section>;

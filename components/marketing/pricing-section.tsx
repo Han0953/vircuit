@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { AnimatedDisclosure } from "./animated-disclosure";
 import { SectionBackground } from "./backgrounds/section-background";
 import { SectionHeading } from "./section-heading";
 import { SectionLink } from "./section-link";
@@ -20,6 +21,6 @@ export function PricingSection() {
       <p className="mt-6 max-w-md text-sm leading-relaxed text-text-secondary">Premium masih berupa rencana untuk akses lanjutan. Belum tersedia pembelian; harga dan kuota paket belum ditentukan.</p>
       <SectionLink href="/harga" className="mt-6">Pelajari akses Vircuit</SectionLink>
     </div>
-    <div aria-label="Pertanyaan umum">{questions.map(([question, answer]) => <details className={styles.faq} key={question}><summary>{question}<Plus className="size-4 shrink-0 text-primary" aria-hidden="true" /></summary><p>{answer}</p></details>)}</div>
+    <div aria-label="Pertanyaan umum">{questions.map(([question, answer]) => <AnimatedDisclosure name="home-faq" className={styles.faq} key={question} summary={<summary>{question}<Plus className="size-4 shrink-0 text-primary" aria-hidden="true" /></summary>}><p>{answer}</p></AnimatedDisclosure>)}</div>
   </section>;
 }

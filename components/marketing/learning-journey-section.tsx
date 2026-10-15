@@ -19,7 +19,8 @@ export function LearningJourneySection() {
     <div className={styles.section}>
       <SectionHeading id="journey-heading" eyebrow="02 / Learning by doing" title="Dari materi ke rangkaian yang kamu pahami." description="Satu alur belajar. Setiap percobaan membuat hubungan antara teori dan hasil semakin jelas." />
       <StoryExperience><div className={styles.storyGrid} data-story>
-        <figure className={styles.storyStage} data-stage aria-label="Empat tahap ilustrasi belajar dengan rangkaian LED">
+        <figure className={styles.storyFigure} aria-label="Empat tahap ilustrasi belajar dengan rangkaian LED">
+        <div className={styles.storyStage} data-stage>
           <header><span>VIRCUIT / LEARNING LAB</span><span data-stage-count>04 / 04</span></header>
           <div className={styles.storyProgress} data-progress />
           <div className={styles.storyCircuit}><StoryVisual /></div>
@@ -29,16 +30,17 @@ export function LearningJourneySection() {
             <p className="mt-1 font-mono text-primary" data-story-code>digitalWrite(3, HIGH);</p>
           </div>
           <div className={styles.storyOverlay} data-frame="3"><strong>04 / Periksa kembali</strong><p className="mt-1" data-diagnostic-copy>Contoh: wiring D3, kode D5. Cocokkan pin sebelum evaluasi ulang.</p></div>
-        </figure>
-        <ol className={styles.storyRail}>
+        </div>
+        <ol className={styles.storyRail} data-stage-details="story">
           {beats.map((beat, i) => <li key={beat.title} className={styles.storyBeat} data-beat>
             <p className={styles.beatNumber}>0{i + 1} / {beat.phases.join(" + ")}</p>
             <h3 className={styles.beatTitle}>{beat.title}</h3><p className={styles.beatText}>{beat.text}</p>
             <div className={styles.journeyNames}>{beat.phases.map((phase) => <span data-home-item key={phase}>{phase}</span>)}</div>
           </li>)}
         </ol>
+        <figcaption className={styles.storyNote}><span>{primaryTypes.map((type) => componentMotion[type].label).join(" · ")}. </span>Ilustrasi tahapan belajar; bukan simulator aktif.</figcaption>
+        </figure>
       </div></StoryExperience>
-      <p className="mt-6 text-xs leading-relaxed text-text-secondary">{primaryTypes.map((type) => componentMotion[type].label).join(" · ")}. Ilustrasi tahapan belajar; bukan simulator aktif.</p>
     </div>
   </section>;
 }

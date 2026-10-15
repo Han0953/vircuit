@@ -22,22 +22,26 @@ export function StoryVisual() {
   useEffect(() => {
     const host = ref.current; if (!host || !channel) return;
     const media = matchMedia("(prefers-reduced-motion: reduce)");
-    let disposed = false; let loading = false; let timeout = 0;
+    let disposed = false; let loading = false; let prepared = false; let timeout = 0;
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) void load();
     }, { rootMargin: "600px" });
     async function load() {
-      if (disposed || loading || failed.current || media.matches || !host) return;
+      if (disposed || loading || prepared || failed.current || media.matches || !host) return;
       if (!("WebGL2RenderingContext" in window)) { failed.current = true; return; }
       loading = true;
+      window.removeEventListener("scroll", warm);
       timeout = window.setTimeout(() => { if (!disposed) fail(); }, 15000);
-      try { const { default: Renderer } = await import("./three/learning-world"); if (!disposed && !media.matches && !failed.current) { setWorld({ Renderer, host }); observer.unobserve(host); } }
+      try { const { default: Renderer } = await import("./three/learning-world"); if (!disposed && !media.matches && !failed.current) { prepared = true; setWorld({ Renderer, host }); observer.unobserve(host); } }
       catch { if (!disposed) fail(); }
       finally { loading = false; clearTimeout(timeout); }
     }
-    const preference = () => { if (media.matches) { channel.setWebgl(false); setWorld(null); } else { observer.unobserve(host); observer.observe(host); } };
+    const warm = () => { void load(); };
+    const preference = () => { if (media.matches) { prepared = false; channel.setWebgl(false); setWorld(null); } else { observer.unobserve(host); observer.observe(host); window.addEventListener("scroll", warm, { passive: true, once: true }); if (scrollY > 2) warm(); } };
+    window.addEventListener("scroll", warm, { passive: true, once: true });
+    if (scrollY > 2) warm();
     observer.observe(host); media.addEventListener("change", preference);
-    return () => { disposed = true; clearTimeout(timeout); observer.disconnect(); media.removeEventListener("change", preference); channel.setWebgl(false); };
+    return () => { disposed = true; clearTimeout(timeout); observer.disconnect(); window.removeEventListener("scroll", warm); media.removeEventListener("change", preference); channel.setWebgl(false); };
   }, [channel, fail]);
   useEffect(() => {
     if (!permitted) channel?.setWebgl(false);
@@ -69,7 +73,6 @@ export function StoryVisual() {
     update(); return channel.subscribe(update);
   }, [channel]);
   return <div ref={ref} className={styles.storyVisual + " component-art"} data-renderer="svg">
-    <div className={styles.worldPending} aria-hidden="true">Menyiapkan visual 3D</div>
     <div className={styles.svgFallback} data-svg-fallback><CircuitArtwork />
       <svg viewBox="0 0 600 360" className={styles.storyExtras + " component-art"} aria-hidden="true">
         <g data-part="breadboard-mini"><rect x="360" y="224" width="110" height="104" rx="8" fill="var(--part-breadboard)" stroke="var(--part-metal)" /><path d="M414 230v90" stroke="var(--part-groove)" strokeWidth="7" />{Array.from({ length: 36 }, (_, i) => <rect key={i} x={370 + (i % 6) * 15} y={236 + Math.floor(i / 6) * 15} width="4" height="4" fill="var(--part-chip)" />)}</g>

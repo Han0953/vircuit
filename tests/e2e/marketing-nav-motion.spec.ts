@@ -17,7 +17,13 @@ for (const width of [360, 390, 430, 768, 1440]) test(`marketing capsule and anim
       await expect(page.getByRole("menu")).toBeVisible();
       await page.getByRole("menuitemradio", { name: theme, exact: true }).click();
       await expect(page.locator("html")).not.toHaveAttribute("data-theme-changing");
+      await expect(header).toHaveCSS("backdrop-filter", "blur(12px)");
+      await expect(header).toHaveCSS("border-bottom-width", "0px");
+      await expect(header).toHaveCSS("box-shadow", "none");
+      await expect(trigger).toHaveCSS("border-top-width", "0px");
+      expect(await header.locator(":scope > div").first().evaluate((element) => getComputedStyle(element, "::after").content)).toBe("none");
       if (width >= 1024) {
+        await expect(header.getByRole("navigation", { name: "Navigasi utama" })).toHaveCSS("border-top-width", "0px");
         await expect.poll(async () => header.getByRole("navigation", { name: "Navigasi utama" }).evaluate((nav) => {
           const button = document.querySelector<HTMLElement>('[data-motion-group="nav.theme"] button')!;
           return getComputedStyle(nav).backgroundColor === getComputedStyle(button).backgroundColor;
@@ -59,6 +65,7 @@ for (const width of [360, 390, 430, 768, 1440]) test(`marketing capsule and anim
     await menu.getByRole("button", { name: "Tutup", exact: true }).click();
     await expect(menu).toBeHidden();
     await expect(page.locator('[data-motion-group="nav.menu"] [data-open]')).toHaveAttribute("data-open", "false");
+    await page.screenshot({ path: info.outputPath(`header-${width}.png`) });
   } else await page.screenshot({ path: info.outputPath("capsule-desktop.png") });
   expect(errors).toEqual([]);
 });
