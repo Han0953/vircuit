@@ -123,12 +123,11 @@ test("mobile navigation, empty/error states and themes", async ({ page, request 
   await request.post(`${provider}/__fixture/reset`, { data: { count: 0 } });
   await login(page);
   await expect(page.getByRole("heading", { name: "Belum ada proyek tersimpan" })).toBeVisible();
-  await page.getByRole("button", { name: "Buka navigasi" }).click();
+  await page.getByRole("button", { name: "Lainnya" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("button", { name: "Buka navigasi" })).toBeFocused();
-  await page.getByRole("button", { name: "Buka navigasi" }).click();
-  await page.getByRole("dialog").getByRole("link", { name: "Proyek Saya" }).click();
+  await expect(page.getByRole("button", { name: "Lainnya" })).toBeFocused();
+  await page.getByRole("navigation", { name: "Navigasi utama mobile" }).getByRole("link", { name: "Proyek Saya" }).click();
   await expect(page).toHaveURL(/\/dashboard\/projects$/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   await request.post(`${provider}/__fixture/reset`, { data: { failure: true } });

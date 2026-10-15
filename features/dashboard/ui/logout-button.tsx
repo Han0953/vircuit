@@ -14,7 +14,7 @@ import { usePersistence } from "@/features/projects/store";
 import { pendingSubmissions } from "@/features/challenges/pending";
 
 
-export function LogoutButton({ user, disabled = false, className }: { user: DashboardIdentity; disabled?: boolean; className?: string }) {
+export function LogoutButton({ user, disabled = false, className, iconOnly = false }: { user: DashboardIdentity; disabled?: boolean; className?: string; iconOnly?: boolean }) {
   const router = useRouter();
   const trigger = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -47,7 +47,7 @@ export function LogoutButton({ user, disabled = false, className }: { user: Dash
     const link = document.createElement("a"); link.href = url; link.download = `vircuit-${draft.id}.json`; link.click(); URL.revokeObjectURL(url);
   }
   return <>
-    <Button ref={trigger} variant="outline" className={className} disabled={disabled || pending} onClick={() => void prepare()}><LogOut aria-hidden />Keluar akun</Button>
+    <Button ref={trigger} variant="outline" className={className} aria-label="Keluar akun" title={iconOnly ? "Keluar akun" : undefined} disabled={disabled || pending} onClick={() => void prepare()}><LogOut aria-hidden /><span className={iconOnly ? "sr-only" : undefined}>Keluar akun</span></Button>
     <Dialog open={open} onOpenChange={(value) => { if (!pending) setOpen(value); }}><DialogContent className="max-h-[90dvh] overflow-y-auto" onCloseAutoFocus={(event) => { event.preventDefault(); trigger.current?.focus(); }}>
       <DialogHeader><DialogTitle>Keluar dari akun?</DialogTitle><DialogDescription>Cache draft dan arsip akun di perangkat ini akan dibersihkan. Proyek cloud dan draft tamu tetap tersimpan. Unduh cadangan perubahan akun yang belum tersimpan sebelum keluar.</DialogDescription></DialogHeader>
       {pendingResults > 0 && <p role="status" className="text-sm">{pendingResults} hasil tantangan belum tersinkronisasi. Keluar akan menghapus antrean lokal akun ini. Pilih Batal dan sinkronkan melalui dashboard jika hasilnya masih diperlukan.</p>}

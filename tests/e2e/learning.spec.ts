@@ -105,8 +105,8 @@ test("mobile learning navigation, keyboard focus, all themes and handoff failure
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
   await page.screenshot({ path: "test-results/learning-mobile.png", fullPage: true });
-  await page.getByRole("button", { name: "Buka navigasi menu", exact: true }).click();
-  await page.getByRole("dialog").getByRole("link", { name: "Belajar", exact: true }).click();
+
+  await page.getByRole("navigation", { name: "Navigasi utama mobile" }).getByRole("link", { name: "Belajar", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Belajar dengan praktik" })).toBeVisible();
   await page.goto(lesson);
   await page.route("**/api/learning/practice?**", (route) => route.fulfill({ status: 503, json: { error: "Praktik offline" } }));

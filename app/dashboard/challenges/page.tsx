@@ -6,6 +6,7 @@ import { progressForPage } from "@/features/progress/server";
 import { ChallengeArenaView } from "@/features/challenges/ui/challenge-arena-view";
 import { DashboardMotionSection } from "@/features/dashboard/motion/dashboard-motion";
 import { Badge } from "@/components/ui/badge";
+import { ProgressError } from "@/features/progress/ui/progress-error";
 
 export const metadata: Metadata = {
   title: "Tantangan",
@@ -58,10 +59,12 @@ export default async function ChallengesPage() {
       </section>
 
       {/* Challenge Arena Interactive View */}
+      {!progress.rows && <ProgressError message={progress.error ?? "Status tantangan belum dapat dimuat."} />}
       <ChallengeArenaView
         challenges={challenges}
         lessonsMap={lessonsMap}
         rows={progress.rows ?? []}
+        progressAvailable={!!progress.rows}
       />
     </DashboardMotionSection>
   );

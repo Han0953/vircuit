@@ -108,7 +108,7 @@ test("challenge sheet and progress remain accessible on mobile and all themes", 
     await expect(page.locator("html")).toHaveClass(theme === "Terang" ? /light/ : /dark/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
-  await page.getByRole("button", { name: "Buka navigasi menu", exact: true }).click();
+  await page.getByRole("button", { name: "Lainnya", exact: true }).click();
   await page.getByRole("dialog").getByRole("link", { name: "Tantangan", exact: false }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Tantangan" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Mulai Tantangan", exact: true })).toHaveCount(6);

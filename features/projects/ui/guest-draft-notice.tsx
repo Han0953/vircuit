@@ -14,7 +14,7 @@ export function GuestDraftNotice() {
     return () => { active = false; };
   }, []);
   if (!title) return null;
-  return <aside aria-label="Draft tamu tersedia" className="flex flex-col gap-3 rounded-xl border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
+  return <aside data-motion="notice" aria-label="Draft tamu tersedia" className="flex flex-col gap-3 rounded-xl border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
     <p className="text-sm">Draft tamu “{title}” tersedia di browser ini. Buka di lab untuk menyimpannya ke akun.</p>
     <Button asChild variant="outline" className="shrink-0"><Link href="/simulator">Buka draft tamu</Link></Button>
   </aside>;

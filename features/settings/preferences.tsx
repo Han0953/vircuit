@@ -22,12 +22,15 @@ function snapshot(owner: string | null): Preferences {
   cache.set(owner, { raw, value });
   return value;
 }
+export function readPreferences(owner: string) { return snapshot(owner); }
 export function savePreferences(owner: string, value: Preferences) {
   localStorage.setItem(preferenceKey(owner), JSON.stringify(preferencesSchema.parse(value)));
+  document.cookie = `vircuit-sidebar=${owner}:${value.dashboardSidebar}; Path=/dashboard; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
   window.dispatchEvent(new Event(eventName));
 }
 export function clearPreferences(owner: string) {
   localStorage.removeItem(preferenceKey(owner));
+  document.cookie = "vircuit-sidebar=; Path=/dashboard; Max-Age=0; SameSite=Lax";
   window.dispatchEvent(new Event(eventName));
 }
 export function usePreferences(explicitOwner?: string | null) {

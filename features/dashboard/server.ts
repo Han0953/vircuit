@@ -8,9 +8,19 @@ import { safeDestination } from "@/features/auth/redirect";
 import { safeProfileName } from "@/features/settings/contracts";
 import { avatarBucket } from "@/features/settings/avatar";
 
+export const dashboardGuard = cache(async () => {
+  try { return await authenticatedClient(true); }
+  catch (error) {
+    if (error instanceof RequestError && error.status === 401) {
+      const target = safeDestination((await headers()).get("x-vircuit-path") ?? "/dashboard");
+      redirect(`/masuk?next=${encodeURIComponent(target)}`);
+    }
+    throw error;
+  }
+});
 export const dashboardIdentity = cache(async () => {
   try {
-    const { client, user } = await authenticatedClient(true);
+    const { client, user } = await dashboardGuard();
     const { data } = await client.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
     const name = safeProfileName(data?.display_name, user.user_metadata);
     const avatar = await client.storage.from(avatarBucket).list(user.id, { limit: 1, search: "avatar.webp" });

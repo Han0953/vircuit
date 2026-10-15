@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useReducedMotion } from "@/features/settings/preferences";
 
 const themeOptions = [
   { value: "light", label: "Terang", icon: Sun },
@@ -24,6 +25,7 @@ const clientSnapshot = () => true;
 const serverSnapshot = () => false;
 
 export function ThemePopover({ className }: { className?: string }) {
+  const reduced = useReducedMotion();
   const { theme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
   const currentTheme = mounted ? theme : "system";
@@ -65,7 +67,7 @@ export function ThemePopover({ className }: { className?: string }) {
 
     if (
       typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      reduced
     ) {
       setTheme(value);
       return;
@@ -105,7 +107,7 @@ export function ThemePopover({ className }: { className?: string }) {
           variant="ghost"
           size="icon"
           disabled={!mounted}
-          className={cn("size-9 rounded-md text-text-secondary hover:text-foreground", className)}
+          className={cn("size-11 rounded-md text-text-secondary hover:text-foreground", className)}
           aria-label={`Pilih tema tampilan (Saat ini: ${selected.label})`}
           onPointerDown={(event) => {
             // Prevent double-toggle if triggered while hover is active

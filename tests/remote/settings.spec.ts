@@ -64,7 +64,7 @@ test("remote profile save/reload, cross-user isolation, offline recovery and sid
     try {
       const phone = await mobile.newPage(); await login(phone);
       await expect(phone.getByLabel("Nama tampilan")).toHaveValue(`${name} Lokal`);
-      await phone.getByRole("button", { name: "Buka navigasi menu" }).click();
+      await phone.getByRole("button", { name: "Lainnya" }).click();
       await expect.poll(async () => (await phone.getByRole("dialog").boundingBox())?.x ?? -1000).toBeGreaterThanOrEqual(-1);
       await phone.screenshot({ path: testInfo.outputPath("remote-settings-mobile.png") });
       await phone.getByRole("dialog").getByRole("button", { name: "Keluar akun", exact: true }).click();

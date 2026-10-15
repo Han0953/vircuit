@@ -84,7 +84,7 @@ test("sidebar logout replaces the status footer and is absent from the profile m
   await page.screenshot({ path: testInfo.outputPath("settings-sidebar-desktop.png") });
   for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
-    await page.getByRole("button", { name: "Buka navigasi menu" }).click();
+    await page.getByRole("button", { name: "Lainnya" }).click();
     const drawer = page.getByRole("dialog");
     await expect.poll(async () => (await drawer.boundingBox())?.x ?? -1000).toBeGreaterThanOrEqual(-1);
     const logout = drawer.getByRole("button", { name: "Keluar akun", exact: true });
@@ -254,10 +254,10 @@ test("mobile/desktop categories, keyboard access, reduced motion and no overflow
   await page.keyboard.press("Home"); await expect(page.getByRole("tab", { name: "Profil Saya", exact: false })).toBeFocused();
   await page.keyboard.press("ArrowRight"); await expect(page.getByRole("tab", { name: "Akun & Keamanan", exact: false })).toBeFocused();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "Buka navigasi menu" }).click();
+  await page.getByRole("button", { name: "Lainnya" }).click();
   await expect(page.getByRole("dialog").getByRole("link", { name: "Pengaturan", exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("button", { name: "Buka navigasi menu" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Lainnya" })).toBeFocused();
 });
 
 test("snap changes subsequent drags and cross-tab layout reset preserves existing project data", async ({ page }) => {

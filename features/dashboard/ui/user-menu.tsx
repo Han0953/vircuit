@@ -10,7 +10,7 @@ export type DashboardIdentity = { id: string; name: string; email: string; avata
 export function UserMenu({ user }: { user: DashboardIdentity }) {
   return <div className="flex items-center gap-1.5">
     <ThemePopover />
-    <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Menu akun"><ProfileAvatar user={user} /></Button></DropdownMenuTrigger>
+    <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="size-11" aria-label="Menu akun"><ProfileAvatar user={user} /></Button></DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-w-[calc(100vw-2rem)]">
         <DropdownMenuLabel className="max-w-64 break-all">{user.name}<span className="block text-xs font-normal text-text-secondary">{user.email}</span></DropdownMenuLabel>
         <DropdownMenuSeparator /><DropdownMenuItem asChild><Link href="/dashboard/pengaturan"><Settings2 aria-hidden />Pengaturan</Link></DropdownMenuItem>

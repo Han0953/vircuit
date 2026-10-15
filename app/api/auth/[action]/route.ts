@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { serverClient } from "@/lib/supabase/server";
 import { errorResponse, limitedJson, RequestError, requireSameOrigin } from "@/lib/request-security";
-import { loginSchema, registerSchema } from "@/features/auth/schema";
+import { loginSchema, registerSchema, resetPasswordSchema } from "@/features/auth/schema";
+import { cookies } from "next/headers";
+import { recoveryCookie, validRecoveryProof } from "@/features/auth/recovery";
 import { safeDestination } from "@/features/auth/redirect";
 import { supabaseEnv } from "@/lib/supabase/env";
 
@@ -11,6 +13,27 @@ export async function POST(request: Request, context: { params: Promise<{ action
     const { action } = await context.params;
     const body = await limitedJson(request, 4096);
     const supabase = await serverClient();
+    if (action === "recover") {
+      const input = z.object({ email: z.email().max(254) }).strict().safeParse(body);
+      if (!input.success) throw new RequestError("Masukkan email yang valid.", 400);
+      const callback = new URL("/auth/callback?flow=recovery", request.url);
+      const { error } = await supabase.auth.resetPasswordForEmail(input.data.email, { redirectTo: callback.href });
+      if (error && error.status !== 400 && error.status !== 422) throw new RequestError("Pemulihan belum dapat diproses. Coba lagi nanti.", error.status === 429 ? 429 : 503);
+      return Response.json({ ok: true }, { headers: { "Cache-Control": "private, no-store" } });
+    }
+    if (action === "reset") {
+      const input = resetPasswordSchema.safeParse(body);
+      if (!input.success) throw new RequestError("Periksa kata sandi baru dan konfirmasinya.", 400);
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const jar = await cookies();
+      if (userError || !user || !session || !validRecoveryProof(jar.get(recoveryCookie)?.value, session.access_token)) throw new RequestError("Tautan pemulihan tidak valid atau sudah kedaluwarsa.", 401);
+      const { error } = await supabase.auth.updateUser({ password: input.data.password });
+      if (error) throw new RequestError("Kata sandi belum dapat diperbarui. Minta tautan baru jika kedaluwarsa.", 400);
+      jar.delete(recoveryCookie);
+      await supabase.auth.signOut({ scope: "local" });
+      return Response.json({ ok: true }, { headers: { "Cache-Control": "private, no-store" } });
+    }
     if (action === "logout") {
       const { error } = await supabase.auth.signOut({ scope: "local" });
       if (error) throw new RequestError("Keluar gagal. Coba lagi.", 503);
@@ -22,7 +45,7 @@ export async function POST(request: Request, context: { params: Promise<{ action
       const { url, key } = supabaseEnv();
       const settingsResponse = await fetch(`${url}/auth/v1/settings`, { headers: { apikey: key }, cache: "no-store", signal: AbortSignal.timeout(5000) });
       const settings = z.object({ external: z.object({ google: z.boolean() }) }).safeParse(await settingsResponse.json());
-      if (!settingsResponse.ok || !settings.success || !settings.data.external.google) throw new RequestError("Login Google belum diaktifkan. Silakan masuk dengan email.", 503);
+      if (!settingsResponse.ok || !settings.success || !settings.data.external.google) throw new RequestError("Login Google belum tersedia untuk saat ini. Gunakan email untuk masuk.", 503);
       const redirectTo = new URL("/auth/callback", request.url);
       redirectTo.searchParams.set("next", safeDestination(parsed.data.next));
       const { data, error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: redirectTo.href, skipBrowserRedirect: true, queryParams: { prompt: "select_account" } } });

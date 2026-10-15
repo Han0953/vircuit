@@ -21,9 +21,10 @@ export const preferencesSchema = z.object({
   grid: z.boolean(),
   snap: z.boolean(),
   reading: z.enum(["standard", "large"]),
+  dashboardSidebar: z.enum(["expanded", "collapsed"]).default("expanded"),
 }).strict();
 export type Preferences = z.infer<typeof preferencesSchema>;
-export const defaultPreferences: Preferences = { motion: "system", density: "comfortable", grid: true, snap: false, reading: "standard" };
+export const defaultPreferences: Preferences = { motion: "system", density: "comfortable", grid: true, snap: false, reading: "standard", dashboardSidebar: "expanded" };
 export function safeProfileName(saved: unknown, metadata: Record<string, unknown>): string {
   for (const value of [saved, metadata.display_name, metadata.full_name, metadata.name]) {
     const result = displayNameSchema.safeParse(value);

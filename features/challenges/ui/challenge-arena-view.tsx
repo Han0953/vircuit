@@ -32,12 +32,14 @@ interface ChallengeArenaViewProps {
     }
   >;
   rows: ProgressRow[];
+  progressAvailable?: boolean;
 }
 
 export function ChallengeArenaView({
   challenges,
   lessonsMap,
   rows,
+  progressAvailable = true,
 }: ChallengeArenaViewProps) {
   const [filter, setFilter] = useState<string>("all");
 
@@ -125,7 +127,7 @@ export function ChallengeArenaView({
                     </div>
                   </div>
 
-                  {isPassed ? (
+                  {!progressAvailable ? <Badge variant="outline" className="text-[10px]">Status belum tersedia</Badge> : isPassed ? (
                     <Badge variant="default" className="gap-1 bg-emerald-600 text-[10px] font-semibold text-white">
                       <CheckCircle2 className="size-3" aria-hidden="true" />
                       Lolos

@@ -1,68 +1,43 @@
 "use client";
-
-import { useEffect, useState, type ReactNode } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  BookOpen,
-  CircuitBoard,
-  FolderOpen,
-  LayoutDashboard,
-  Menu,
-  ListChecks,
-  ChartNoAxesColumn,
-  Settings2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { BrandLogo } from "@/components/shared/brand-logo";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { cloudRequest } from "@/features/projects/cloud/request";
 import { clearPrivateState } from "@/features/projects/local/controller";
+import { PreferenceOwner, savePreferences, usePreferences, useReducedMotion } from "@/features/settings/preferences";
+import { useAuthTransition } from "@/features/auth/motion/auth-transition";
+import type { AuthEntry } from "@/features/auth/motion/transition-contract";
 import { UserMenu, type DashboardIdentity } from "./user-menu";
-import { LogoutButton } from "./logout-button";
-import { cn } from "@/lib/utils";
-import { PreferenceOwner, usePreferences } from "@/features/settings/preferences";
+import { DashboardSidebar } from "./dashboard-sidebar";
+import { DashboardMobileDock } from "./dashboard-mobile-dock";
+import { dashboardLinks, activeDashboardLink } from "../navigation";
+import { useDashboardSwipe } from "../navigation/use-dashboard-swipe";
+import "./dashboard.css";
 
-interface NavLinkItem {
-  href: string;
-  label: string;
-  icon: typeof LayoutDashboard;
-  badge?: string;
-  group?: "main" | "learn" | "workspace" | "lab";
+gsap.registerPlugin(useGSAP);
+const subscribeMount = () => () => {};
+export function DashboardShell(props: { user: DashboardIdentity; children: ReactNode; initialSidebar?: "expanded" | "collapsed"; authEntry?: AuthEntry | null }) {
+  return <PreferenceOwner.Provider value={props.user.id}><DashboardSurface {...props} /></PreferenceOwner.Provider>;
 }
-
-const navLinks: NavLinkItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, group: "main" },
-  { href: "/dashboard/pengaturan", label: "Pengaturan", icon: Settings2, group: "main" },
-  { href: "/dashboard/learn", label: "Belajar", icon: BookOpen, group: "learn" },
-  { href: "/dashboard/challenges", label: "Tantangan", icon: ListChecks, badge: "6", group: "learn" },
-  { href: "/dashboard/progress", label: "Progress", icon: ChartNoAxesColumn, group: "learn" },
-  { href: "/dashboard/projects", label: "Proyek Saya", icon: FolderOpen, group: "workspace" },
-  { href: "/simulator", label: "Simulator", icon: CircuitBoard, badge: "Lab", group: "lab" },
-];
-
-export function DashboardShell({
-  user,
-  children,
-}: {
-  user: DashboardIdentity;
-  children: ReactNode;
-}) {
+function DashboardSurface({ user, children, initialSidebar = "expanded", authEntry }: { user: DashboardIdentity; children: ReactNode; initialSidebar?: "expanded" | "collapsed"; authEntry?: AuthEntry | null }) {
   const pathname = usePathname();
-  const preferences = usePreferences(user.id);
   const router = useRouter();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const preferences = usePreferences(user.id);
+  const reduced = useReducedMotion();
+  const mounted = useSyncExternalStore(subscribeMount, () => true, () => false);
+  const collapsed = (mounted ? preferences.dashboardSidebar : initialSidebar) === "collapsed";
+  const transition = useAuthTransition();
+  const { ready } = transition;
+  const root = useRef<HTMLDivElement>(null);
+  const main = useRef<HTMLElement>(null);
+  const previousWidth = useRef(initialSidebar === "collapsed" ? 80 : 256);
+  const previousPath = useRef(pathname);
+  const lastIntro = useRef("");
   const [sessionError, setSessionError] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  // Monitor session validity
+  const [preferenceError, setPreferenceError] = useState("");
+  useDashboardSwipe(main);
+  useEffect(() => { ready(authEntry, reduced); }, [ready, authEntry, reduced]);
   useEffect(() => {
     let alive = true;
     let leaving = false;
@@ -70,306 +45,70 @@ export function DashboardShell({
       try {
         const value = await cloudRequest("/api/auth/session");
         if (!alive || leaving) return;
-        if (!value || typeof value !== "object" || !("user" in value)) {
-          throw new Error("Invalid session");
-        }
+        if (!value || typeof value !== "object" || !("user" in value)) throw new Error("Invalid session");
         const current = value.user;
-        if (
-          !current ||
-          typeof current !== "object" ||
-          !("id" in current) ||
-          current.id !== user.id
-        ) {
-          clearPrivateState(user.id);
-          window.location.replace("/dashboard");
-        } else {
-          setSessionError(false);
-          router.refresh();
-        }
-      } catch {
-        if (alive) setSessionError(true);
-      }
+        if (!current || typeof current !== "object" || !("id" in current) || current.id !== user.id) {
+          clearPrivateState(user.id); window.location.replace("/dashboard");
+        } else { setSessionError(false); router.refresh(); }
+      } catch { if (alive && !leaving) setSessionError(true); }
     }
-
     const channel = new BroadcastChannel("vircuit-auth");
     channel.onmessage = (event: MessageEvent<unknown>) => {
       const message = event.data;
       if (message && typeof message === "object" && "type" in message && message.type === "account-deleted" && "owner" in message && message.owner === user.id) {
-        leaving = true;
-        clearPrivateState(user.id);
-        window.location.replace("/masuk?account=deleted");
+        leaving = true; clearPrivateState(user.id); window.location.replace("/masuk?account=deleted");
       } else void check();
     };
-    const focus = () => {
-      void check();
-    };
+    const focus = () => { void check(); };
     window.addEventListener("focus", focus);
-    return () => {
-      alive = false;
-      channel.close();
-      window.removeEventListener("focus", focus);
-    };
+    return () => { alive = false; channel.close(); window.removeEventListener("focus", focus); };
   }, [user.id, router]);
-
-  // Elevation trigger on scroll for borderless header
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 12);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    document.documentElement.classList.add("no-scrollbar"); document.body.classList.add("no-scrollbar");
+    return () => { document.documentElement.classList.remove("no-scrollbar"); document.body.classList.remove("no-scrollbar"); };
   }, []);
-
-  // Hide scrollbar on dashboard while preserving smooth scrolling
+  useGSAP(() => {
+    const width = collapsed ? 80 : 256;
+    const oldWidth = previousWidth.current;
+    previousWidth.current = width;
+    if (reduced || oldWidth === width || window.innerWidth < 1024) return;
+    const tl = gsap.timeline({ defaults: { duration: 0.24, ease: "power2.out", clearProps: "transform,opacity" } });
+    tl.fromTo("[data-sidebar-surface]", { scaleX: oldWidth / width, transformOrigin: "left" }, { scaleX: 1 }, 0);
+    tl.fromTo("[data-dashboard-column], [data-dashboard-header]", { x: oldWidth - width }, { x: 0 }, 0);
+    if (!collapsed) tl.fromTo("[data-shell-label]", { opacity: 0, x: -6 }, { opacity: 1, x: 0, duration: 0.14, stagger: 0.015 }, 0.08);
+  }, { scope: root, dependencies: [collapsed, reduced], revertOnUpdate: true });
+  useGSAP(() => {
+    if (!transition.intro || lastIntro.current === transition.intro || reduced) return;
+    lastIntro.current = transition.intro;
+    const tl = gsap.timeline({ defaults: { ease: "power2.out", duration: 0.24, clearProps: "opacity,transform" } });
+    const groups = ["[data-dashboard-sidebar]", "[data-shell-brand]", "[data-shell-icon]", "[data-shell-label]:not(.sr-only)", "[data-shell-indicator]", "[data-dashboard-header]", "[data-dashboard-header] button", "[data-dashboard-dock]"];
+    groups.forEach((selector, index) => {
+      const elements = root.current?.querySelectorAll(selector);
+      if (elements?.length) tl.fromTo(elements, { opacity: 0.7, y: index === 0 ? 0 : 5 }, { opacity: 1, y: 0, stagger: 0.025 }, index * 0.035);
+    });
+  }, { scope: root, dependencies: [transition.intro, reduced], revertOnUpdate: true });
   useEffect(() => {
-    document.documentElement.classList.add("no-scrollbar");
-    document.body.classList.add("no-scrollbar");
-    return () => {
-      document.documentElement.classList.remove("no-scrollbar");
-      document.body.classList.remove("no-scrollbar");
-    };
-  }, []);
-
-  // Determine current active page label for header breadcrumb
-  const currentLink = navLinks.find(
-    (item) =>
-      pathname === item.href ||
-      (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"))
-  );
-  const pageLabel = currentLink?.label ?? "Command Center";
-
-  const renderNavigation = (onItemClick?: () => void) => (
-    <nav aria-label="Navigasi dashboard" className="space-y-6">
-      {/* Overview Group */}
-      <div>
-        <p className="px-3 pb-1 text-[11px] font-semibold tracking-wider text-text-tertiary uppercase">
-          Command Center
-        </p>
-        <div className="mt-1 space-y-1">
-          {navLinks
-            .filter((l) => l.group === "main")
-            .map(({ href, label, icon: Icon }) => {
-              const active = pathname === href;
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={onItemClick}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "group flex min-h-10 items-center justify-between rounded-md px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    active
-                      ? "bg-primary-soft text-primary font-semibold shadow-xs"
-                      : "text-text-secondary hover:bg-surface-muted hover:text-foreground"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={cn("size-4.5 shrink-0 transition-colors", active ? "text-primary" : "text-text-tertiary group-hover:text-foreground")} />
-                    <span>{label}</span>
-                  </div>
-                  {active && <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />}
-                </Link>
-              );
-            })}
-        </div>
-      </div>
-
-      {/* Learning & Practice Group */}
-      <div>
-        <p className="px-3 pb-1 text-[11px] font-semibold tracking-wider text-text-tertiary uppercase">
-          Eksplorasi Praktik
-        </p>
-        <div className="mt-1 space-y-1">
-          {navLinks
-            .filter((l) => l.group === "learn")
-            .map(({ href, label, icon: Icon, badge }) => {
-              const active =
-                pathname === href || (href === "/dashboard/learn" && pathname.startsWith(href + "/"));
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={onItemClick}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "group flex min-h-10 items-center justify-between rounded-md px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    active
-                      ? "bg-primary-soft text-primary font-semibold shadow-xs"
-                      : "text-text-secondary hover:bg-surface-muted hover:text-foreground"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={cn("size-4.5 shrink-0 transition-colors", active ? "text-primary" : "text-text-tertiary group-hover:text-foreground")} />
-                    <span>{label}</span>
-                  </div>
-                  {badge ? (
-                    <span
-                      className={cn(
-                        "rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide",
-                        active ? "bg-primary text-primary-foreground" : "bg-surface-muted text-text-secondary"
-                      )}
-                    >
-                      {badge}
-                    </span>
-                  ) : active ? (
-                    <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
-                  ) : null}
-                </Link>
-              );
-            })}
-        </div>
-      </div>
-
-      {/* Workspace & Lab Group */}
-      <div>
-        <p className="px-3 pb-1 text-[11px] font-semibold tracking-wider text-text-tertiary uppercase">
-          Ruang Eksperimen
-        </p>
-        <div className="mt-1 space-y-1">
-          {navLinks
-            .filter((l) => l.group === "workspace" || l.group === "lab")
-            .map(({ href, label, icon: Icon, badge, group }) => {
-              const active = pathname === href;
-              const isLab = group === "lab";
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={onItemClick}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "group flex min-h-10 items-center justify-between rounded-md px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    isLab
-                      ? "border border-primary/20 bg-primary/5 text-primary hover:bg-primary/10"
-                      : active
-                        ? "bg-primary-soft text-primary font-semibold shadow-xs"
-                        : "text-text-secondary hover:bg-surface-muted hover:text-foreground"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={cn("size-4.5 shrink-0 transition-colors", isLab ? "text-primary" : active ? "text-primary" : "text-text-tertiary group-hover:text-foreground")} />
-                    <span className={cn(isLab && "font-semibold")}>{label}</span>
-                  </div>
-                  {badge && (
-                    <span className={cn("rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase", isLab ? "bg-primary text-primary-foreground" : "bg-surface-muted text-text-secondary")}>
-                      {badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-        </div>
-      </div>
-    </nav>
-  );
-
-  return (
-    <PreferenceOwner.Provider value={user.id}><div data-dashboard-shell data-density={preferences.density} data-motion-preference={preferences.motion} data-reading={preferences.reading} className="min-h-dvh bg-background no-scrollbar">
-      <a
-        href="#dashboard-main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-60 focus:rounded-md focus:bg-primary focus:p-3 focus:text-primary-foreground focus:shadow-lg"
-      >
-        Lewati ke konten utama
-      </a>
-
-      {/* Persistent Desktop Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border bg-surface p-5 lg:flex">
-        <Link
-          href="/dashboard"
-          className="mb-8 flex min-h-11 items-center rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label="Vircuit — Dashboard"
-        >
-          <BrandLogo size="default" />
-        </Link>
-
-        <div className="flex-1 overflow-y-auto pr-1 no-scrollbar">
-          {renderNavigation()}
-        </div>
-
-        <div className="mt-4 shrink-0 border-t border-border/60 pt-4">
-          <LogoutButton user={user} className="min-h-11 w-full justify-start gap-3 border-transparent bg-transparent text-text-secondary hover:border-destructive/20 hover:bg-destructive/5 hover:text-destructive" />
-        </div>
-      </aside>
-
-      {/* Main Column */}
-      <div className="min-w-0 lg:pl-64">
-        {/* Fixed Borderless Header */}
-        <header
-          className={cn(
-            "fixed top-0 right-0 left-0 z-30 flex h-16 items-center justify-between gap-3 bg-surface/85 px-4 backdrop-blur-md transition-shadow duration-200 sm:px-6 lg:left-64 lg:px-8",
-            scrolled && "shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.45)]"
-          )}
-        >
-          {/* Mobile drawer trigger & breadcrumb */}
-          <div className="flex min-w-0 items-center gap-2.5">
-            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="lg:hidden"
-                  aria-label="Buka navigasi menu"
-                >
-                  <Menu className="size-5" aria-hidden="true" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="flex w-72 max-w-[85vw] flex-col p-5">
-                <SheetHeader className="px-0 pb-4 text-left">
-                  <SheetTitle>
-                    <BrandLogo size="default" />
-                  </SheetTitle>
-                  <SheetDescription>Command Center Edukasi IoT</SheetDescription>
-                </SheetHeader>
-                <div className="mt-4 min-h-0 flex-1 overflow-y-auto no-scrollbar">
-                  {renderNavigation(() => setMobileOpen(false))}
-                </div>
-                <div className="shrink-0 border-t border-border/60 pt-4 pb-[env(safe-area-inset-bottom)]">
-                  <LogoutButton user={user} className="min-h-11 w-full justify-start gap-3 border-transparent bg-transparent text-text-secondary hover:border-destructive/20 hover:bg-destructive/5 hover:text-destructive" />
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            {/* Breadcrumb identifier */}
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-text-tertiary">Dashboard</p>
-              <h2 className="truncate text-sm font-semibold tracking-tight text-foreground">{pageLabel}</h2>
-            </div>
-          </div>
-
-          {/* User & theme actions */}
-          <UserMenu user={user} />
-        </header>
-
-        {/* Scrollable Main Content */}
-        <main
-          id="dashboard-main"
-          tabIndex={-1}
-          className="relative mx-auto max-w-7xl space-y-8 px-4 pt-20 pb-12 outline-none sm:px-6 lg:px-8 lg:pt-24 lg:pb-16"
-        >
-          {/* Subtle circuit background grid */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-44 opacity-25 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent)]"
-          />
-
-          {sessionError && (
-            <p
-              role="alert"
-              className="relative rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
-            >
-              Sesi belum dapat diperiksa secara daring.{" "}
-              <button
-                className="font-medium underline hover:text-destructive/80"
-                onClick={() => window.location.reload()}
-              >
-                Coba lagi
-              </button>
-            </p>
-          )}
-
-          <div className="relative space-y-8">{children}</div>
-        </main>
-      </div>
-    </div></PreferenceOwner.Provider>
-  );
+    if (previousPath.current === pathname) return;
+    previousPath.current = pathname;
+    main.current?.querySelector<HTMLElement>("h1")?.focus({ preventScroll: true });
+  }, [pathname]);
+  const pageLabel = dashboardLinks.find((item) => activeDashboardLink(pathname, item.href))?.label ?? "Dashboard";
+  function toggleSidebar() {
+    try { savePreferences(user.id, { ...preferences, dashboardSidebar: collapsed ? "expanded" : "collapsed" }); setPreferenceError(""); }
+    catch { setPreferenceError("Preferensi belum dapat disimpan di browser ini."); }
+  }
+  return <div ref={root} data-dashboard-shell data-intro-pending={!!authEntry && !transition.intro} data-sidebar={collapsed ? "collapsed" : "expanded"} data-density={preferences.density} data-motion-preference={preferences.motion} data-reading={preferences.reading} className="dashboard-root min-h-dvh bg-background no-scrollbar" style={{ "--dashboard-sidebar-width": collapsed ? "80px" : "256px" } as CSSProperties}>
+    <a href="#dashboard-main" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-60 focus:rounded-md focus:bg-primary focus:p-3 focus:text-primary-foreground">Lewati ke konten utama</a>
+    <DashboardSidebar user={user} pathname={pathname} collapsed={collapsed} onToggle={toggleSidebar} />
+    <header data-dashboard-header className="dashboard-header"><div className="min-w-0"><p className="text-xs text-text-tertiary">Ruang belajar Vircuit</p><h2 className="truncate text-sm font-semibold">{pageLabel}</h2></div><UserMenu user={user} /></header>
+    <div data-dashboard-column className="dashboard-column min-w-0">
+      <main ref={main} id="dashboard-main" tabIndex={-1} className="dashboard-main relative mx-auto max-w-7xl space-y-8 px-4 pt-24 outline-none sm:px-6 lg:px-8">
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-44 opacity-25 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />
+        {sessionError && <p role="alert" className="relative rounded-lg border border-destructive/30 p-3 text-sm">Sesi belum dapat diperiksa secara daring. <button className="underline" onClick={() => window.location.reload()}>Coba lagi</button></p>}
+        {preferenceError && <p role="status" className="relative text-sm">{preferenceError}</p>}
+        <div className="relative space-y-8">{children}</div>
+      </main>
+    </div>
+    <DashboardMobileDock user={user} />
+  </div>;
 }
