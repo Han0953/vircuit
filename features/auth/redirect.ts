@@ -7,7 +7,7 @@ export function safeDestination(value: unknown): string {
   try {
     const url = new URL(value, "https://vircuit.invalid");
     if (url.origin !== "https://vircuit.invalid") return "/simulator";
-    if (["/dashboard", "/dashboard/projects", "/dashboard/challenges", "/dashboard/progress"].includes(url.pathname)) return url.pathname;
+    if (["/dashboard", "/dashboard/projects", "/dashboard/challenges", "/dashboard/progress", "/dashboard/pengaturan"].includes(url.pathname)) return url.pathname;
     if (url.pathname === "/dashboard/learn") return url.pathname;
     const learning = /^\/dashboard\/learn\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?$/.exec(url.pathname);
     if (learning) {

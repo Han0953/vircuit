@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { progressForPage } from "@/features/progress/server";
 import { LessonStatus } from "@/features/progress/ui/lesson-status";
 import { LessonCirra } from "@/features/ai/ui/lesson-cirra";
+import { DashboardMotionSection } from "@/features/dashboard/motion/dashboard-motion";
 import { BackButton } from "@/components/shared/back-button";
 
 export async function generateMetadata({
@@ -45,7 +46,7 @@ export default async function LessonPage({
   const progress = await progressForPage();
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <DashboardMotionSection className="space-y-6 sm:space-y-8">
       {/* 1. Top action bar with Back Button & Breadcrumb & Mobile Lesson Menu */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-4">
         <div className="flex items-center gap-3 min-w-0">
@@ -96,7 +97,7 @@ export default async function LessonPage({
         </aside>
 
         <article className="min-w-0 max-w-[72ch] space-y-8">
-          <header className="space-y-3">
+          <header data-motion="header" className="space-y-3">
             <p className="text-sm text-primary">
               {course.modules.find((m) => m.id === lesson.moduleId)?.title} · Lesson {lesson.order}
             </p>
@@ -111,7 +112,7 @@ export default async function LessonPage({
           </header>
 
           <section
-            aria-labelledby="lesson-objectives"
+            data-motion="card" aria-labelledby="lesson-objectives"
             className="space-y-3 rounded-lg border bg-surface p-5"
           >
             <h2 id="lesson-objectives" className="font-semibold">
@@ -132,13 +133,13 @@ export default async function LessonPage({
             row={progress.rows?.find((r) => r.lesson_id === lesson.id) ?? null}
           />
 
-          <section aria-label="Materi lesson">
+          <section data-motion="card" aria-label="Materi lesson">
             <LessonContent blocks={lesson.blocks} />
           </section>
 
           <LessonCirra owner={user.id} lessonId={lesson.id} title={lesson.title} />
 
-          <section aria-labelledby="lesson-concepts" className="space-y-3">
+          <section data-motion="card" aria-labelledby="lesson-concepts" className="space-y-3">
             <h2 id="lesson-concepts" className="text-lg font-semibold">
               Konsep utama
             </h2>
@@ -151,7 +152,7 @@ export default async function LessonPage({
 
           {lesson.practice && (
             <section
-              aria-labelledby="practice-heading"
+              data-motion="card" aria-labelledby="practice-heading"
               className="space-y-4 rounded-lg border bg-surface p-5"
             >
               <h2 id="practice-heading" className="text-lg font-semibold">
@@ -182,7 +183,7 @@ export default async function LessonPage({
           )}
 
           <nav
-            aria-label="Navigasi lesson"
+            data-motion="action" aria-label="Navigasi lesson"
             className="flex flex-wrap justify-between gap-3 border-t pt-5"
           >
             {previous ? (
@@ -219,7 +220,7 @@ export default async function LessonPage({
 
           {lesson.practice && (
             <section
-              aria-label="Tantangan lesson"
+              data-motion="card" aria-label="Tantangan lesson"
               className="space-y-3 rounded-md border p-5"
             >
               <h2 className="font-semibold">Uji hasil praktik</h2>
@@ -231,6 +232,6 @@ export default async function LessonPage({
           )}
         </article>
       </div>
-    </div>
+    </DashboardMotionSection>
   );
 }

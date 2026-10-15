@@ -157,8 +157,7 @@ test("real remote autosave, acknowledgement, recovery, other session, conflict, 
       const removed = await a.from("projects").select("id").eq("id", id);
       expect(removed.error).toBeNull(); return removed.data;
     }).toEqual([]);
-    await page.getByRole("button", { name: "Menu akun" }).click();
-    await page.getByRole("menuitem", { name: "Keluar akun" }).click();
+    await page.locator("aside").getByRole("button", { name: "Keluar akun", exact: true }).click();
     await page.getByRole("dialog").getByRole("button", { name: "Keluar akun", exact: true }).click();
     await expect(page).toHaveURL(/\/masuk/);
     expect(await stored(page, owner)).toBeNull();

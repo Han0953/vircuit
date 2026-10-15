@@ -11,6 +11,14 @@ export function BackToTop() {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [footerVisible, setFooterVisible] = useState(false);
+  useEffect(() => {
+    const mark = document.querySelector(".footer-wordmark");
+    if (!mark) return;
+    const observer = new IntersectionObserver(([entry]) => setFooterVisible(entry.isIntersecting));
+    observer.observe(mark);
+    return () => observer.disconnect();
+  }, [pathname]);
   useEffect(() => {
     const update = () => setVisible((previous) => showBackToTop(previous, scrollY, innerHeight));
     const frame = requestAnimationFrame(update);
@@ -19,7 +27,7 @@ export function BackToTop() {
     return () => { cancelAnimationFrame(frame); window.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
   }, [pathname]);
   if (!marketingScrollRoute(pathname)) return null;
-  return <button data-motion-group="shared.back-top" data-motion="control" type="button" className={styles.backToTop} data-visible={visible || focused} tabIndex={visible || focused ? 0 : -1} aria-hidden={!visible && !focused} aria-label="Kembali ke atas halaman" onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} onClick={() => scrollHomeTo(0, document.getElementById("main-content") ?? undefined)}>
+  return <button data-motion-group="shared.back-top" data-motion="control" type="button" className={styles.backToTop} data-footer-wordmark={footerVisible} data-visible={visible || focused} tabIndex={visible || focused ? 0 : -1} aria-hidden={!visible && !focused} aria-label="Kembali ke atas halaman" onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} onClick={() => scrollHomeTo(0, document.getElementById("main-content") ?? undefined)}>
     <ArrowUp size={20} aria-hidden="true" />
   </button>;
 }

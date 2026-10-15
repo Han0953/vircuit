@@ -1,6 +1,6 @@
 import type { ContentBlock } from "../schema";
 export function LessonContent({ blocks }: { blocks: ContentBlock[] }) {
-  return <div className="space-y-6 text-base leading-relaxed">{blocks.map((block, index) => {
+  return <div data-lesson-reading className="space-y-6 text-base leading-relaxed">{blocks.map((block, index) => {
     switch (block.type) {
       case "heading": return <h3 key={index} className="text-xl font-semibold">{block.text}</h3>;
       case "paragraph": return <p key={index}>{block.text}</p>;

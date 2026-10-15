@@ -2,10 +2,10 @@ import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
-import { initializeProgressDatabase, resetProgressDatabase, readProgressDatabase, writeLearningEvent, writeChallengeAttempt } from "./progress-db.mjs";
+import { initializeProgressDatabase, resetProgressDatabase, readProgressDatabase, writeLearningEvent, writeChallengeAttempt, readProfile, writeProfile, resetProfile } from "./progress-db.mjs";
 
 export const owner = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
-const user = { id: owner, email: "dashboard@example.test", aud: "authenticated", role: "authenticated", app_metadata: {}, user_metadata: {}, created_at: "2026-01-01T00:00:00Z" };
+const user = { id: owner, email: "dashboard@example.test", aud: "authenticated", role: "authenticated", app_metadata: {}, user_metadata: {}, identities: [{ provider: "email", user_id: owner, identity_id: owner }], email_confirmed_at: "2026-01-01T00:00:00Z", created_at: "2026-01-01T00:00:00Z", new_email: "" };
 const token = [Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url"), Buffer.from(JSON.stringify({ sub: owner, aud: "authenticated", role: "authenticated", exp: 2000000000 })).toString("base64url"), Buffer.alloc(32, 1).toString("base64url")].join(".");
 const blank = (name) => ({ schemaVersion: 1, metadata: { name }, components: [], wires: [], code: { language: "arduino-cpp-subset", source: "void setup() {}\nvoid loop() {}" }, viewport: { x: 0, y: 0, zoom: 1 }, settings: { boardId: null } });
 let rows = [];
@@ -13,13 +13,16 @@ let failure = false;
 let conflict = false;
 let saves = 0;
 let active = true;
+let progressDelay = 0;
+const avatars = new Map();
 function reset(count = 28) {
   rows = Array.from({ length: count }, (_, index) => {
     const id = `bbbbbbbb-bbbb-4bbb-8bbb-${String(index + 1).padStart(12, "0")}`;
     const title = `Proyek ${String(index + 1).padStart(3, "0")}`;
     return { id, title, revision: 1, user_id: owner, updated_at: new Date(Date.now() - (index + 1) * 60000).toISOString(), payload: blank(title), operations: new Map() };
   });
-  failure = false; conflict = false; saves = 0; active = true;
+  failure = false; conflict = false; saves = 0; active = true; progressDelay = 0;
+  avatars.clear();
 }
 reset();
 export async function startSupabaseFixture() {
@@ -28,7 +31,8 @@ export async function startSupabaseFixture() {
     const url = new URL(request.url, "http://127.0.0.1:3031");
     const send = (data, status = 200) => { response.writeHead(status, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "http://localhost:3002", "Access-Control-Allow-Headers": "*" }); response.end(JSON.stringify(data)); };
     const chunks = []; for await (const chunk of request) chunks.push(chunk);
-    const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString()) : {};
+    const raw = Buffer.concat(chunks);
+    const body = chunks.length && request.headers["content-type"]?.includes("application/json") ? JSON.parse(raw.toString()) : {};
     const equal = (key) => url.searchParams.get(key)?.replace(/^eq\./, "");
     if (request.method === "OPTIONS") return send({});
     if (url.pathname === "/__fixture/gemini") {
@@ -40,13 +44,24 @@ export async function startSupabaseFixture() {
       if (mode === "project-assistant") result.blueprint = { goal: "Rencana project", constraints: ["Dukungan simulator masih subset."], components: [{ name: "Arduino Uno", catalogType: "uno", support: "partial" }], circuitPlan: ["Rencanakan koneksi input dan output."], programStructure: ["Baca input lalu kendalikan output."], testing: ["Uji rangkaian secara bertahap."] };
       return send({ candidates: [{ content: { role: "model", parts: [{ text: JSON.stringify(result) }] }, finishReason: "STOP" }], usageMetadata: { totalTokenCount: 30 } });
     }
-    if (url.pathname === "/__fixture/reset") { reset(body.count); await resetProgressDatabase(); failure = !!body.failure; return send({ ok: true }); }
+    if (url.pathname === "/__fixture/reset") { reset(body.count); progressDelay = typeof body.progressDelay === "number" ? Math.max(0, Math.min(5000, body.progressDelay)) : 0; await resetProgressDatabase(); await resetProfile(owner); user.new_email = ""; user.identities = [{ provider: body.oauth ? "google" : "email", user_id: owner, identity_id: owner }]; failure = !!body.failure; return send({ ok: true }); }
+    if (url.pathname === "/__fixture/failure") { failure = !!body.enabled; return send({ ok: true }); }
     if (url.pathname === "/__fixture/state") return send({ saves, count: rows.length, rows: rows.map(({ id, title, revision }) => ({ id, title, revision })) });
     if (url.pathname === "/__fixture/conflict") { conflict = !!body.enabled; return send({ ok: true }); }
     if (url.pathname === "/auth/v1/token") { active = true; return send({ access_token: token, refresh_token: "fixture-refresh", token_type: "bearer", expires_in: 3600, expires_at: 2000000000, user }); }
     const authenticated = active && request.headers.authorization === `Bearer ${token}`;
-    if (url.pathname === "/auth/v1/user") return authenticated ? send(user) : send({ message: "Invalid session" }, 401);
+    if (url.pathname === "/auth/v1/user") {
+      if (!authenticated) return send({ message: "Invalid session" }, 401);
+      if (request.method === "PUT") {
+        if (failure) return send({ message: "Fixture unavailable" }, 503);
+        if (body.email) user.new_email = body.email;
+      }
+      return send(user);
+    }
+    if (url.pathname === "/auth/v1/reauthenticate") return authenticated ? send({}) : send({ message: "Invalid session" }, 401);
+    if (url.pathname === `/auth/v1/admin/users/${owner}` && request.method === "DELETE" && request.headers.apikey === "sb_secret_local_playwright_fixture") { rows = []; avatars.clear(); active = false; return send(user); }
     if (url.pathname === "/auth/v1/logout") { active = false; return send({}); }
+    if (url.pathname === "/storage/v1/object/profile-avatars" && request.method === "DELETE" && request.headers.apikey === "sb_secret_local_playwright_fixture") { avatars.delete(owner); return send([]); }
     if (url.pathname === "/rest/v1/rpc/record_learning_event" || url.pathname === "/rest/v1/rpc/record_challenge_attempt") {
       // This marker is accepted only by this loopback fixture, never a cloud credential.
       if (request.headers.apikey !== "sb_secret_local_playwright_fixture" || !active) return send({ code: "42501" }, 403);
@@ -55,9 +70,21 @@ export async function startSupabaseFixture() {
       catch (error) { return send({ code: error.code ?? "503", message: "Local progress DB rejected input" }, 400); }
     }
     if (!authenticated) return send({ code: "42501", message: "Access denied" }, 403);
-    if (url.pathname === "/rest/v1/profiles") return send(request.headers.accept?.includes("object") ? { display_name: "Astra" } : [{ display_name: "Astra" }]);
     if (failure) return send({ code: "503", message: "Fixture unavailable" }, 503);
-    if (url.pathname === "/rest/v1/learning_progress") return send(await readProgressDatabase(owner));
+    if (url.pathname === "/storage/v1/object/list/profile-avatars") return send(avatars.has(owner) ? [{ name: "avatar.webp", updated_at: avatars.get(owner).updatedAt }] : []);
+    if (url.pathname === "/storage/v1/object/profile-avatars" && request.method === "DELETE") { avatars.delete(owner); return send([]); }
+    if (url.pathname === `/storage/v1/object/profile-avatars/${owner}/avatar.webp` || url.pathname === `/storage/v1/object/authenticated/profile-avatars/${owner}/avatar.webp`) {
+      if (request.method === "POST" || request.method === "PUT") { avatars.set(owner, { bytes: raw, updatedAt: new Date().toISOString() }); return send({ Key: `${owner}/avatar.webp` }); }
+      const photo = avatars.get(owner);
+      if (!photo) return send({ message: "Not found" }, 404);
+      response.writeHead(200, { "Content-Type": "image/webp" }); response.end(photo.bytes); return;
+    }
+    if (url.pathname === "/rest/v1/profiles") { const profile = await readProfile(owner); return send(request.headers.accept?.includes("object") ? profile : profile ? [profile] : []); }
+    if (url.pathname === "/rest/v1/rpc/update_my_profile") {
+      try { return send(await writeProfile(owner, body.p_display_name)); }
+      catch { return send({ code: "22023", message: "Profile rejected" }, 400); }
+    }
+    if (url.pathname === "/rest/v1/learning_progress") { if (progressDelay) await new Promise((resolve) => setTimeout(resolve, progressDelay)); return send(await readProgressDatabase(owner)); }
     if (url.pathname === "/rest/v1/projects") {
       let selected = rows.filter((item) => (!equal("user_id") || equal("user_id") === item.user_id) && (!equal("id") || equal("id") === item.id));
       const pattern = url.searchParams.get("title");

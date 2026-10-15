@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { ThemeProvider } from "@/components/shared/theme-provider";
+import { AuthTransitionProvider } from "@/features/auth/motion/auth-transition";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -25,7 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider><AuthTransitionProvider>{children}</AuthTransitionProvider></ThemeProvider>
       </body>
     </html>
   );

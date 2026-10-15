@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { ArrowRight, FolderOpen, RefreshCcw, Search, Sparkles } from "lucide-react";
+import { ArrowRight, FolderOpen, Search, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import type { ProjectPage } from "@/features/projects/contracts";
 import { ProjectActions } from "./project-actions";
 import { NewProjectAction } from "./new-project-action";
 import { SchematicThumbnail } from "./schematic-thumbnail";
+import { RetryButton } from "./retry-button";
 
 export function ProjectCollection({
   data,
@@ -88,15 +89,7 @@ export function ProjectCollection({
               {error} Draft lokal tidak diubah.
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.refresh()}
-            className="gap-2 shrink-0 border-destructive/30 hover:bg-destructive/10"
-          >
-            <RefreshCcw className="size-3.5" aria-hidden="true" />
-            Coba lagi
-          </Button>
+          <RetryButton className="gap-2 shrink-0 border-destructive/30 hover:bg-destructive/10" />
         </Card>
       ) : data && data.items.length === 0 ? (
         <div

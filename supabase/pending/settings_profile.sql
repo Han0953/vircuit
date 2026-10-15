@@ -1,0 +1,2 @@
+-- Moved to ../migrations/20261014051844_settings_profile.sql.
+-- Apply the registered migration once; do not re-run the old pending SQL.

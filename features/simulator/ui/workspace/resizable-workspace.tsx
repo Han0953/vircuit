@@ -5,7 +5,7 @@ import { Group, Panel, Separator, useGroupRef } from "react-resizable-panels";
 import { Maximize, Minimize, PanelBottom, PanelLeft, PanelRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { defaultLayout, layoutStorageKey, parseLayout, type PanelName } from "./layout-preferences";
+import { defaultLayout, layoutStorageKey, layoutResetEvent, parseLayout, type PanelName } from "./layout-preferences";
 
 type WorkspaceProps = {
   parts: ReactNode;
@@ -37,6 +37,12 @@ export function ResizableWorkspace({ parts, properties, bottom, children, naviga
   const [storageError, setStorageError] = useState(false);
   const horizontal = useGroupRef();
   const vertical = useGroupRef();
+  useEffect(() => {
+    const reset = () => { try { setPreferences(parseLayout(localStorage.getItem(layoutStorageKey))); setFocus(false); } catch { setStorageError(true); } };
+    const storage = (event: StorageEvent) => { if (event.key === layoutStorageKey) reset(); };
+    window.addEventListener(layoutResetEvent, reset); window.addEventListener("storage", storage);
+    return () => { window.removeEventListener(layoutResetEvent, reset); window.removeEventListener("storage", storage); };
+  }, []);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {

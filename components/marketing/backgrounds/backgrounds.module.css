@@ -181,19 +181,12 @@
 .backdrop[data-marketing-background='pricing-faq'] .pattern { opacity: .12; }
 :global([data-home-zone='closing'] > section)::before { display: none; }
 
-/* next-themes suppresses these transitions during a theme swap. Only the visible
-   atmosphere crossfades; normal board/filter accent changes still interpolate. */
+/* Board/filter accents retain their local motion outside a global theme swap.
+   The shared palette owner coordinates theme colors, gradients and SVG paint. */
 @media (prefers-reduced-motion: no-preference) {
   :global(:is(section, div)[data-theme-visible='true']:has(> [data-marketing-background])) { --section-theme-duration: 240ms; }
-  :global(:is(section, div):has(> [data-marketing-background])),
-  :global(:is(section, div):has(> [data-marketing-background]) :is(h1,h2,h3,h4,p,li,article,figure,a,button,summary,details,span,dt,dd,svg,path,circle,rect)),
-  .backdrop, .base, .pattern, .atmosphere, .signals, .nodes {
-    transition-property: color, background-color, border-color, box-shadow, fill, stroke;
-    transition-duration: var(--section-theme-duration);
-    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .pattern { transition-property: --section-pattern; }
-  .atmosphere { transition-property: --section-glow, --section-ambient; }
+  .pattern { transition: --section-pattern var(--section-theme-duration) cubic-bezier(0.16, 1, 0.3, 1); }
+  .atmosphere { transition: --section-glow var(--section-theme-duration) cubic-bezier(0.16, 1, 0.3, 1), --section-ambient var(--section-theme-duration) cubic-bezier(0.16, 1, 0.3, 1); }
 }
 @media (max-width: 767px) {
   .pattern { opacity: .28; background-size: 32px 32px; }

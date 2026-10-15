@@ -27,7 +27,7 @@ export function OverviewKpiGrid({
   const kpis = [
     {
       title: "Proyek terbaru",
-      value: isOffline ? "Data tidak tersedia" : `${projectCount} Proyek`,
+      value: isOffline ? "—" : `${projectCount} Proyek`,
       subtitle: isOffline ? "Daftar akun gagal dimuat" : projectCount > 0 ? "Siap dilanjutkan" : "Mulai sirkuit baru",
       icon: FolderOpen,
       accent: "text-blue-500",
@@ -35,16 +35,16 @@ export function OverviewKpiGrid({
     },
     {
       title: "Materi Selesai",
-      value: progressUnavailable ? "Data tidak tersedia" : `${completedLessons}/${totalLessons} Materi`,
-      subtitle: progressUnavailable ? "Progress gagal dimuat" : `${percentComplete}% Kurikulum tuntas`,
+      value: progressUnavailable ? "—" : `${completedLessons}/${totalLessons} Materi`,
+      subtitle: progressUnavailable ? "Progres belum dapat dimuat" : `${percentComplete}% Kurikulum tuntas`,
       icon: BookOpen,
       accent: "text-emerald-500",
       bg: "bg-emerald-500/10",
     },
     {
       title: "Evaluasi Tantangan",
-      value: progressUnavailable ? "Data tidak tersedia" : `${completedChallenges}/${totalChallenges} Terpenuhi`,
-      subtitle: progressUnavailable ? "Progress gagal dimuat" : completedChallenges > 0 ? "Verifikasi deterministik" : "Uji di Virtual Lab",
+      value: progressUnavailable ? "—" : `${completedChallenges}/${totalChallenges} Terpenuhi`,
+      subtitle: progressUnavailable ? "Progres belum dapat dimuat" : completedChallenges > 0 ? "Verifikasi deterministik" : "Uji di Virtual Lab",
       icon: ListChecks,
       accent: "text-amber-500",
       bg: "bg-amber-500/10",

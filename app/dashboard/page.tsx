@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { RequestError } from "@/lib/request-security";
 import { ArrowRight, CircuitBoard, Cpu, ListChecks, Sparkles } from "lucide-react";
 import { dashboardIdentity, dashboardProjects } from "@/features/dashboard/server";
 import { NewProjectAction } from "@/features/dashboard/ui/new-project-action";
@@ -24,9 +26,13 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const user = await dashboardIdentity();
-  const result = await dashboardProjects({ page: 1 }, 6);
-  const progress = await progressForPage();
+  const [user, result, progress] = await Promise.all([
+    dashboardIdentity(), dashboardProjects({ page: 1 }, 6), progressForPage(),
+  ]).catch((error: unknown) => {
+    // The session may expire while independent queries are in flight.
+    if (error instanceof RequestError && error.status === 401) redirect("/masuk?next=/dashboard");
+    throw error;
+  });
 
   const challenges = challengeCatalog();
   const rows = progress.rows ?? [];
@@ -48,7 +54,6 @@ export default async function DashboardPage() {
 
   return (
     <DashboardMotionSection className="space-y-8 sm:space-y-10">
-      <GuestDraftNotice />
       {/* 1. Command Center Hero Section */}
       <section className="flex flex-col justify-between gap-5 border-b border-border/50 pb-6 sm:flex-row sm:items-center">
         <div className="space-y-2">
@@ -63,7 +68,7 @@ export default async function DashboardPage() {
             data-motion="header"
             className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl"
           >
-            Halo, {user.name}
+            Halo, {user.name}!
           </h1>
           <p
             data-motion="header"
@@ -81,6 +86,7 @@ export default async function DashboardPage() {
               Buka Lab
             </Link>
           </Button>
+          <GuestDraftNotice />
         </div>
       </section>
 

@@ -1,6 +1,11 @@
 export type PanelName = "left" | "right" | "bottom";
 export type LayoutPreferences = Record<PanelName, { visible: boolean; size: number }>;
 export const layoutStorageKey = "vircuit-workspace-layout-v1";
+export const layoutResetEvent = "vircuit-workspace-layout-reset";
+export function resetWorkspaceLayout() {
+  localStorage.setItem(layoutStorageKey, JSON.stringify(defaultLayout));
+  window.dispatchEvent(new Event(layoutResetEvent));
+}
 export const defaultLayout: LayoutPreferences = {
   left: { visible: true, size: 22 },
   right: { visible: true, size: 22 },

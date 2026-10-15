@@ -1,0 +1,89 @@
+/* Interpolate the palette once at its owner. Descendants resolve the same
+   changing tokens immediately, avoiding nested/inherited color lag. */
+@property --background { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --foreground { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --surface { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --surface-muted { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --surface-elevated { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --border { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --border-strong { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --text-primary { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --text-secondary { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --text-tertiary { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --primary { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --primary-hover { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --primary-active { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --primary-soft { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --primary-foreground { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --ai { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --iot { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-bg { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-fg { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-muted { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-card { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-soft { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-border { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-border-strong { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-accent { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-accent-hover { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-accent-fg { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-accent-soft { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-ai { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --section-iot { syntax: '<color>'; inherits: true; initial-value: transparent; }
+
+html[data-theme-ready] {
+  --theme-duration: 300ms;
+  --theme-ease: cubic-bezier(.22, 1, .36, 1);
+  transition-property: --background, --foreground, --surface, --surface-muted, --surface-elevated, --border, --border-strong, --text-primary, --text-secondary, --text-tertiary, --primary, --primary-hover, --primary-active, --primary-soft, --primary-foreground, --ai, --iot !important;
+  transition-duration: var(--theme-duration) !important;
+  transition-timing-function: var(--theme-ease) !important;
+  transition-delay: 0s !important;
+}
+
+/* Keep layout/entrance transitions intact. Palette-derived paint must not
+   start another color transition on each frame of its parent's interpolation. */
+html[data-theme-changing] :is(body, body *),
+html[data-theme-changing] :is(body, body *)::before,
+html[data-theme-changing] :is(body, body *)::after {
+  transition-property: transform, translate, rotate, scale, opacity, visibility, width, height, max-width, max-height, bottom !important;
+}
+
+html[data-theme-ready] :is(section, div):has(> [data-marketing-background]) {
+  transition-property: --section-bg, --section-fg, --section-muted, --section-card, --section-soft, --section-border, --section-border-strong, --section-accent, --section-accent-hover, --section-accent-fg, --section-accent-soft, --section-ai, --section-iot !important;
+  transition-duration: var(--theme-duration) !important;
+  transition-timing-function: var(--theme-ease) !important;
+  transition-delay: 0s !important;
+}
+
+html[data-theme-ready] :is(.brand-logo-icon, .brand-logo-text) {
+  transition-property: filter !important;
+  transition-duration: var(--theme-duration) !important;
+  transition-timing-function: var(--theme-ease) !important;
+  transition-delay: 0s !important;
+}
+
+html[data-theme-changing="instant"] { --theme-duration: 0ms; }
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-ready] { --theme-duration: 0ms; }
+}
+
+/* Monaco keeps its syntax theme, while its large surfaces and default text use
+   the application palette clock instead of an abrupt third-party CSS swap. */
+.monaco-editor,
+.monaco-editor .margin,
+.monaco-editor-background,
+.monaco-editor .inputarea.ime-input { background-color: var(--surface) !important; }
+.monaco-editor .mtk1 { color: var(--foreground) !important; }
+.monaco-editor .margin-view-overlays .line-numbers { color: var(--text-tertiary) !important; }
+
+/* The existing wordmark supplies the letter shapes. Only this decorative plane
+   bleeds; links and copyright above keep their normal readable margins. */
+.footer-wordmark {
+  display: block;
+  width: 100%;
+  aspect-ratio: 7 / 1;
+  margin-top: clamp(1rem, 4vw, 4rem);
+  background-color: var(--foreground);
+  mask: url('/logo-teks.webp') center / 101.2% auto no-repeat;
+  pointer-events: none;
+}

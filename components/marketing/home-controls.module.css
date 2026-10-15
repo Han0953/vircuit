@@ -42,11 +42,13 @@
 @keyframes logo-settle { from { transform: translateY(-4px) rotate(-5deg); } to { transform: none; } }
 .header[data-menu-open='true'] ~ .backToTop { visibility: hidden; pointer-events: none; }
 :global(html:has([data-home-header])) { --home-header-height: 64px; scroll-padding-top: calc(var(--home-header-height) + 16px); }
-.backToTop { position: fixed; z-index: 30; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); width: 44px; height: 44px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--surface-elevated); color: var(--foreground); box-shadow: var(--shadow-overlay); display: grid; place-items: center; opacity: 0; transform: translateY(8px); visibility: hidden; pointer-events: none; transition: opacity 180ms ease-out, transform 180ms ease-out, visibility 180ms; }
+.backToTop { position: fixed; z-index: 30; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); width: 44px; height: 44px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--surface-elevated); color: var(--foreground); box-shadow: var(--shadow-overlay); display: grid; place-items: center; opacity: 0; transform: translateY(8px); visibility: hidden; pointer-events: none; transition: opacity 180ms ease-out, transform 180ms ease-out, visibility 180ms, bottom 180ms ease-out; }
 .backToTop[data-visible='true'], .backToTop:focus-visible { opacity: 1; transform: none; visibility: visible; pointer-events: auto; }
 .backToTop:hover { color: var(--primary); }
+.backToTop[data-footer-wordmark='true'] { bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 100vw / 7); }
 .backToTop:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
 @media (min-width: 1024px) { .backToTop { right: 1.5rem; bottom: 1.5rem; } }
+@media (min-width: 1024px) { .backToTop[data-footer-wordmark='true'] { bottom: calc(1.5rem + 100vw / 7); } }
 @media (min-width: 640px) { .mobileMenu { max-width: none; } }
 @media (prefers-reduced-motion: reduce) { .header, .backToTop, .header a { transition: none; } .header [data-motion-group='nav.logo'] svg { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .mobileMenu, .mobileMenu[data-state='open'] .mobileLinks, .themeButton svg, .themeMenu { animation: none !important; transition: none; } }

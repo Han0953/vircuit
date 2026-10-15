@@ -47,6 +47,9 @@ async function editCode(page: Page, value: string) {
     const editor = (window as unknown as { __vircuitEditor?: { setValue: (value: string) => void } }).__vircuitEditor;
     if (!editor) throw new Error("Editor not ready"); editor.setValue(value);
   }, value);
+  // Monaco updates, local serialization and autosave are independently debounced.
+  // Wait for the edit itself before comparing local/saved revisions.
+  await expect.poll(async () => (await stored(page))?.project.code.source).toBe(value);
 }
 test.beforeEach(async ({ page, request }) => {
   await request.post(`${provider}/__fixture/reset`, { data: { count: 0 } });
@@ -98,7 +101,7 @@ test("account autosave, offline replay, separate device, conflict, delete and re
     await editCode(other, source + "\n// other device");
     await expect.poll(async () => (await stored(other))?.savedLocalRevision === (await stored(other))?.localRevision).toBe(true);
     await editCode(page, source + "\n// local conflict");
-    await expect(page.getByRole("alert").first()).toContainText("Revision berbeda");
+    await expect(page.getByRole("alert").filter({ hasText: "Revision berbeda" }).first()).toContainText("Revision berbeda");
     expect((await stored(page))?.project.code.source).toContain("local conflict");
     await page.getByRole("button", { name: "Selesaikan konflik" }).click();
     page.once("dialog", (dialog) => dialog.accept());
@@ -114,8 +117,7 @@ test("account autosave, offline replay, separate device, conflict, delete and re
     expect((await (await request.get(`${provider}/__fixture/state`)).json()).count).toBe(0);
     expect((await stored(page))?.cloud).toBeNull();
     await page.goto("/dashboard");
-    await page.getByRole("button", { name: "Menu akun" }).click();
-    await page.getByRole("menuitem", { name: "Keluar akun" }).click();
+    await page.locator("aside").getByRole("button", { name: "Keluar akun", exact: true }).click();
     await page.getByRole("dialog").getByRole("button", { name: "Keluar akun", exact: true }).click();
     await expect(page).toHaveURL(/\/masuk/);
     expect(await stored(page)).toBeNull();

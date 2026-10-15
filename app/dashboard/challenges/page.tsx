@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { dashboardIdentity } from "@/features/dashboard/server";
+import { dashboardGuard } from "@/features/dashboard/server";
 import { challengeCatalog } from "@/features/challenges/registry";
 import { findLesson } from "@/features/learning/registry";
 import { progressForPage } from "@/features/progress/server";
 import { ChallengeArenaView } from "@/features/challenges/ui/challenge-arena-view";
 import { DashboardMotionSection } from "@/features/dashboard/motion/dashboard-motion";
 import { Badge } from "@/components/ui/badge";
+import { ProgressError } from "@/features/progress/ui/progress-error";
 
 export const metadata: Metadata = {
   title: "Tantangan",
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ChallengesPage() {
-  await dashboardIdentity();
+  await dashboardGuard();
   const challenges = challengeCatalog();
   const progress = await progressForPage();
 
@@ -58,10 +59,12 @@ export default async function ChallengesPage() {
       </section>
 
       {/* Challenge Arena Interactive View */}
+      {!progress.rows && <ProgressError message={progress.error ?? "Status tantangan belum dapat dimuat."} />}
       <ChallengeArenaView
         challenges={challenges}
         lessonsMap={lessonsMap}
         rows={progress.rows ?? []}
+        progressAvailable={!!progress.rows}
       />
     </DashboardMotionSection>
   );

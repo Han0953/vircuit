@@ -15,6 +15,25 @@ export async function initializeProgressDatabase(owner) {
   await db.query("insert into auth.users(id) values($1)", [owner]);
   await db.exec(readFileSync("supabase/migrations/20261007050923_auth_project_persistence.sql", "utf8"));
   await db.exec(readFileSync("supabase/migrations/20261007120000_challenges_progress.sql", "utf8"));
+  await db.exec(readFileSync("supabase/migrations/20261014051844_settings_profile.sql", "utf8"));
+  await db.query("insert into public.profiles(id,display_name) values($1,'Astra') on conflict(id) do update set display_name='Astra'", [owner]);
+}
+export function readProfile(owner) {
+  return exclusive(async () => {
+    await db.exec("reset role; set role authenticated");
+    await db.query("select set_config('request.jwt.claim.sub',$1,false)", [owner]);
+    return (await db.query("select display_name from public.profiles where id=$1", [owner])).rows[0] ?? null;
+  });
+}
+export function writeProfile(owner, name) {
+  return exclusive(async () => {
+    await db.exec("reset role; set role authenticated");
+    await db.query("select set_config('request.jwt.claim.sub',$1,false)", [owner]);
+    return (await db.query("select public.update_my_profile($1) as name", [name])).rows[0].name;
+  });
+}
+export function resetProfile(owner) {
+  return exclusive(async () => { await db.exec("reset role"); await db.query("update public.profiles set display_name='Astra' where id=$1", [owner]); });
 }
 export function resetProgressDatabase() {
   return exclusive(async () => { await db.exec("reset role; truncate public.learning_progress, public.challenge_attempts"); });

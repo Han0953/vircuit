@@ -48,6 +48,7 @@ export function PublicFooter() {
         </div>
       </div>
       </PublicMotion>
+      <div aria-hidden="true" className="footer-wordmark" />
     </footer>
   );
 }

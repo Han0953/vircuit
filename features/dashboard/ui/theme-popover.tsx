@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { flushSync } from "react-dom";
 import { Check, Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -63,30 +62,6 @@ export function ThemePopover({ className }: { className?: string }) {
 
     if (value === theme) return;
 
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      setTheme(value);
-      return;
-    }
-
-    if (typeof document !== "undefined" && "startViewTransition" in document) {
-      const doc = document as unknown as {
-        startViewTransition: (cb: () => void) => { ready: Promise<void> };
-      };
-      try {
-        const transition = doc.startViewTransition(() => {
-          flushSync(() => setTheme(value));
-        });
-        void transition.ready.catch(() => {});
-        return;
-      } catch {
-        setTheme(value);
-        return;
-      }
-    }
-
     setTheme(value);
   };
 
@@ -105,7 +80,7 @@ export function ThemePopover({ className }: { className?: string }) {
           variant="ghost"
           size="icon"
           disabled={!mounted}
-          className={cn("size-9 rounded-md text-text-secondary hover:text-foreground", className)}
+          className={cn("size-11 rounded-md text-text-secondary hover:text-foreground", className)}
           aria-label={`Pilih tema tampilan (Saat ini: ${selected.label})`}
           onPointerDown={(event) => {
             // Prevent double-toggle if triggered while hover is active

@@ -69,8 +69,7 @@ test("server-confirmed rename/delete, conflict, and dashboard-only logout", asyn
   await expect(page.getByRole("dialog")).toContainText("Lampu laboratorium");
   await page.getByRole("button", { name: "Hapus proyek", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Lampu laboratorium" })).toHaveCount(0);
-  await page.getByRole("button", { name: "Menu akun" }).click();
-  await page.getByRole("menuitem", { name: "Keluar akun" }).click();
+  await page.locator("aside").getByRole("button", { name: "Keluar akun", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Keluar akun", exact: true }).click();
   await expect(page).toHaveURL(/\/masuk/);
   await page.goto("/dashboard"); await expect(page).toHaveURL(/\/masuk/);
@@ -124,12 +123,11 @@ test("mobile navigation, empty/error states and themes", async ({ page, request 
   await request.post(`${provider}/__fixture/reset`, { data: { count: 0 } });
   await login(page);
   await expect(page.getByRole("heading", { name: "Belum ada proyek tersimpan" })).toBeVisible();
-  await page.getByRole("button", { name: "Buka navigasi" }).click();
+  await page.getByRole("button", { name: "Lainnya" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("button", { name: "Buka navigasi" })).toBeFocused();
-  await page.getByRole("button", { name: "Buka navigasi" }).click();
-  await page.getByRole("dialog").getByRole("link", { name: "Proyek Saya" }).click();
+  await expect(page.getByRole("button", { name: "Lainnya" })).toBeFocused();
+  await page.getByRole("navigation", { name: "Navigasi utama mobile" }).getByRole("link", { name: "Proyek Saya" }).click();
   await expect(page).toHaveURL(/\/dashboard\/projects$/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   await request.post(`${provider}/__fixture/reset`, { data: { failure: true } });
@@ -141,9 +139,15 @@ test("mobile navigation, empty/error states and themes", async ({ page, request 
   await expect(page.locator("h4")).toHaveCount(3);
   for (const theme of ["light", "dark", "system"]) {
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.getByRole("button", { name: /^Pilih tema tampilan/ }).click();
+    const trigger = page.getByRole("button", { name: /^Pilih tema tampilan/ });
+    // A mouse-based mobile viewport can hover-open the menu while moving to
+    // its trigger. Use the keyboard path so the click cannot close it again.
+    await trigger.focus();
+    await trigger.press("Enter");
     await page.getByRole("radio", { name: theme === "light" ? "Terang" : theme === "dark" ? "Gelap" : "Sistem", exact: true }).click();
     await expect(page.locator("html")).toHaveClass(theme === "light" ? /light/ : /dark/);
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByRole("radiogroup", { name: "Pilihan tema" })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
     if (theme === "light") await page.screenshot({ path: "test-results/dashboard-mobile-light.png", fullPage: true });
   }
