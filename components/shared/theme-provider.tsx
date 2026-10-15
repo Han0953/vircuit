@@ -2,6 +2,7 @@
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import type { ReactNode } from "react";
+import { ThemeMotion } from "./theme-motion";
 
 // Suppress known React 19 false-positive warning for next-themes inline FOUC script
 if (process.env.NODE_ENV === "development") {
@@ -27,6 +28,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       enableColorScheme
       storageKey="vircuit-theme"
     >
+      <ThemeMotion />
       {children}
     </NextThemesProvider>
   );

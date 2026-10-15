@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { navigateAfterLogin } from "../navigate-after-login";
+import { unstable_rethrow } from "next/navigation";
 import { readPreferences, useReducedMotion } from "@/features/settings/preferences";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,6 @@ export function AuthForm({ register = false, active = true, switching = false, n
   const hydrated = useSyncExternalStore(subscribeHydration, () => true, () => false);
   const transition = useAuthTransition();
   const reduced = useReducedMotion();
-  const router = useRouter();
   const next = safeDestination(destination);
   const mode = register ? "register" : "login";
   const [message, setMessage] = useState("");
@@ -42,9 +42,24 @@ export function AuthForm({ register = false, active = true, switching = false, n
       const value = await session.json();
       if (!alive.current) return;
       if (!session.ok || typeof value.user?.id !== "string") { setMessage("Sesi belum dapat diverifikasi. Coba masuk kembali."); return; }
-      if (reduced || readPreferences(value.user.id).motion === "reduced") { transition.cancel(intent, true); form.reset(); router.replace(safeDestination(data.next)); handedOff = true; }
-      else if (transition.start(safeDestination(data.next), intent)) { handedOff = true; form.reset(); }
-    } catch { if (alive.current) setMessage("Koneksi gagal. Coba lagi; draft tetap aman di browser ini."); }
+      if (reduced || readPreferences(value.user.id).motion === "reduced") {
+        transition.cancel(intent, true);
+        await navigateAfterLogin(safeDestination(data.next));
+        handedOff = true;
+        if (alive.current) form.reset();
+      } else if (transition.start(safeDestination(data.next), intent)) {
+        await navigateAfterLogin(safeDestination(data.next));
+        handedOff = true;
+        if (alive.current) form.reset();
+      }
+    } catch (error) {
+      // Next rejects a successful Server Action redirect with its own control
+      // signal. Let the router handle it without reversing the rolling door.
+      handedOff = true;
+      unstable_rethrow(error);
+      handedOff = false;
+      if (alive.current) setMessage("Koneksi gagal. Coba lagi; draft tetap aman di browser ini.");
+    }
     finally { if (!handedOff) transition.cancel(intent); }
   }
   async function google() {

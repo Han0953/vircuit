@@ -155,7 +155,10 @@ test("continuous login rolling reveals a slower sidebar with overlapping header 
   expect(trace.times.sidebarIn - trace.times.sidebarEntry).toBeLessThan(1000);
   expect(trace.times.sidebarEntry - trace.times.doorEnd).toBeLessThan(50);
   expect(trace.times.sidebar).toBeGreaterThanOrEqual(trace.times.sidebarPanelDone);
-  expect(trace.times.sidebar - trace.times.sidebarEntry).toBeGreaterThan(950);
+  // The intro clock can advance before the first visible rAF sample. Measure
+  // the controls' stagger from the actual panel completion, not that sample.
+  expect(trace.times.sidebar - trace.times.sidebarPanelDone).toBeGreaterThan(100);
+  expect(trace.times.sidebar - trace.times.sidebarPanelDone).toBeLessThan(300);
   expect(trace.times.sidebar - trace.times.sidebarEntry).toBeLessThan(1200);
   expect(trace.times.header - trace.times.sidebarEntry).toBeGreaterThan(300);
   expect(trace.times.header - trace.times.sidebarEntry).toBeLessThan(600);

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { flushSync } from "react-dom";
 import { Check, Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { useReducedMotion } from "@/features/settings/preferences";
 
 const themeOptions = [
   { value: "light", label: "Terang", icon: Sun },
@@ -25,7 +23,6 @@ const clientSnapshot = () => true;
 const serverSnapshot = () => false;
 
 export function ThemePopover({ className }: { className?: string }) {
-  const reduced = useReducedMotion();
   const { theme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
   const currentTheme = mounted ? theme : "system";
@@ -64,30 +61,6 @@ export function ThemePopover({ className }: { className?: string }) {
     setOpen(false);
 
     if (value === theme) return;
-
-    if (
-      typeof window !== "undefined" &&
-      reduced
-    ) {
-      setTheme(value);
-      return;
-    }
-
-    if (typeof document !== "undefined" && "startViewTransition" in document) {
-      const doc = document as unknown as {
-        startViewTransition: (cb: () => void) => { ready: Promise<void> };
-      };
-      try {
-        const transition = doc.startViewTransition(() => {
-          flushSync(() => setTheme(value));
-        });
-        void transition.ready.catch(() => {});
-        return;
-      } catch {
-        setTheme(value);
-        return;
-      }
-    }
 
     setTheme(value);
   };

@@ -45,7 +45,7 @@ function Boards({ channel, host, ready, fail }: CinematicWorldProps) {
       apply();
     };
     const theme = new MutationObserver(palette);
-    theme.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    theme.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme-changing"] });
     const lost = (event: Event) => { event.preventDefault(); fail(); };
     gl.domElement.addEventListener("webglcontextlost", lost);
     document.addEventListener("visibilitychange", apply);

@@ -46,9 +46,10 @@ export function AuthTransitionProvider({ children }: { children: ReactNode }) {
     // until their animation owner hydrates. It carries no authentication data.
     document.cookie = `${authEntryCookie}=${encodeURIComponent(JSON.stringify(entry))}; Path=/; Max-Age=60; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
     update(entry);
-    router.replace(entry.target);
+    // AuthForm invokes the verified Server Action to navigate with a fresh
+    // route tree. This coordinator only owns the one-time visual handoff.
     return true;
-  }, [router, update]);
+  }, [update]);
   const reveal = useCallback((entry: Transition) => {
     consumed.current.add(entry.id);
     try { sessionStorage.setItem(`vircuit-entry:${entry.id}`, "1"); } catch { /* In-memory consumption still prevents replay. */ }

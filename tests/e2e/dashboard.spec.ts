@@ -139,9 +139,15 @@ test("mobile navigation, empty/error states and themes", async ({ page, request 
   await expect(page.locator("h4")).toHaveCount(3);
   for (const theme of ["light", "dark", "system"]) {
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.getByRole("button", { name: /^Pilih tema tampilan/ }).click();
+    const trigger = page.getByRole("button", { name: /^Pilih tema tampilan/ });
+    // A mouse-based mobile viewport can hover-open the menu while moving to
+    // its trigger. Use the keyboard path so the click cannot close it again.
+    await trigger.focus();
+    await trigger.press("Enter");
     await page.getByRole("radio", { name: theme === "light" ? "Terang" : theme === "dark" ? "Gelap" : "Sistem", exact: true }).click();
     await expect(page.locator("html")).toHaveClass(theme === "light" ? /light/ : /dark/);
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByRole("radiogroup", { name: "Pilihan tema" })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
     if (theme === "light") await page.screenshot({ path: "test-results/dashboard-mobile-light.png", fullPage: true });
   }

@@ -52,7 +52,7 @@ function World({ channel, host, ready, fail }: { channel: StoryChannel; host: HT
     };
     const observer = new IntersectionObserver(([entry]) => { state.visible = entry.isIntersecting; state.requested = 0; apply(); }); observer.observe(host);
     const theme = new MutationObserver(() => { palette(); apply(); });
-    theme.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    theme.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme-changing"] });
     const lost = (event: Event) => { event.preventDefault(); fail(); };
     gl.domElement.addEventListener("webglcontextlost", lost);
     const visibility = () => apply();
