@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { navigateAfterLogin } from "../navigate-after-login";
-import { unstable_rethrow } from "next/navigation";
+import { unstable_rethrow, useRouter } from "next/navigation";
 import { readPreferences, useReducedMotion } from "@/features/settings/preferences";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ const subscribeHydration = () => () => {};
 export function AuthForm({ register = false, active = true, switching = false, next: destination, callbackError = false, accountDeleted = false, passwordUpdated = false, onBusy }: { register?: boolean; active?: boolean; switching?: boolean; next?: string; callbackError?: boolean; accountDeleted?: boolean; passwordUpdated?: boolean; onBusy?: (mode: "login" | "register", value: boolean) => void }) {
   const hydrated = useSyncExternalStore(subscribeHydration, () => true, () => false);
   const transition = useAuthTransition();
+  const router = useRouter();
   const reduced = useReducedMotion();
   const next = safeDestination(destination);
   const mode = register ? "register" : "login";
@@ -90,5 +91,11 @@ export function AuthForm({ register = false, active = true, switching = false, n
     {notice && <p role="status" data-auth-feedback className="mt-4 rounded-lg border bg-surface-muted p-3 text-sm leading-relaxed">{notice}</p>}
     <p data-auth-motion className="mt-6 text-sm text-text-secondary"><Link aria-disabled={busy} tabIndex={busy ? -1 : undefined} onClick={(event) => { if (busy) event.preventDefault(); }} className="text-primary hover:underline" href={`${register ? "/masuk" : "/daftar"}?next=${encodeURIComponent(next)}`}>{register ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar"}</Link></p>
     <Button data-auth-motion asChild variant="ghost" className="mt-2 w-full"><Link href="/simulator">Lanjutkan sebagai tamu</Link></Button>
+    <Button data-auth-motion asChild variant="outline" className="mt-2 w-full"><Link href="/demo" prefetch={true} aria-disabled={!hydrated || busy || switching} tabIndex={!hydrated || busy || switching ? -1 : undefined} onClick={(event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      if (!hydrated || busy || switching) return;
+      if (reduced || transition.start("/demo")) router.push("/demo");
+    }}>Lihat demo dashboard</Link></Button>
   </section>;
 }

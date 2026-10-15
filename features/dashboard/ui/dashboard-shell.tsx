@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { CircuitBoard } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { cloudRequest } from "@/features/projects/cloud/request";
@@ -13,7 +16,7 @@ import { DashboardSidebar } from "./dashboard-sidebar";
 import { DashboardMobileDock } from "./dashboard-mobile-dock";
 import { dashboardLinks, activeDashboardLink } from "../navigation";
 import { useDashboardSwipe } from "../navigation/use-dashboard-swipe";
-import { dashboardIntroTiming, headerDuration, headerItemStagger, sidebarEntryDuration, sidebarItemsStart, sidebarItemDuration, sidebarItemStagger, mobileHeaderDuration } from "../motion/intro-timing";
+import { useDashboardIntro } from "../motion/use-dashboard-intro";
 import "./dashboard.css";
 
 gsap.registerPlugin(useGSAP);
@@ -31,6 +34,7 @@ function DashboardSurface({ user, children, initialSidebar = "expanded", authEnt
   const transition = useAuthTransition();
   const { ready } = transition;
   const root = useRef<HTMLDivElement>(null);
+  useDashboardIntro(root);
   const main = useRef<HTMLElement>(null);
   const previousWidth = useRef(initialSidebar === "collapsed" ? 80 : 256);
   const previousPath = useRef(pathname);
@@ -90,57 +94,7 @@ function DashboardSurface({ user, children, initialSidebar = "expanded", authEnt
       gsap.to("[data-shell-label]", { x: 0, duration: 0.4, stagger: 0.025, delay: 0.18, clearProps: "transform", overwrite: "auto" });
     }
   }, { scope: root, dependencies: [collapsed, reduced], revertOnUpdate: true });
-  useGSAP(() => {
-    if (!transition.intro || reduced) return;
-    const mobile = window.innerWidth < 1024;
-    if (mobile) {
-      // Mobile has no sliding sidebar. Read top-to-bottom: compact header,
-      // capsule surface, then individual navigation items and page content.
-      const headerItems = root.current?.querySelectorAll("[data-dashboard-header-copy] > *, [data-dashboard-header] button");
-      const dockItems = root.current?.querySelectorAll("[data-dock-index]");
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.out", clearProps: "opacity,transform" } });
-      gsap.set("[data-dashboard-header]", { opacity: 1 });
-      if (headerItems?.length) {
-        gsap.set(headerItems, { opacity: 0, y: 6 });
-        tl.to(headerItems, { opacity: 1, y: 0, duration: mobileHeaderDuration, stagger: 0.055 }, 0);
-      }
-      gsap.set("[data-dashboard-dock]", { opacity: 0, y: 10 });
-      tl.to("[data-dashboard-dock]", { opacity: 1, y: 0, duration: 0.34 }, 0.12);
-      if (dockItems?.length) {
-        gsap.set(dockItems, { opacity: 0, y: 5 });
-        tl.to(dockItems, { opacity: 1, y: 0, duration: 0.38, stagger: 0.06 }, 0.24);
-      }
-      gsap.set("[data-dock-pill]", { opacity: 0 });
-      tl.to("[data-dock-pill]", { opacity: 1, duration: 0.25 }, 0.24);
-      tl.seek(Math.max(0, (performance.now() - transition.introStartedAt) / 1000), true).play();
-      return;
-    }
-    const items = root.current?.querySelectorAll(mobile ? "[data-dock-index]" : "[data-dashboard-sidebar] nav [data-shell-item], [data-sidebar-logout]");
-    const brand = mobile ? [] : root.current?.querySelectorAll("[data-shell-brand] [data-shell-item]");
-    const headerItems = root.current?.querySelectorAll("[data-dashboard-header-copy] > *, [data-dashboard-header] button");
-    const { headerStart } = dashboardIntroTiming(items?.length ?? 10);
-    gsap.set("[data-dashboard-sidebar]", { xPercent: -100, opacity: 1 });
-    gsap.set("[data-shell-brand]", { opacity: 1 });
-    if (items?.length) gsap.set(items, { opacity: 0, x: -6 });
-    if (brand?.length) gsap.set(brand, { opacity: 0, x: -6 });
-    gsap.set("[data-dashboard-header]", { opacity: 0 });
-    if (headerItems?.length) gsap.set(headerItems, { opacity: 0, y: -12 });
-    gsap.set("[data-dashboard-dock]", { opacity: 1 });
-    gsap.set("[data-sidebar-pill], [data-dock-pill]", { opacity: 0 });
-    const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out", clearProps: "opacity,transform" } });
-    tl.to("[data-dashboard-sidebar]", { xPercent: 0, duration: sidebarEntryDuration, ease: "power2.inOut" }, 0);
-    if (brand?.length) tl.to(brand, { opacity: 1, x: 0, duration: 0.72, stagger: 0.075 }, sidebarItemsStart);
-    // The mobile dock is already in place; only the desktop sidebar needs to
-    // finish its slide before its contents begin.
-    const menuStart = (mobile ? 0.12 : sidebarItemsStart) + (brand?.length ?? 0) * sidebarItemStagger;
-    if (items?.length) tl.to(items, { opacity: 1, x: 0, duration: sidebarItemDuration, stagger: sidebarItemStagger }, menuStart);
-    tl.to("[data-sidebar-pill], [data-dock-pill]", { opacity: 1, duration: 0.3, clearProps: "opacity" }, menuStart);
-    tl.to("[data-dashboard-header]", { opacity: 1, duration: 0.62, clearProps: "opacity" }, headerStart);
-    if (headerItems?.length) tl.to(headerItems, { opacity: 1, y: 0, duration: headerDuration, stagger: headerItemStagger }, headerStart);
-    // GSAP cleanup reverts its styles. Rebinding resumes the original clock
-    // instead of skipping a cleaned-up timeline or replaying a completed one.
-    tl.seek(Math.max(0, (performance.now() - transition.introStartedAt) / 1000), true).play();
-  }, { scope: root, dependencies: [transition.intro, transition.introStartedAt, reduced], revertOnUpdate: true });
+
   useGSAP((context, contextSafe) => {
     if (pageMotionPath.current === pathname) return;
     pageMotionPath.current = pathname;
@@ -174,7 +128,7 @@ function DashboardSurface({ user, children, initialSidebar = "expanded", authEnt
     <noscript><style>{".dashboard-root[data-intro-pending=true] :is([data-dashboard-sidebar],[data-shell-brand],[data-shell-item],[data-dashboard-header],[data-dashboard-dock],[data-motion]){opacity:1!important}"}</style></noscript>
     <a href="#dashboard-main" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-60 focus:rounded-md focus:bg-primary focus:p-3 focus:text-primary-foreground">Lewati ke konten utama</a>
     <DashboardSidebar user={user} pathname={pathname} collapsed={collapsed} onToggle={toggleSidebar} />
-    <header data-dashboard-header className="dashboard-header"><div data-dashboard-header-copy className="min-w-0"><p className="text-xs text-text-tertiary">Ruang belajar Vircuit</p><h2 className="truncate text-sm font-semibold">{pageLabel}</h2></div><UserMenu user={user} /></header>
+    <header data-dashboard-header className="dashboard-header"><div data-dashboard-header-copy className="min-w-0"><p className="text-xs text-text-tertiary">Ruang belajar Vircuit</p><h2 className="truncate text-sm font-semibold">{pageLabel}</h2></div><div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" className="size-11 p-0 shadow-none sm:w-auto sm:px-3"><Link data-lab-link href="/simulator" aria-label="Buka Virtual Lab" title="Buka Virtual Lab"><CircuitBoard aria-hidden className="size-4" /><span className="hidden sm:inline">Buka Lab</span></Link></Button><UserMenu user={user} /></div></header>
     <div data-dashboard-column className="dashboard-column min-w-0">
       <main ref={main} id="dashboard-main" tabIndex={-1} className="dashboard-main relative mx-auto max-w-7xl space-y-8 px-4 pt-24 outline-none sm:px-6 lg:px-8">
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-44 opacity-25 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />

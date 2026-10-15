@@ -18,12 +18,12 @@ import { SettingsDialogContent } from "./setting-controls";
 
 gsap.registerPlugin(useGSAP);
 const categories = [
-  { id: "profile", title: "Profil Saya", description: "Identitas pribadi", icon: UserRound },
+  { id: "profile", title: "Profil Saya", description: "Nama dan foto", icon: UserRound },
   { id: "account", title: "Akun & Keamanan", description: "Email dan akses akun", icon: ShieldCheck },
-  { id: "appearance", title: "Tampilan", description: "Tema dan kenyamanan", icon: Palette },
+  { id: "appearance", title: "Tampilan", description: "Tema dan animasi", icon: Palette },
   { id: "lab", title: "Virtual Lab", description: "Canvas dan workspace", icon: Cpu },
-  { id: "learning", title: "Pembelajaran", description: "Keterbacaan materi", icon: BookOpen },
-  { id: "data", title: "Data & Privasi", description: "Penyimpanan dan kontrol", icon: Database },
+  { id: "learning", title: "Pembelajaran", description: "Ukuran teks materi", icon: BookOpen },
+  { id: "data", title: "Data & Privasi", description: "Draft dan cadangan", icon: Database },
 ] as const;
 type Category = typeof categories[number]["id"];
 export function SettingsWorkspace({ user, account }: { user: DashboardIdentity; account: ReturnType<typeof accountInformation> }) {
@@ -85,7 +85,7 @@ export function SettingsWorkspace({ user, account }: { user: DashboardIdentity; 
     gsap.to(oldPanel, { opacity: 0.9, y: -2, duration: 0.08, overwrite: true, onComplete: () => { gsap.set(oldPanel, { clearProps: "opacity,transform" }); setActive(id); } });
   })(); }
   return <div ref={root} className="settings-workspace min-w-0 space-y-8 pb-[env(safe-area-inset-bottom)]">
-    <header className="max-w-2xl space-y-3"><p data-settings-chrome className="flex items-center gap-2 text-xs font-semibold tracking-widest text-primary uppercase"><SlidersHorizontal className="size-4" aria-hidden />Personal control center</p><h1 data-settings-chrome className="text-3xl font-semibold tracking-tight sm:text-4xl">Pengaturan</h1><p data-settings-chrome className="text-sm leading-relaxed text-text-secondary sm:text-base">Ruangmu, caramu. Kelola identitas, keamanan, dan kenyamanan belajar dalam satu tempat.</p></header>
+    <header className="max-w-2xl space-y-3"><p data-settings-chrome className="flex items-center gap-2 text-xs font-semibold tracking-widest text-primary uppercase"><SlidersHorizontal className="size-4" aria-hidden />Akun dan aplikasi</p><h1 data-settings-chrome className="text-3xl font-semibold tracking-tight sm:text-4xl">Pengaturan</h1><p data-settings-chrome className="text-sm leading-relaxed text-text-secondary sm:text-base">Atur profil, keamanan akun, dan tampilan aplikasi.</p></header>
     <div className="grid min-w-0 items-start gap-6 xl:grid-cols-[14rem_minmax(0,1fr)] xl:gap-8">
       <div role="tablist" aria-label="Kategori pengaturan" className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 xl:sticky xl:top-24 xl:grid-cols-1" onKeyDown={(event) => {
         const index = categories.findIndex((category) => category.id === active);

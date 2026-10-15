@@ -11,6 +11,9 @@ describe("auth presentation and recovery boundaries", () => {
     expect(parseAuthEntry("broken")).toBeNull();
     expect(transitionTarget("https://evil.test")).toBe("/dashboard");
     expect(transitionTarget("/dashboard-fake")).toBe("/dashboard");
+    expect(transitionTarget("/demo")).toBe("/demo");
+    for (const path of ["/demo-fake", "/demo?next=https://evil.test", "/demo/unknown"]) expect(transitionTarget(path)).toBe("/dashboard");
+    expect(parseAuthEntry(JSON.stringify({ ...entry, target: "/demo" }), 10_000)?.target).toBe("/demo");
     expect(transitionTarget("/simulator?save=1&draft=test")).toBe("/simulator?save=1&draft=test");
   });
   it("binds password recovery to the session that completed callback", () => {

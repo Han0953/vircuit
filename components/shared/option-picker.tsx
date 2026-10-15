@@ -10,8 +10,8 @@ export function OptionPicker({ label, value, options, onChange, disabled, id, co
 }) {
   const selected = options.find((option) => option.value === value);
   return <DropdownMenu modal={false}>
-    <DropdownMenuTrigger asChild><Button id={id} type="button" variant="outline" aria-label={label} data-value={value} data-option-trigger data-compact={compact} disabled={disabled} className="max-w-full min-w-0 justify-between gap-2">
-      {selected?.icon}<span className="truncate">{selected?.label ?? label}</span><ChevronDown aria-hidden className="size-3.5 shrink-0" />
+    <DropdownMenuTrigger asChild><Button id={id} type="button" variant="outline" aria-label={label} data-value={value} data-option-trigger data-compact={compact} disabled={disabled} className="group/picker max-w-full min-w-0 justify-between gap-2">
+      {selected?.icon}<span className="truncate">{selected?.label ?? label}</span><ChevronDown aria-hidden className="size-3.5 shrink-0 transition-transform duration-200 group-data-[state=open]/picker:[transform:rotate(180deg)] motion-reduce:transition-none" />
     </Button></DropdownMenuTrigger>
     <DropdownMenuContent data-option-menu align="start" sideOffset={8} className="w-72 max-w-[calc(100vw-24px)]" onEscapeKeyDown={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
       <DropdownMenuLabel className="text-xs text-text-secondary">{label}</DropdownMenuLabel><DropdownMenuSeparator />

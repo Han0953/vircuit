@@ -5,6 +5,7 @@ export const doorDeadline = 15000;
 export const doorOpenDuration = 1.5;
 
 export function transitionTarget(value: string) {
+  if (value === "/demo") return value;
   if (value.length > 300 || !/^\/(?:dashboard(?:\/|$)|simulator(?:\/code)?(?:\?|$))/.test(value) || value.includes("\\")) return "/dashboard";
   return value;
 }

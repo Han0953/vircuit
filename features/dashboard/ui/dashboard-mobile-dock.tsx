@@ -6,15 +6,16 @@ import { Ellipsis } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { dashboardLinks, activeDashboardLink } from "../navigation";
+import { dashboardLinks, activeDashboardLink, dashboardPath, demoHref } from "../navigation";
+import { Button } from "@/components/ui/button";
 import { useReducedMotion } from "@/features/settings/preferences";
 import { LogoutButton } from "./logout-button";
 import type { DashboardIdentity } from "./user-menu";
 import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(useGSAP);
-export function DashboardMobileDock({ user }: { user: DashboardIdentity }) {
-  const pathname = usePathname();
+export function DashboardMobileDock({ user, demo = false }: { user: DashboardIdentity; demo?: boolean }) {
+  const pathname = dashboardPath(usePathname());
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const root = useRef<HTMLElement>(null);
@@ -46,7 +47,7 @@ export function DashboardMobileDock({ user }: { user: DashboardIdentity }) {
   const activeIndex = moreActive || open ? 4 : main.findIndex((link) => activeDashboardLink(pathname, link.href));
   useGSAP(() => {
     const element = root.current;
-    if (!element) return;
+    if (!element || hidden) return;
     const pill = element.querySelector("[data-dock-pill]");
     const target = element.querySelector<HTMLElement>(`[data-dock-index='${activeIndex}']`);
     if (!pill || !target) return;
@@ -59,13 +60,13 @@ export function DashboardMobileDock({ user }: { user: DashboardIdentity }) {
   return <Sheet open={open} onOpenChange={setOpen}>
     <nav ref={root} data-dashboard-dock aria-label="Navigasi utama mobile" hidden={hidden} className="dashboard-dock">
       <span data-dock-pill aria-hidden className="absolute inset-y-1.5 left-0 rounded-full bg-primary-soft" />
-      {main.map(({ href, label, icon: Icon }, index) => <Link key={href} href={href} prefetch={href !== "/simulator" ? true : undefined} data-dock-index={index} aria-label={label} aria-current={activeDashboardLink(pathname, href) ? "page" : undefined} className={cn("dashboard-dock-item", activeIndex === index && "text-primary")}><Icon aria-hidden className="size-5" /><span>{index === 2 ? "Lab" : index === 3 ? "Proyek" : label}</span></Link>)}
-      <SheetTrigger data-dock-index={4} className={cn("dashboard-dock-item", activeIndex === 4 && "text-primary")} aria-label="Lainnya" aria-current={moreActive ? "page" : undefined}><Ellipsis aria-hidden className="size-5" /><span>Lainnya</span></SheetTrigger>
+      {main.map(({ href, label, icon: Icon }, index) => <Link key={href} href={demo ? demoHref(href) : href} prefetch={true} data-dock-index={index} aria-label={label} title={label} aria-current={activeDashboardLink(pathname, href) ? "page" : undefined} className={cn("dashboard-dock-item", activeIndex === index && "text-primary")}><Icon aria-hidden className="size-5" /><span className="sr-only">{label}</span></Link>)}
+      <SheetTrigger data-dock-index={4} className={cn("dashboard-dock-item", activeIndex === 4 && "text-primary")} aria-label="Lainnya" aria-current={moreActive ? "page" : undefined}><Ellipsis aria-hidden className="size-5" /><span className="sr-only">Lainnya</span></SheetTrigger>
     </nav>
     <SheetContent side="bottom" className="dashboard-more max-h-[85dvh] overflow-y-auto rounded-t-3xl px-5 pt-6 pb-[max(24px,env(safe-area-inset-bottom))]" onCloseAutoFocus={(event) => { if (previous.current !== pathname) event.preventDefault(); }}>
       <SheetHeader className="px-0"><SheetTitle>Ruang belajarmu</SheetTitle><SheetDescription>Pilih tujuan atau kelola akunmu.</SheetDescription></SheetHeader>
-      <nav aria-label="Navigasi lainnya" className="mt-3 space-y-1">{dashboardLinks.slice(4).map(({ href, label, icon: Icon }) => <Link key={href} href={href} prefetch={href !== "/simulator" ? true : undefined} onClick={() => setOpen(false)} aria-current={activeDashboardLink(pathname, href) ? "page" : undefined} className={cn("dashboard-nav-link", activeDashboardLink(pathname, href) && "is-active")}><Icon aria-hidden className="size-5" />{label}</Link>)}</nav>
-      <div className="mt-4 border-t pt-4"><p className="truncate text-sm font-medium">{user.name}</p><p className="mt-1 truncate text-xs text-text-secondary">{user.email}</p><LogoutButton user={user} className="mt-4 min-h-11 w-full justify-start" /></div>
+      <nav aria-label="Navigasi lainnya" className="mt-3 space-y-1">{dashboardLinks.slice(4).map(({ href, label, icon: Icon }) => <Link key={href} href={demo ? demoHref(href) : href} prefetch={true} onClick={() => setOpen(false)} aria-current={activeDashboardLink(pathname, href) ? "page" : undefined} className={cn("dashboard-nav-link", activeDashboardLink(pathname, href) && "is-active")}><Icon aria-hidden className="size-5" />{label}</Link>)}</nav>
+      <div className="mt-4 border-t pt-4"><p className="truncate text-sm font-medium">{user.name}</p><p className="mt-1 truncate text-xs text-text-secondary">{user.email}</p>{demo ? <Button asChild className="mt-4 min-h-11 w-full"><Link href="/masuk?next=/dashboard">Masuk ke akun</Link></Button> : <LogoutButton user={user} className="mt-4 min-h-11 w-full justify-start" />}</div>
     </SheetContent>
   </Sheet>;
 }

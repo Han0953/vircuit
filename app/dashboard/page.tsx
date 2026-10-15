@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { RequestError } from "@/lib/request-security";
-import { ArrowRight, CircuitBoard, Cpu, ListChecks, Sparkles } from "lucide-react";
+import { ArrowRight, Cpu, ListChecks, Sparkles } from "lucide-react";
 import { dashboardIdentity, dashboardProjects } from "@/features/dashboard/server";
 import { NewProjectAction } from "@/features/dashboard/ui/new-project-action";
 import { ProjectCollection } from "@/features/dashboard/ui/project-collection";
@@ -80,12 +80,6 @@ export default async function DashboardPage() {
 
         <div data-motion="action" className="flex flex-wrap items-center gap-2.5 shrink-0">
           <NewProjectAction />
-          <Button asChild variant="outline" className="gap-2">
-            <Link href="/simulator">
-              <CircuitBoard className="size-4 text-primary" aria-hidden="true" />
-              Buka Lab
-            </Link>
-          </Button>
           <GuestDraftNotice />
         </div>
       </section>

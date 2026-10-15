@@ -1,4 +1,5 @@
 .dashboard-root { --dashboard-sidebar-width:256px; }
+.dashboard-root[data-demo-shell] :is(.dashboard-sidebar,.dashboard-header) { transition:width 300ms,left 300ms; }
 .dashboard-root[data-sidebar=collapsed] { --dashboard-sidebar-width:80px; }
 .dashboard-sidebar { display:none; position:fixed; inset:0 auto 0 0; z-index:40; width:var(--dashboard-sidebar-width); }
 .dashboard-sidebar > div:last-child { overflow-x:clip; }
@@ -13,13 +14,17 @@
 .dashboard-nav-link:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
 .dashboard-nav-link.is-active { background:var(--primary-soft); color:var(--primary); font-weight:600; }
 .dashboard-header { position:fixed; inset:0 0 auto 0; height:64px; z-index:30; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 16px; background:var(--surface); }
+.dashboard-header [data-lab-link] { box-shadow:none; }
 .dashboard-dock { position:fixed; bottom:max(12px,env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); z-index:40; width:min(calc(100% - 24px),400px); display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); padding:6px; border:1px solid var(--border); border-radius:999px; background:var(--surface); box-shadow:0 8px 32px #00000012; }
 .dashboard-dock[hidden] { display:none; }
-.dashboard-dock-item { position:relative; min-height:54px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border-radius:999px; font-size:10px; color:var(--text-secondary); transition:color 160ms; }
+.dashboard-dock-item { position:relative; min-height:48px; display:flex; align-items:center; justify-content:center; border-radius:999px; color:var(--text-secondary); transition:color 160ms; }
 .dashboard-dock-item:focus-visible { outline:2px solid var(--primary); outline-offset:-2px; }
 .dashboard-dock-item[aria-current=page],.dashboard-dock-item:hover { color:var(--primary); }
 .dashboard-main { padding-bottom:calc(100px + env(safe-area-inset-bottom)); touch-action:pan-y pinch-zoom; }
 .dashboard-main h1[tabindex="-1"]:focus { outline:none; }
+.dashboard-cirra { height:calc(var(--cirra-visible-height,100dvh) - 196px - env(safe-area-inset-bottom)); min-height:280px; }
+.dashboard-cirra:has(textarea:focus) { height:calc(var(--cirra-visible-height,100dvh) - 112px - env(safe-area-inset-bottom)); }
+@media(min-width:1024px) { .dashboard-cirra,.dashboard-cirra:has(textarea:focus) { height:calc(var(--cirra-visible-height,100dvh) - 144px); min-height:360px; } }
 /* Avoid a one-frame skeleton flash on warm navigation; slow requests still
    expose their real loading state. The status remains available to AT. */
 .dashboard-root [data-dashboard-page] > [role="status"] { animation:dashboard-loading-reveal 1ms 140ms both; }

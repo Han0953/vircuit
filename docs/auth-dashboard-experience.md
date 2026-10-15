@@ -2,6 +2,20 @@
 
 Implementation checkpoint: 15 October 2026.
 
+## Demo entry animation — 15 October 2026
+
+Lihat demo dashboard now starts the same sanitized form-screen transition as login: desktop uses the existing 1500ms split opening; mobile uses the existing 360ms fade. Both real and demo shells call `useDashboardIntro`, sharing the exact sidebar/header/content choreography and timing. Only an explicit entry click starts it; tab navigation, refresh and direct visits do not replay it. Reduced motion skips the transition and intro.
+
+The public demo layout reads only the short-lived presentation marker, never a Supabase session. The marker target allowlist adds only exact `/demo`; this does not expand authenticated redirect destinations or API access. Demo entry performs no login/register/session request and creates no auth token. The marker is cleared when the transition finishes. Local validation: lint/typecheck/build PASS; 358 unit tests PASS, 6 skipped; 10 browser scenarios PASS, including demo 360/390/430/1440px, reduced motion, no replay/auth cookie, and existing real-login mobile/desktop sequences.
+
+## Navigation polish and public demo — 15 October 2026
+
+The mobile dock now displays icons with accessible names. Its position controller owns the highlight's horizontal transform; login choreography only changes opacity, so completing the intro cannot clear alignment. Sidebar navigation uses consistent spacing between Projects and Challenges. The header is the sole Buka Lab entry on the overview and has no button shadow. Settings explanations use short, ordinary Indonesian while retaining storage/deletion limitations.
+
+Login/register offer Lihat demo dashboard at `/demo`. `/demo`, `/demo/learn`, `/demo/projects`, `/demo/cirra`, `/demo/challenges`, `/demo/progress`, and `/demo/pengaturan` reuse the sidebar/mobile dock and dashboard surfaces. The demo shell is separate from the authenticated shell: it creates no auth identity/cookie, checks no account session, reads no private project/progress records, and mounts no AI sender or account mutation form. Its collapse state is local React state, leaving account preferences untouched. Course/challenge previews come from the authored registries; no fake user statistics or projects are shown. Account features link to login with an allowlisted real dashboard destination; Virtual Lab and theme controls remain usable. Unknown demo destinations return 404. Existing `/dashboard/**` and API guards remain intact.
+
+Verification: lint/typecheck/build PASS; 358 unit tests PASS, 6 skipped. 27 unique local browser scenarios passed across batches/reruns, including public demo navigation and anonymous API denial, mobile 360/390/430px, initial-login dock alignment, shared Cirra behavior and Settings. No deployment or remote schema/auth changes.
+
 ## Experience
 
 - `/masuk` and `/daftar` share `app/(auth)/layout.tsx`. URLs remain compatible. Marketing navigation, Lenis and footer are not mounted inside authentication.

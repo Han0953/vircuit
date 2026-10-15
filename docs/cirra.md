@@ -2,6 +2,22 @@
 
 Cirra is an AI learning companion, with Tutor, Debugger, and Project Assistant modes. Communication uses Indonesian aku/kamu with a female persona; Cirra remains explicitly AI. The deterministic challenge evaluator is the authority. AI cannot submit attempts, complete lessons, edit a project, or change simulation state.
 
+## Dashboard assistant — 2026-10-15
+
+`/dashboard/cirra` is an authenticated conversation page using the existing `CirraChat` and `/api/ai/cirra` pipeline. Cirra replaces Virtual Lab in the desktop sidebar and the third mobile dock item. Virtual Lab is reachable from the compact, shadow-free header action on every dashboard route; the duplicate overview action has been removed. The login redirect allowlist includes only the exact Cirra route.
+
+The dashboard thread uses the verified owner plus a separate `dashboard` scope. Messages, composer text and mode survive client navigation during this session; logout/account change clears the existing private chat cache. Refresh starts a new in-memory conversation. It does not initialize the simulator, send a workspace draft implicitly, or claim access to a circuit it has not received. Circuit inspection remains available through workspace Cirra.
+
+The chat has a bounded scroll area and reuses keyboard-aware viewport handling, avatars, typing/reply reveal, modes, cancellation and retry. Local validation: lint/typecheck/build PASS; 356 unit tests PASS, 6 skipped. Six dashboard assistant browser scenarios and five existing Cirra regression scenarios verified using the local Auth/Gemini fixture, including mobile 360/390/430px and Light/Dark/System. Live Gemini and remote usage-limit configuration were not reverified by this UI change.
+
+## Progressive bubble and controls — 2026-10-15
+
+New replies reveal bounded word chunks that take space only as they appear. Supporting feedback follows afterward. Dashboard, lesson, and simulator share this renderer. The scroll observer watches actual message content and viewport: it follows growth at the bottom and preserves the reader's anchor when scrolled up. Reopening does not replay old replies. Reduced motion shows the complete answer immediately; cleanup releases timers and animations.
+
+Hint detail is an explicit, reversible selection: Singkat (1), Lebih jelas (2), Langkah demi langkah (3). The existing request field feeds the general assistance prompt; challenge HINT-FIRST restrictions and deterministic grading stay unchanged. The shared mode picker turns its arrow upward while open without composing two rotations in the simulator.
+
+Local validation: lint/typecheck/build PASS; 358 unit tests PASS, 6 skipped. 27 unique browser scenarios verified across the initial batch and corrected reruns, covering progressive height, smart scroll, hint request levels, logout, mobile themes, demo authorization boundaries, dock alignment, and Settings. Auth/Gemini fixtures were used; live Gemini and physical mobile keyboards were not reverified.
+
 ## Server boundary
 
 `POST /api/ai/cirra` checks same-origin JSON, verified Supabase `getUser()`, account identity, strict Zod inputs and owned cloud project IDs. Guest simulator access remains public. `features/ai` separates configuration, provider, context, prompts, limits and session UI. Only server modules import `@google/genai`.

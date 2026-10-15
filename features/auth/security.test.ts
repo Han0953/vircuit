@@ -10,6 +10,8 @@ describe("auth boundaries", () => {
     expect(safeDestination(undefined)).toBe("/dashboard");
     expect(safeDestination("/dashboard?next=https://evil.test")).toBe("/dashboard");
     expect(safeDestination("/dashboard/projects")).toBe("/dashboard/projects");
+    expect(safeDestination("/dashboard/cirra?next=https://evil.test")).toBe("/dashboard/cirra");
+    expect(safeDestination("/dashboard/cirra/unknown")).toBe("/simulator");
     const id = crypto.randomUUID();
     expect(safeDestination(`/simulator?project=${id}&owner=spoof`)).toBe(`/simulator?project=${id}`);
     expect(safeDestination(`/simulator?new=${id}`)).toBe(`/simulator?new=${id}`);

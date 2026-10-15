@@ -50,7 +50,7 @@ export function AvatarSettings({ user }: { user: DashboardIdentity }) {
     finally { locked.current = false; setBusy(false); if (input.current) input.current.value = ""; }
   }
   return <SettingGroup>
-    <div className="flex min-w-0 items-center gap-4"><ProfileAvatar user={user} className="size-16 rounded-2xl text-xl" /><div className="min-w-0"><h3 className="font-medium">Foto profil</h3><p className="mt-1 text-sm text-text-secondary">JPG, PNG, atau WebP, maksimal 5 MB. Foto dipotong persegi dan disimpan privat.</p></div></div>
+    <div className="flex min-w-0 items-center gap-4"><ProfileAvatar user={user} className="size-16 rounded-2xl text-xl" /><div className="min-w-0"><h3 className="font-medium">Foto profil</h3><p className="mt-1 text-sm text-text-secondary">Pilih JPG, PNG, atau WebP hingga 5 MB. Foto akan dipotong persegi dan disimpan di akunmu.</p></div></div>
     <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" aria-label="Pilih foto profil" disabled={busy} className="sr-only" tabIndex={-1} onChange={(event) => { const file = event.target.files?.[0]; if (file) void send(file); }} />
     <div className="flex flex-wrap gap-3"><Button type="button" variant="outline" disabled={busy} onClick={() => input.current?.click()}><Upload aria-hidden />{busy ? "Memproses…" : user.avatarUrl ? "Ganti foto" : "Unggah foto"}</Button>{user.avatarUrl && <Button type="button" variant="ghost" disabled={busy} onClick={() => setConfirmation(true)}><Trash2 aria-hidden />Hapus foto</Button>}</div>
     <Feedback {...feedback} />

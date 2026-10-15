@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Send, Square, RotateCcw, Trash2, Ellipsis, ArrowDown, BookOpen, Bug, Lightbulb } from "lucide-react";
 import { OptionPicker } from "@/components/shared/option-picker";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { modeSchema, type CirraMode, type CirraRequest } from "../contracts";
 import { useChat } from "./use-chat";
 import { updateSession } from "./session-store";
@@ -41,7 +41,8 @@ export function CirraChat({ owner, scope, contextLabel, initialMode = "tutor", a
   const submit = form.handleSubmit(({ message }) => { if (chat.send(message)) form.reset({ message: "" }); });
   return <section aria-label="Percakapan Cirra" className="cirra-chat flex h-full min-h-0 min-w-0 flex-col bg-background">
     <p className="sr-only">Konteks: {contextLabel}</p>
-    <div ref={logRef} onScroll={remember} aria-label="Riwayat percakapan" role="log" aria-live="off" aria-busy={chat.pending} className="relative min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-3">
+    <div ref={logRef} onScroll={remember} aria-label="Riwayat percakapan" role="log" aria-live="off" aria-busy={chat.pending} className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 [overflow-anchor:none]">
+      <div data-chat-content className="space-y-4">
       {!chat.messages.length && <div data-cirra-greeting className="flex w-fit max-w-full items-start gap-2"><MessageSurface role="assistant"><p className="text-xs font-medium text-text-secondary">Cirra</p><p>Aku Cirra, AI pendamping belajar kamu. Mau bertanya konsep, memeriksa rangkaian, atau merencanakan proyek?</p></MessageSurface></div>}
       {chat.messages.map((message) => <ChatBubble key={message.id} message={message} fresh={message.createdAt !== undefined && !restored.has(message.id)} active={active}>
         <p className="text-xs font-medium text-text-secondary">{message.role === "user" ? "Kamu" : "Cirra"}</p>
@@ -51,6 +52,7 @@ export function CirraChat({ owner, scope, contextLabel, initialMode = "tutor", a
         </ReplyText> : <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{message.text}</p>}
       </ChatBubble>)}
       {chat.pending && <div data-cirra-pending aria-hidden className="flex w-fit max-w-full items-start gap-2"><MessageSurface role="assistant"><div className="cirra-typing flex min-h-6 items-center gap-1 text-text-secondary" data-active={active}><span /><span /><span /><p className="ml-2 text-xs">Cirra sedang berpikir…</p></div></MessageSurface></div>}
+      </div>
     </div>
     {!session.scroll.nearBottom && chat.messages.length > 0 && <Button type="button" className="mx-auto my-1 shrink-0" variant="outline" onClick={jump}><ArrowDown aria-hidden />Ke pesan terbaru</Button>}
     <div role="status" aria-live="polite" className="sr-only">{chat.pending ? "Cirra sedang menyiapkan jawaban." : session.status === "completed" ? "Jawaban Cirra tersedia." : session.status === "canceled" ? "Permintaan dibatalkan." : ""}</div>
@@ -70,7 +72,7 @@ export function CirraChat({ owner, scope, contextLabel, initialMode = "tutor", a
             { value: "debugger", label: labels.debugger, description: "Bahas kode dan diagnostik rangkaian.", icon: <Bug aria-hidden /> },
             { value: "project-assistant", label: labels["project-assistant"], description: "Susun ide dan kebutuhan proyek.", icon: <Lightbulb aria-hidden /> },
           ]} />
-          <DropdownMenu modal={false}><DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label="Opsi percakapan" disabled={chat.pending}><Ellipsis aria-hidden /></Button></DropdownMenuTrigger><DropdownMenuContent data-cirra-options side="top" align="start" className="max-w-72" onEscapeKeyDown={(event) => event.stopPropagation()}><p className="px-2 py-2 text-xs leading-relaxed text-text-secondary">Konteks terkait digunakan untuk menjawab. Hindari membagikan data sensitif; percakapan tersimpan selama sesi ini.</p><DropdownMenuItem disabled={chat.pending} onSelect={chat.clear}><Trash2 aria-hidden />Bersihkan</DropdownMenuItem><DropdownMenuItem disabled={session.hintLevel === 3 || chat.pending} onSelect={() => updateSession(chat.key, { hintLevel: Math.min(3, session.hintLevel + 1) })}>Petunjuk level {session.hintLevel}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>
+          <DropdownMenu modal={false}><DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label="Opsi percakapan" disabled={chat.pending}><Ellipsis aria-hidden /></Button></DropdownMenuTrigger><DropdownMenuContent data-cirra-options side="top" align="start" className="max-w-72" onEscapeKeyDown={(event) => event.stopPropagation()}><p className="px-2 py-2 text-xs leading-relaxed text-text-secondary">Konteks terkait digunakan untuk menjawab. Hindari membagikan data sensitif; percakapan tersimpan selama sesi ini.</p><DropdownMenuItem disabled={chat.pending} onSelect={chat.clear}><Trash2 aria-hidden />Bersihkan</DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuLabel>Detail petunjuk</DropdownMenuLabel><DropdownMenuRadioGroup value={String(session.hintLevel)} onValueChange={(value) => { const level = Number(value); if ([1, 2, 3].includes(level)) updateSession(chat.key, { hintLevel: level }); }}>{["Singkat", "Lebih jelas", "Langkah demi langkah"].map((label, index) => <DropdownMenuRadioItem key={label} value={String(index + 1)} disabled={chat.pending || chat.unavailable}>{label}</DropdownMenuRadioItem>)}</DropdownMenuRadioGroup></DropdownMenuContent></DropdownMenu></div>
           {chat.pending ? <Button type="button" size="icon" aria-label="Hentikan" title="Hentikan jawaban" onClick={chat.cancel}><Square aria-hidden /></Button> : <Button type="submit" size="icon" disabled={!session.draft.trim()} aria-label="Kirim" title="Kirim pertanyaan"><Send aria-hidden /></Button>}
         </div>
       </div>

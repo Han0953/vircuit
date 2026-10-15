@@ -41,9 +41,14 @@ export function useChatScroll(key: string, messages: ChatMessage[], active: bool
     const observer = new ResizeObserver(() => {
       if (!el.clientHeight) return;
       if (useCirraSession.getState().sessions[key]?.scroll.nearBottom) el.scrollTop = el.scrollHeight;
+      else if (anchor.current) {
+        const target = [...el.querySelectorAll<HTMLElement>("[data-message-id]")].find((message) => message.dataset.messageId === anchor.current?.id);
+        if (target) el.scrollTop = target.offsetTop - anchor.current.offset;
+      }
       remember();
     });
     observer.observe(el);
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
     return () => observer.disconnect();
   }, [active, key, log, remember]);
   return { log, remember, jump };

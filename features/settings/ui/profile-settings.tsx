@@ -20,7 +20,7 @@ export function ProfileSettings({ user, onDirty }: { user: DashboardIdentity; on
   const form = useForm({ resolver: zodResolver(profileSchema), defaultValues: { displayName: user.name === "Pengguna Vircuit" ? "" : user.name } });
   const { isDirty, isSubmitting, errors } = form.formState;
   useEffect(() => onDirty(isDirty), [isDirty, onDirty]);
-  return <SettingsSection title="Profil Saya" description="Identitas yang menyambutmu di setiap sesi belajar dan eksperimen.">
+  return <SettingsSection title="Profil Saya" description="Ubah nama dan foto profilmu.">
     <AvatarSettings user={user} />
     <form onSubmit={(event) => void form.handleSubmit(async (values) => {
       if (locked.current) return; locked.current = true; setFeedback({ message: "", error: false });

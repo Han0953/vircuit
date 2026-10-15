@@ -106,7 +106,7 @@ export function AuthTransitionProvider({ children }: { children: ReactNode }) {
     if (introRoute.current && pathname !== introRoute.current) { introRoute.current = ""; setIntro(null); }
     if (!current.current) return;
     const target = new URL(current.current.target, window.location.origin).pathname;
-    if (pathname === target && !pathname.startsWith("/dashboard")) ready();
+    if (pathname === target && !pathname.startsWith("/dashboard") && pathname !== "/demo") ready();
     else if (pathname !== target && !["/masuk", "/daftar"].includes(pathname)) finish();
   }, [pathname, ready, finish]);
   useEffect(() => {
