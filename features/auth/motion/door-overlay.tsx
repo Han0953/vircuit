@@ -2,26 +2,36 @@
 import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { BrandLogo } from "@/components/shared/brand-logo";
 import { useReducedMotion } from "@/features/settings/preferences";
+import { doorOpenDuration } from "./transition-contract";
+import { loginScreenHalf } from "./login-screen";
 
 gsap.registerPlugin(useGSAP);
-export default function DoorOverlay({ phase, onClosed, onFinished }: { phase: "closing" | "waiting" | "opening"; onClosed: () => void; onFinished: () => void }) {
+export default function DoorOverlay({ screen, phase, onCancelled, onFinished }: { screen: HTMLElement | null; phase: "authenticating" | "waiting" | "opening" | "cancelling"; onCancelled: () => void; onFinished: () => void }) {
   const root = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   useGSAP(() => {
-    if (phase === "waiting") return;
-    if (reduced) { if (phase === "closing") onClosed(); else onFinished(); return; }
-    const panels = root.current?.querySelectorAll("[data-door]");
+    if (!screen || reduced) { onFinished(); return; }
+    const copies: HTMLElement[] = [];
+    const panels = root.current?.querySelectorAll("[data-door-panel]");
+    panels?.forEach((panel, index) => {
+      const copy = loginScreenHalf(screen, index); panel.appendChild(copy); copies.push(copy);
+    });
+    // One uninterrupted timeline, independent of authentication/data readiness.
+    // Changing phase must neither retarget nor restart the door's movement.
+    const tl = gsap.timeline({ onComplete: onFinished });
+    panels?.forEach((panel, index) => tl.to(panel, { xPercent: index ? 100 : -100, duration: doorOpenDuration, ease: "power2.inOut" }, 0));
+    return () => copies.forEach((copy) => copy.remove());
+  }, { scope: root, dependencies: [screen, reduced], revertOnUpdate: true });
+  useGSAP(() => {
+    const panels = root.current?.querySelectorAll("[data-door-panel]");
     if (!panels) return;
-    const mobile = window.innerWidth < 1024;
-    const tl = gsap.timeline({ onComplete: phase === "closing" ? onClosed : onFinished });
-    panels.forEach((panel, index) => tl.fromTo(panel, { xPercent: phase === "closing" ? (index ? 100 : -100) : 0 }, { xPercent: phase === "closing" ? 0 : (index ? 100 : -100), duration: mobile ? 0.18 : phase === "closing" ? 0.24 : 0.28, ease: "power2.inOut" }, 0));
-    tl.fromTo("[data-door-brand]", { opacity: phase === "closing" ? 0 : 1 }, { opacity: phase === "closing" ? 1 : 0, duration: 0.12 }, 0);
-  }, { scope: root, dependencies: [phase, reduced], revertOnUpdate: true });
-  return <div ref={root} data-auth-door data-phase={phase} role="status" aria-live="polite" className="fixed inset-0 z-[100] overflow-hidden">
-    <span className="sr-only">Menyiapkan ruang belajarmu…</span>
-    {[0, 1].map((index) => <div key={index} data-door aria-hidden className={`absolute inset-y-0 w-1/2 bg-surface ${index ? "right-0 border-l border-primary/30" : "left-0"}`} style={{ backgroundImage: "linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px)", backgroundSize: "64px 64px" }} />)}
-    <div data-door-brand aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center"><div className="rounded-2xl border bg-surface p-5 shadow-lg"><BrandLogo /></div></div>
+    if (phase !== "cancelling") return;
+    gsap.killTweensOf(panels);
+    if (reduced || !screen) { onCancelled(); return; }
+    gsap.to(panels, { xPercent: 0, duration: 0.32, ease: "power2.inOut", onComplete: onCancelled });
+  }, { scope: root, dependencies: [phase, reduced, screen] });
+  return <div ref={root} data-auth-door data-phase={phase} aria-hidden="true" className="fixed inset-0 z-[100] overflow-hidden" style={{ background: phase === "opening" ? "transparent" : "var(--background)" }}>
+    {[0, 1].map((index) => <div key={index} data-door-panel className={`absolute inset-y-0 w-1/2 overflow-hidden ${index ? "right-0" : "left-0"}`} />)}
   </div>;
 }

@@ -33,7 +33,7 @@ export function AuthExperience({ children }: { children: ReactNode }) {
     if (reduced) { setShown(register); return; }
     const panel = root.current?.querySelector("[data-auth-panel]:not([hidden])");
     if (!panel) return;
-    gsap.to(panel, { opacity: 0, y: -5, duration: window.innerWidth < 1024 ? 0.08 : 0.12, onComplete: () => setShown(register) });
+    gsap.to(panel, { opacity: 0, y: -8, duration: 0.3, ease: "power2.inOut", onComplete: () => setShown(register) });
   }, { scope: root, dependencies: [register, reduced, authPage], revertOnUpdate: true });
   useGSAP(() => {
     if (!authPage || !root.current) return;
@@ -44,13 +44,19 @@ export function AuthExperience({ children }: { children: ReactNode }) {
     const focus = () => { if (!initial) panel.querySelector<HTMLElement>("h1")?.focus({ preventScroll: true }); };
     if (reduced) { focus(); return; }
     const mobile = window.innerWidth < 1024;
+    const fields = panel.querySelectorAll("[data-auth-motion]");
+    gsap.set(panel, { opacity: 0, x: initial ? 0 : (shown ? 24 : -24), y: 0 });
+    gsap.set(fields, { opacity: 0, y: mobile ? 6 : 12 });
     const tl = gsap.timeline({ onComplete: focus });
-    tl.fromTo(panel, { opacity: 0.5, x: initial ? 0 : (shown ? 24 : -24), y: 0 }, { opacity: 1, x: 0, duration: mobile ? 0.2 : 0.3, clearProps: "opacity,transform" });
-    tl.fromTo(panel.querySelectorAll("[data-auth-motion]"), { opacity: 0.6, y: mobile ? 4 : 8 }, { opacity: 1, y: 0, duration: 0.2, stagger: 0.025, clearProps: "opacity,transform" }, 0.04);
+    tl.to(panel, { opacity: 1, x: 0, duration: 0.65, ease: "power3.out", clearProps: "opacity,transform" });
+    tl.to(fields, { opacity: 1, y: 0, duration: 0.55, stagger: 0.06, ease: "power3.out", clearProps: "opacity,transform" }, 0.12);
     if (!mobile) {
-      tl.fromTo("[data-auth-art]", { xPercent: initial ? 0 : (shown ? 100 : -100) }, { xPercent: 0, duration: 0.42, ease: "power2.inOut", clearProps: "transform" }, 0);
-      tl.fromTo("[data-auth-art-copy]", { opacity: 0.5, y: 6 }, { opacity: 1, y: 0, duration: 0.24, stagger: 0.06, clearProps: "opacity,transform" }, 0.15);
-      tl.fromTo("[data-auth-trace]", { strokeDasharray: 700, strokeDashoffset: 700 }, { strokeDashoffset: 0, duration: 0.5, clearProps: "strokeDasharray,strokeDashoffset" }, 0.06);
+      gsap.set("[data-auth-art]", { xPercent: initial ? 0 : (shown ? 100 : -100) });
+      gsap.set("[data-auth-art-copy]", { opacity: 0, y: 10 });
+      gsap.set("[data-auth-trace]", { strokeDasharray: 700, strokeDashoffset: 700 });
+      tl.to("[data-auth-art]", { xPercent: 0, duration: 0.85, ease: "power3.inOut", clearProps: "transform" }, 0);
+      tl.to("[data-auth-art-copy]", { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, clearProps: "opacity,transform" }, 0.3);
+      tl.to("[data-auth-trace]", { strokeDashoffset: 0, duration: 0.9, clearProps: "strokeDasharray,strokeDashoffset" }, 0.2);
     }
   }, { scope: root, dependencies: [shown, reduced, authPage], revertOnUpdate: true });
   return <div ref={root} className="auth-experience">

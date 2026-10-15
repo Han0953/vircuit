@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { readPreferences } from "@/features/settings/preferences";
+import { readPreferences, useReducedMotion } from "@/features/settings/preferences";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ const subscribeHydration = () => () => {};
 export function AuthForm({ register = false, active = true, switching = false, next: destination, callbackError = false, accountDeleted = false, passwordUpdated = false, onBusy }: { register?: boolean; active?: boolean; switching?: boolean; next?: string; callbackError?: boolean; accountDeleted?: boolean; passwordUpdated?: boolean; onBusy?: (mode: "login" | "register", value: boolean) => void }) {
   const hydrated = useSyncExternalStore(subscribeHydration, () => true, () => false);
   const transition = useAuthTransition();
+  const reduced = useReducedMotion();
   const router = useRouter();
   const next = safeDestination(destination);
   const mode = register ? "register" : "login";
@@ -29,6 +30,8 @@ export function AuthForm({ register = false, active = true, switching = false, n
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   async function submit(credentials: { email: string; password: string }) {
     setMessage("");
+    const intent = !register && !reduced ? transition.begin(next) : null;
+    let handedOff = false;
     try {
       const response = await fetch(`/api/auth/${register ? "register" : "login"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ credentials, next }), signal: AbortSignal.timeout(15000) });
       const data = await response.json();
@@ -39,10 +42,10 @@ export function AuthForm({ register = false, active = true, switching = false, n
       const value = await session.json();
       if (!alive.current) return;
       if (!session.ok || typeof value.user?.id !== "string") { setMessage("Sesi belum dapat diverifikasi. Coba masuk kembali."); return; }
-      form.reset();
-      if (readPreferences(value.user.id).motion === "reduced") router.replace(safeDestination(data.next));
-      else transition.start(safeDestination(data.next));
+      if (reduced || readPreferences(value.user.id).motion === "reduced") { transition.cancel(intent, true); form.reset(); router.replace(safeDestination(data.next)); handedOff = true; }
+      else if (transition.start(safeDestination(data.next), intent)) { handedOff = true; form.reset(); }
     } catch { if (alive.current) setMessage("Koneksi gagal. Coba lagi; draft tetap aman di browser ini."); }
+    finally { if (!handedOff) transition.cancel(intent); }
   }
   async function google() {
     setGoogleLoading(true); setMessage("");

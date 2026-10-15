@@ -12,5 +12,5 @@ async function AuthenticatedShell({ children }: { children: ReactNode }) {
 }
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   await dashboardGuard();
-  return <Suspense fallback={<main className="min-h-dvh bg-background px-6 pt-24"><p role="status">Menyiapkan ruang belajar…</p><div aria-hidden className="mt-6 h-40 rounded-xl bg-surface-muted" /></main>}><AuthenticatedShell>{children}</AuthenticatedShell></Suspense>;
+  return <Suspense fallback={<main aria-busy="true" aria-label="Dashboard" className="min-h-dvh bg-background px-6 pt-24"><div aria-hidden className="mt-6 h-40 rounded-xl bg-surface-muted" /></main>}><AuthenticatedShell>{children}</AuthenticatedShell></Suspense>;
 }

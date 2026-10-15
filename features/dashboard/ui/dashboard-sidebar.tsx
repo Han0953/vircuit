@@ -4,7 +4,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "@/features/settings/preferences";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { PanelLeftClose } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/shared/brand-logo";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -29,9 +29,14 @@ export function DashboardSidebar({ user, pathname, collapsed, onToggle }: { user
   return <aside data-dashboard-sidebar className="dashboard-sidebar">
     <div data-sidebar-surface className="absolute inset-0 border-r bg-surface" aria-hidden />
     <div className="relative flex h-full min-h-0 flex-col p-3">
-      <Link data-shell-brand href="/dashboard" aria-label="Vircuit — Dashboard" className="mb-6 flex min-h-14 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-primary"><BrandLogo size={collapsed ? "sm" : "default"} iconOnly={collapsed} /></Link>
-      <TooltipProvider delayDuration={250}><nav ref={nav} aria-label="Navigasi dashboard" className="relative min-h-0 flex-1 space-y-1 overflow-y-auto"><span data-sidebar-pill aria-hidden className="pointer-events-none absolute inset-x-0 top-0 rounded-lg bg-primary-soft" />{dashboardLinks.map(({ href, label, icon: Icon }, index) => <Tooltip key={href}><TooltipTrigger asChild><Link href={href} aria-label={label} aria-current={activeDashboardLink(pathname, href) ? "page" : undefined} className={cn("dashboard-nav-link", activeDashboardLink(pathname, href) && "is-active", collapsed && "justify-center px-0", index === 4 && "mt-6")}><Icon data-shell-icon aria-hidden className="size-5 shrink-0" /><span data-shell-label className={collapsed ? "sr-only" : "truncate"}>{label}</span>{activeDashboardLink(pathname, href) && <span data-shell-indicator aria-hidden className="ml-auto size-1.5 shrink-0 rounded-full bg-primary" />}</Link></TooltipTrigger>{collapsed && <TooltipContent side="right">{label}</TooltipContent>}</Tooltip>)}</nav></TooltipProvider>
-      <div className="mt-4 space-y-2 border-t pt-3"><Button variant="ghost" onClick={onToggle} className={cn("min-h-11 w-full gap-3", collapsed ? "px-0" : "justify-start")} aria-label={collapsed ? "Perluas sidebar" : "Ciutkan sidebar"} aria-expanded={!collapsed}>{collapsed ? <PanelLeftOpen aria-hidden /> : <PanelLeftClose aria-hidden />}<span className={collapsed ? "sr-only" : "text-sm"}>Ciutkan sidebar</span></Button><LogoutButton user={user} iconOnly={collapsed} className={cn("min-h-11 w-full gap-3 border-transparent bg-transparent text-text-secondary hover:bg-destructive/5 hover:text-destructive", collapsed ? "px-0" : "justify-start")} /></div>
+      <div data-shell-brand className={cn("mb-6 flex min-h-14 items-center gap-1", collapsed ? "justify-center" : "justify-between")}>
+        {collapsed ? <Button data-shell-item variant="ghost" onClick={onToggle} aria-label="Perluas sidebar" aria-expanded={false} className="size-11 shrink-0 p-0"><BrandLogo size="sm" iconOnly /></Button> : <>
+          <Link data-shell-item href="/dashboard" aria-label="Vircuit — Dashboard" className="flex min-h-11 min-w-0 items-center rounded-lg focus-visible:outline-2 focus-visible:outline-primary"><BrandLogo size="sm" /></Link>
+          <Button data-shell-item variant="ghost" size="icon" onClick={onToggle} aria-label="Ciutkan sidebar" aria-expanded className="size-11 shrink-0"><PanelLeftClose aria-hidden /></Button>
+        </>}
+      </div>
+      <TooltipProvider delayDuration={250}><nav ref={nav} aria-label="Navigasi dashboard" className="relative min-h-0 flex-1 space-y-1 overflow-y-auto"><span data-sidebar-pill aria-hidden className="pointer-events-none absolute inset-x-0 top-0 rounded-lg bg-primary-soft" />{dashboardLinks.map(({ href, label, icon: Icon }, index) => <Tooltip key={href}><TooltipTrigger asChild><Link data-shell-item href={href} aria-label={label} aria-current={activeDashboardLink(pathname, href) ? "page" : undefined} className={cn("dashboard-nav-link", activeDashboardLink(pathname, href) && "is-active", collapsed && "justify-center px-0", index === 4 && "mt-6")}><Icon data-shell-icon aria-hidden className="size-5 shrink-0" /><span data-shell-label aria-hidden={collapsed} className="dashboard-nav-label truncate">{label}</span>{!collapsed && activeDashboardLink(pathname, href) && <span data-shell-indicator aria-hidden className="ml-auto size-1.5 shrink-0 rounded-full bg-primary" />}</Link></TooltipTrigger>{collapsed && <TooltipContent side="right">{label}</TooltipContent>}</Tooltip>)}</nav></TooltipProvider>
+      <div data-shell-item data-sidebar-logout className="mt-4 border-t pt-3"><LogoutButton user={user} iconOnly={collapsed} className={cn("min-h-11 w-full gap-3 border-transparent bg-transparent text-text-secondary hover:bg-destructive/5 hover:text-destructive", collapsed ? "px-0" : "justify-start")} /></div>
     </div>
   </aside>;
 }

@@ -1,6 +1,8 @@
 export interface AuthEntry { id: string; target: string; expires: number }
 export const authEntryCookie = "vircuit-auth-entry";
-export const doorDeadline = 1800;
+// Failure deadline for covered navigation and the full-viewport opening.
+export const doorDeadline = 15000;
+export const doorOpenDuration = 1.5;
 
 export function transitionTarget(value: string) {
   if (value.length > 300 || !/^\/(?:dashboard(?:\/|$)|simulator(?:\/code)?(?:\?|$))/.test(value) || value.includes("\\")) return "/dashboard";

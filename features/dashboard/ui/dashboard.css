@@ -1,6 +1,13 @@
 .dashboard-root { --dashboard-sidebar-width:256px; }
 .dashboard-root[data-sidebar=collapsed] { --dashboard-sidebar-width:80px; }
 .dashboard-sidebar { display:none; position:fixed; inset:0 auto 0 0; z-index:40; width:var(--dashboard-sidebar-width); }
+.dashboard-sidebar > div:last-child { overflow-x:clip; }
+.dashboard-root[data-sidebar=collapsed] .dashboard-nav-link { justify-content:flex-start; gap:0; padding-inline:18px 0; }
+.dashboard-root[data-sidebar=collapsed] [data-shell-brand] { width:56px; }
+.dashboard-root[data-sidebar=collapsed] [data-shell-item] > [aria-label="Keluar akun"] { width:56px; }
+.dashboard-nav-label { max-width:160px; opacity:1; transition:opacity 200ms,max-width 450ms; }
+.dashboard-root[data-sidebar=collapsed] .dashboard-nav-label { max-width:0; opacity:0; }
+.dashboard-root[data-intro-pending=true] :is([data-dashboard-sidebar],[data-shell-brand],[data-shell-item],[data-dashboard-header],[data-dashboard-dock],[data-motion]) { opacity:0; }
 .dashboard-nav-link { position:relative; display:flex; align-items:center; gap:12px; min-height:44px; padding:10px 12px; border-radius:10px; font-size:14px; color:var(--text-secondary); transition:background-color 160ms,color 160ms; }
 .dashboard-nav-link:hover { background:var(--surface-muted); color:var(--foreground); }
 .dashboard-nav-link:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
@@ -12,6 +19,9 @@
 .dashboard-dock-item:focus-visible { outline:2px solid var(--primary); outline-offset:-2px; }
 .dashboard-dock-item[aria-current=page],.dashboard-dock-item:hover { color:var(--primary); }
 .dashboard-main { padding-bottom:calc(100px + env(safe-area-inset-bottom)); touch-action:pan-y pinch-zoom; }
+.dashboard-main h1[tabindex="-1"]:focus { outline:none; }
+.dashboard-root:is([data-intro-pending=true],[data-login-intro]) [data-dashboard-page] > [role="status"] { visibility:hidden; }
+.dashboard-root[data-login-intro] [data-dashboard-content-ready]:not([data-content-motion-ready]) { visibility:hidden; }
 .dashboard-root :is(button,a):active { transition-duration:100ms; }
 .dashboard-root [data-slot=button]:not(:disabled):active { scale:.98; }
 .dashboard-more [data-state=open] { animation-duration:180ms; }

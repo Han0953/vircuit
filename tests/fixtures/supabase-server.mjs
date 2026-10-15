@@ -13,6 +13,7 @@ let failure = false;
 let conflict = false;
 let saves = 0;
 let active = true;
+let progressDelay = 0;
 const avatars = new Map();
 function reset(count = 28) {
   rows = Array.from({ length: count }, (_, index) => {
@@ -20,7 +21,7 @@ function reset(count = 28) {
     const title = `Proyek ${String(index + 1).padStart(3, "0")}`;
     return { id, title, revision: 1, user_id: owner, updated_at: new Date(Date.now() - (index + 1) * 60000).toISOString(), payload: blank(title), operations: new Map() };
   });
-  failure = false; conflict = false; saves = 0; active = true;
+  failure = false; conflict = false; saves = 0; active = true; progressDelay = 0;
   avatars.clear();
 }
 reset();
@@ -43,7 +44,7 @@ export async function startSupabaseFixture() {
       if (mode === "project-assistant") result.blueprint = { goal: "Rencana project", constraints: ["Dukungan simulator masih subset."], components: [{ name: "Arduino Uno", catalogType: "uno", support: "partial" }], circuitPlan: ["Rencanakan koneksi input dan output."], programStructure: ["Baca input lalu kendalikan output."], testing: ["Uji rangkaian secara bertahap."] };
       return send({ candidates: [{ content: { role: "model", parts: [{ text: JSON.stringify(result) }] }, finishReason: "STOP" }], usageMetadata: { totalTokenCount: 30 } });
     }
-    if (url.pathname === "/__fixture/reset") { reset(body.count); await resetProgressDatabase(); await resetProfile(owner); user.new_email = ""; user.identities = [{ provider: body.oauth ? "google" : "email", user_id: owner, identity_id: owner }]; failure = !!body.failure; return send({ ok: true }); }
+    if (url.pathname === "/__fixture/reset") { reset(body.count); progressDelay = typeof body.progressDelay === "number" ? Math.max(0, Math.min(5000, body.progressDelay)) : 0; await resetProgressDatabase(); await resetProfile(owner); user.new_email = ""; user.identities = [{ provider: body.oauth ? "google" : "email", user_id: owner, identity_id: owner }]; failure = !!body.failure; return send({ ok: true }); }
     if (url.pathname === "/__fixture/failure") { failure = !!body.enabled; return send({ ok: true }); }
     if (url.pathname === "/__fixture/state") return send({ saves, count: rows.length, rows: rows.map(({ id, title, revision }) => ({ id, title, revision })) });
     if (url.pathname === "/__fixture/conflict") { conflict = !!body.enabled; return send({ ok: true }); }
@@ -83,7 +84,7 @@ export async function startSupabaseFixture() {
       try { return send(await writeProfile(owner, body.p_display_name)); }
       catch { return send({ code: "22023", message: "Profile rejected" }, 400); }
     }
-    if (url.pathname === "/rest/v1/learning_progress") return send(await readProgressDatabase(owner));
+    if (url.pathname === "/rest/v1/learning_progress") { if (progressDelay) await new Promise((resolve) => setTimeout(resolve, progressDelay)); return send(await readProgressDatabase(owner)); }
     if (url.pathname === "/rest/v1/projects") {
       let selected = rows.filter((item) => (!equal("user_id") || equal("user_id") === item.user_id) && (!equal("id") || equal("id") === item.id));
       const pattern = url.searchParams.get("title");
