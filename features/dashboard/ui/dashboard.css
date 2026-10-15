@@ -22,9 +22,8 @@
 .dashboard-dock-item[aria-current=page],.dashboard-dock-item:hover { color:var(--primary); }
 .dashboard-main { padding-bottom:calc(100px + env(safe-area-inset-bottom)); touch-action:pan-y pinch-zoom; }
 .dashboard-main h1[tabindex="-1"]:focus { outline:none; }
-.dashboard-cirra { height:calc(var(--cirra-visible-height,100dvh) - 196px - env(safe-area-inset-bottom)); min-height:280px; }
-.dashboard-cirra:has(textarea:focus) { height:calc(var(--cirra-visible-height,100dvh) - 112px - env(safe-area-inset-bottom)); }
-@media(min-width:1024px) { .dashboard-cirra,.dashboard-cirra:has(textarea:focus) { height:calc(var(--cirra-visible-height,100dvh) - 144px); min-height:360px; } }
+.dashboard-cirra { height:calc(var(--cirra-visible-height,100dvh) - 196px + var(--cirra-keyboard-open,0)*84px - env(safe-area-inset-bottom)); min-height:200px; }
+@media(min-width:1024px) { .dashboard-cirra { height:calc(var(--cirra-visible-height,100dvh) - 144px); min-height:360px; } }
 /* Avoid a one-frame skeleton flash on warm navigation; slow requests still
    expose their real loading state. The status remains available to AT. */
 .dashboard-root [data-dashboard-page] > [role="status"] { animation:dashboard-loading-reveal 1ms 140ms both; }

@@ -373,9 +373,8 @@ test("login motion begins before slow authentication; failed or unverified reque
   await expect(page.getByRole("status")).toContainText("Koneksi gagal");
   await expect(page.getByLabel("Kata sandi", { exact: true })).toHaveValue("wrong-password");
   await page.unroute("**/api/auth/login");
-  // A successful login response alone still cannot navigate without verified session.
+  // A malformed successful response cannot enter without a verified identity.
   await page.route("**/api/auth/login", (route) => route.fulfill({ status: 200, json: { next: "/dashboard" } }));
-  await page.route("**/api/auth/session", (route) => route.fulfill({ status: 200, json: { user: null } }));
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.getByRole("status")).toContainText("Sesi belum dapat diverifikasi");

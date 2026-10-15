@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { selectCirraEffort } from "./helpers/cirra-controls";
 
 const provider = "http://127.0.0.1:3031";
 async function login(page: Page) {
@@ -75,13 +76,12 @@ for (const workspace of [false, true]) test(`Cirra bubble grows with text and hi
   await page.goto(workspace ? "/simulator" : "/dashboard/cirra");
   if (workspace) await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
   const chat = page.getByRole("region", { name: "Percakapan Cirra" });
-  const mode = chat.getByLabel("Mode", { exact: true });
+  const mode = chat.getByRole("button", { name: "Pengaturan Cirra", exact: true });
   await mode.click();
   await expect(mode).toHaveAttribute("aria-expanded", "true");
-  await expect.poll(() => mode.locator("svg").last().evaluate((el) => getComputedStyle(el).transform)).toContain("-1");
+  await expect.poll(() => mode.locator("svg").last().evaluate((el) => getComputedStyle(el).rotate)).toBe("180deg");
   await page.keyboard.press("Escape");
-  await chat.getByRole("button", { name: "Opsi percakapan" }).click();
-  await page.getByRole("menuitemradio", { name: "Langkah demi langkah", exact: true }).click();
+  await selectCirraEffort(page, 3);
   const answer = "Periksa pin output board dan jalur resistor sebelum menghubungkan LED ke ground.\n".repeat(45);
   const levels: number[] = [];
   await page.route("**/api/ai/cirra", async (route) => {
@@ -98,8 +98,7 @@ for (const workspace of [false, true]) test(`Cirra bubble grows with text and hi
   expect((await reply.boundingBox())!.height).toBeGreaterThan(start + 200);
   await expect.poll(() => chat.getByRole("log").evaluate((el) => el.scrollHeight - el.clientHeight - el.scrollTop)).toBeLessThan(3);
   expect(levels).toEqual([3]);
-  await chat.getByRole("button", { name: "Opsi percakapan" }).click();
-  await page.getByRole("menuitemradio", { name: "Singkat", exact: true }).click();
+  await selectCirraEffort(page, 1);
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Jelaskan singkat saja");
   await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect.poll(() => levels).toEqual([3, 1]);

@@ -12,6 +12,7 @@ export function useChatViewport(ref: RefObject<HTMLElement | null>, open: boolea
       frame = requestAnimationFrame(() => {
         panel.style.setProperty("--cirra-visible-height", `${Math.max(1, viewport?.height ?? window.innerHeight)}px`);
         panel.style.setProperty("--cirra-visible-top", `${Math.max(0, viewport?.offsetTop ?? 0)}px`);
+        panel.style.setProperty("--cirra-keyboard-open", viewport && viewport.scale === 1 && window.innerHeight - viewport.height > 120 ? "1" : "0");
       });
     };
     const bodyOverflow = document.body.style.overflow;
@@ -27,6 +28,7 @@ export function useChatViewport(ref: RefObject<HTMLElement | null>, open: boolea
       viewport?.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
       panel.style.removeProperty("--cirra-visible-height"); panel.style.removeProperty("--cirra-visible-top");
+      panel.style.removeProperty("--cirra-keyboard-open");
       if (lockScroll) { document.body.style.overflow = bodyOverflow; document.documentElement.style.overflow = rootOverflow; }
     };
   }, [ref, open, mobile, lockScroll]);

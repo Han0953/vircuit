@@ -21,6 +21,25 @@ describe("auth server routes", () => {
     const response = await POST(request({ credentials }), { params: Promise.resolve({ action: "login" }) });
     expect(response.status).toBe(401); expect(await response.text()).not.toContain("Sensitive provider");
   });
+  it("returns only the authenticated identity so login can navigate without another session request", async () => {
+    client.auth.signInWithPassword.mockResolvedValue({ data: { user: { id: "user-one", email: credentials.email }, session: { access_token: "private-token", refresh_token: "private-refresh" } }, error: null });
+    const response = await POST(request({ credentials, next: "/dashboard/learn" }), { params: Promise.resolve({ action: "login" }) });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ next: "/dashboard/learn", user: { id: "user-one" } });
+    expect(client.auth.getUser).not.toHaveBeenCalled();
+  });
+  it("rejects a password exchange without both a user and a session", async () => {
+    for (const data of [{ user: null, session: {} }, { user: { id: "user-one" }, session: null }]) {
+      client.auth.signInWithPassword.mockResolvedValue({ data, error: null });
+      const response = await POST(request({ credentials }), { params: Promise.resolve({ action: "login" }) });
+      expect(response.status).toBe(401);
+    }
+  });
+  it("returns the minimal identity for registration with an immediately active session", async () => {
+    client.auth.signUp.mockResolvedValue({ data: { user: { id: "user-one" }, session: { access_token: "private-token" } }, error: null });
+    const response = await POST(request({ credentials, next: "/dashboard" }), { params: Promise.resolve({ action: "register" }) });
+    expect(await response.json()).toEqual({ confirmation: false, next: "/dashboard", user: { id: "user-one" } });
+  });
   it("reports disabled Google and constructs safe enabled callback", async () => {
     const settings = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ external: { google: false } })).mockResolvedValueOnce(Response.json({ external: { google: true } }));
     expect((await POST(request({ next: "//evil.test" }), { params: Promise.resolve({ action: "google" }) })).status).toBe(503);

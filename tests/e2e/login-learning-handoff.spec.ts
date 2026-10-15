@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { doorOpenDuration } from "../../features/auth/motion/transition-contract";
 
 const provider = "http://127.0.0.1:3031";
 test.beforeEach(async ({ request, page }) => {
@@ -12,6 +13,61 @@ test.beforeEach(async ({ request, page }) => {
       if (/Menyiapkan halaman akun|Menyiapkan akun/.test(document.body?.innerText ?? "")) document.documentElement.dataset.accountPreparationSeen = "true";
     }).observe(document, { childList: true, subtree: true, characterData: true });
   });
+});
+
+test("desktop door hands straight to the dashboard without a redundant session round trip", async ({ page }, info) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/masuk");
+  let sessionChecks = 0;
+  await page.route("**/api/auth/session", async (route) => {
+    sessionChecks++;
+    await new Promise((resolve) => setTimeout(resolve, 1800));
+    await route.continue();
+  });
+  await page.getByLabel("Email", { exact: true }).fill("dashboard@example.test");
+  await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
+  const measurement = page.evaluate(async (duration) => {
+    let doorStart = 0, sidebarStart = 0;
+    const start = performance.now();
+    await new Promise<void>((resolve) => {
+      function frame() {
+        const panel = document.querySelector("[data-door-panel]");
+        if (panel) doorStart ||= performance.now();
+        const sidebar = document.querySelector("[data-dashboard-sidebar]");
+        if (doorStart && sidebar && Number(getComputedStyle(sidebar).opacity) > 0 && !document.querySelector("[data-auth-transition]")) sidebarStart = performance.now();
+        if (sidebarStart || performance.now() - start > 12000) resolve();
+        else requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    });
+    // A power2 easing reaches within 1px well before its timeline completes.
+    // Measure against the full accepted duration, not that visual threshold.
+    const motionEnd = doorStart + duration * 1000;
+    return { doorStart, motionEnd, sidebarStart, gap: sidebarStart - motionEnd };
+  }, doorOpenDuration);
+  await page.getByRole("button", { name: "Masuk dengan email" }).click();
+  const trace = await measurement;
+  await info.attach("door-dashboard-gap.json", { body: JSON.stringify({ ...trace, sessionChecks }), contentType: "application/json" });
+  console.log("DOOR_DASHBOARD_GAP", JSON.stringify({ ...trace, sessionChecks }));
+  expect(trace.doorStart).toBeGreaterThan(0);
+  expect(trace.sidebarStart).toBeGreaterThan(0);
+  expect(trace.gap).toBeLessThan(150);
+  expect(trace.gap).toBeGreaterThan(-100);
+  expect(sessionChecks).toBe(0);
+  await expect(page.locator("#dashboard-main h1")).toHaveText("Halo, Astra!");
+});
+
+test("a forged login identity cannot bypass cookie verification in the navigation action", async ({ page }) => {
+  await page.goto("/masuk");
+  await page.route("**/api/auth/login", (route) => route.fulfill({ json: { next: "/dashboard", user: { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" } } }));
+  await page.getByLabel("Email", { exact: true }).fill("dashboard@example.test");
+  await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
+  await page.getByRole("button", { name: "Masuk dengan email" }).click();
+  await expect(page.locator("[data-auth-feedback]")).toContainText("Koneksi gagal");
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
+  await expect(page).toHaveURL(/\/masuk$/);
+  await expect(page.locator("[data-dashboard-shell]")).toHaveCount(0);
+  await expect(page.getByLabel("Kata sandi", { exact: true })).toHaveValue("fixture-password");
 });
 
 for (const width of [390, 1440]) test(`login reaches requested learning page without account preparation at ${width}px`, async ({ page }, info) => {

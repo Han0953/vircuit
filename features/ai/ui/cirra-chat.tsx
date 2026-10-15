@@ -3,11 +3,10 @@ import { useId, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, Square, RotateCcw, Trash2, Ellipsis, ArrowDown, BookOpen, Bug, Lightbulb } from "lucide-react";
-import { OptionPicker } from "@/components/shared/option-picker";
+import { Send, Square, RotateCcw, ArrowDown } from "lucide-react";
+import { ChatControls } from "./chat-controls";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { modeSchema, type CirraMode, type CirraRequest } from "../contracts";
+import { type CirraMode, type CirraRequest } from "../contracts";
 import { useChat } from "./use-chat";
 import { updateSession } from "./session-store";
 import { desktopChatInput, enterSubmits } from "./chat-input";
@@ -16,7 +15,6 @@ import { useChatScroll } from "./use-chat-scroll";
 import { ChatBubble, MessageSurface } from "./chat-message";
 import { ReplyText } from "./reply-text";
 const formSchema = z.object({ message: z.string().trim().min(1, "Tulis pertanyaan dulu.").max(2000, "Maksimal 2000 karakter.") });
-const labels: Record<CirraMode, string> = { tutor: "Tutor", debugger: "Debugger", "project-assistant": "Project Assistant" };
 function referenceLabel(value: string) {
   const line = value.match(/^line[.:](\d+)$/);
   if (line) return `Baris ${line[1]}`;
@@ -65,14 +63,8 @@ export function CirraChat({ owner, scope, contextLabel, initialMode = "tutor", a
           onPointerDown={(event) => { touch.current = event.pointerType === "touch"; }}
           onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; }}
           onKeyDown={(event) => { if (enterSubmits({ key: event.key, shift: event.shiftKey, composing: composing.current || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229, desktop: desktopChatInput(), touch: touch.current }) && session.draft.trim()) { event.preventDefault(); void submit(); } }} />
-        <div className="flex min-w-0 items-center justify-between gap-2">
-          <label htmlFor={`${id}-mode`} className="sr-only">Mode</label>
-          <div className="flex min-w-0 items-center"><OptionPicker label="Mode" id={`${id}-mode`} compact value={session.mode} disabled={chat.pending || chat.unavailable} onChange={(mode) => updateSession(chat.key, { mode: modeSchema.parse(mode), hintLevel: 1 })} options={[
-            { value: "tutor", label: labels.tutor, description: "Pahami konsep dan langkah belajar.", icon: <BookOpen aria-hidden /> },
-            { value: "debugger", label: labels.debugger, description: "Bahas kode dan diagnostik rangkaian.", icon: <Bug aria-hidden /> },
-            { value: "project-assistant", label: labels["project-assistant"], description: "Susun ide dan kebutuhan proyek.", icon: <Lightbulb aria-hidden /> },
-          ]} />
-          <DropdownMenu modal={false}><DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label="Opsi percakapan" disabled={chat.pending}><Ellipsis aria-hidden /></Button></DropdownMenuTrigger><DropdownMenuContent data-cirra-options side="top" align="start" className="max-w-72" onEscapeKeyDown={(event) => event.stopPropagation()}><p className="px-2 py-2 text-xs leading-relaxed text-text-secondary">Konteks terkait digunakan untuk menjawab. Hindari membagikan data sensitif; percakapan tersimpan selama sesi ini.</p><DropdownMenuItem disabled={chat.pending} onSelect={chat.clear}><Trash2 aria-hidden />Bersihkan</DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuLabel>Detail petunjuk</DropdownMenuLabel><DropdownMenuRadioGroup value={String(session.hintLevel)} onValueChange={(value) => { const level = Number(value); if ([1, 2, 3].includes(level)) updateSession(chat.key, { hintLevel: level }); }}>{["Singkat", "Lebih jelas", "Langkah demi langkah"].map((label, index) => <DropdownMenuRadioItem key={label} value={String(index + 1)} disabled={chat.pending || chat.unavailable}>{label}</DropdownMenuRadioItem>)}</DropdownMenuRadioGroup></DropdownMenuContent></DropdownMenu></div>
+        <div className="flex min-w-0 items-center justify-end gap-2">
+          <ChatControls mode={session.mode} effort={session.hintLevel} disabled={chat.pending || chat.unavailable} onModeChange={(mode) => updateSession(chat.key, { mode })} onEffortChange={(hintLevel) => updateSession(chat.key, { hintLevel })} onClear={chat.clear} />
           {chat.pending ? <Button type="button" size="icon" aria-label="Hentikan" title="Hentikan jawaban" onClick={chat.cancel}><Square aria-hidden /></Button> : <Button type="submit" size="icon" disabled={!session.draft.trim()} aria-label="Kirim" title="Kirim pertanyaan"><Send aria-hidden /></Button>}
         </div>
       </div>

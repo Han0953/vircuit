@@ -1,3 +1,4 @@
+import { selectCirraMode } from "./helpers/cirra-controls";
 import { test, expect, type Page } from "@playwright/test";
 const fixture = "http://127.0.0.1:3031";
 const lesson = "/dashboard/learn/dasar-iot/blink";
@@ -77,7 +78,7 @@ test("desktop Enter, Shift+Enter, IME and unified mode history retain a lesson d
   await expect(chat.locator('[data-message-role="user"]')).toHaveCount(0);
   await input.dispatchEvent("compositionend"); await input.fill("Pertanyaan Tutor"); await input.press("Enter");
   await expect(chat.locator('[data-message-role="assistant"]')).toHaveCount(1);
-  await chat.getByLabel("Mode", { exact: true }).click(); await page.getByRole("menuitemradio", { name: "Debugger", exact: true }).click();
+  await selectCirraMode(page, "Debugger");
   await expect(page.getByRole("menu")).toHaveCount(0);
   const request = page.waitForRequest("**/api/ai/cirra");
   await input.fill("Pertanyaan Debugger"); await input.press("Enter");
@@ -88,7 +89,7 @@ test("desktop Enter, Shift+Enter, IME and unified mode history retain a lesson d
   await expect.poll(async () => (await entrances(page)).length).toBe(4);
   await input.fill("Draft belum dikirim"); await input.focus(); await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Tanya Cirra", exact: true }).click();
-  await expect(input).toHaveValue("Draft belum dikirim"); await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "debugger");
+  await expect(input).toHaveValue("Draft belum dikirim"); await expect(chat.getByRole("button", { name: "Pengaturan Cirra", exact: true })).toHaveAttribute("data-value", "debugger");
   await expect(chat.locator('[data-message-role="assistant"]')).toHaveCount(2);
   expect((await entrances(page)).length).toBe(4);
   expect(await chat.locator("article").evaluateAll((elements) => elements.flatMap((el) => el.getAnimations()).length)).toBe(0);
@@ -101,6 +102,7 @@ test("smart scroll keeps reading position on reply, mode changes and reopen", as
   for (let index = 0; index < 2; index++) {
     await chat.getByLabel("Pertanyaan untuk Cirra").fill(`Pertanyaan ${index}`); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
     await expect(chat.locator('[data-message-role="assistant"]')).toHaveCount(index + 1);
+    await expect(chat.locator("[data-revealing]")).toHaveCount(0);
   }
   let release!: () => void;
   const waiting = new Promise<void>((resolve) => { release = resolve; });
@@ -114,7 +116,7 @@ test("smart scroll keeps reading position on reply, mode changes and reopen", as
   const top = await log.evaluate((el) => el.scrollTop); release();
   await expect(chat.getByRole("log")).toContainText("Jawaban terbaru"); await expect(chat.locator(".cirra-typing")).toHaveCount(0);
   expect(await log.evaluate((el) => el.scrollTop)).toBeCloseTo(top, 0);
-  await chat.getByLabel("Mode", { exact: true }).click(); await page.getByRole("menuitemradio", { name: "Project Assistant", exact: true }).click(); expect(await log.evaluate((el) => el.scrollTop)).toBeCloseTo(top, 0);
+  await selectCirraMode(page, "Project Assistant"); expect(await log.evaluate((el) => el.scrollTop)).toBeCloseTo(top, 0);
   await expect(page.getByRole("menu")).toHaveCount(0); await chat.getByLabel("Pertanyaan untuk Cirra").focus();
   await page.keyboard.press("Escape"); await page.getByRole("button", { name: "Tanya Cirra", exact: true }).click();
   expect(await log.evaluate((el) => el.scrollTop)).toBeCloseTo(top, 0);
@@ -193,10 +195,13 @@ test("touch Enter creates a newline; visible viewport, focus and reduced motion 
   await page.getByRole("button", { name: "Buka Cirra", exact: true }).tap();
   await expect(page.getByRole("button", { name: "Minimalkan Cirra" })).toBeFocused();
   const chat = page.getByRole("region", { name: "Percakapan Cirra" }), input = chat.getByLabel("Pertanyaan untuk Cirra");
-  await chat.getByLabel("Mode", { exact: true }).tap();
-  expect(await page.getByRole("menu").evaluate((el) => el.contains(document.activeElement))).toBe(true);
-  await page.getByRole("menuitemradio", { name: "Debugger", exact: true }).tap();
-  await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "debugger");
+  await chat.getByRole("button", { name: "Pengaturan Cirra", exact: true }).tap();
+  const settings = page.getByRole("dialog", { name: "Pengaturan Cirra", exact: true });
+  expect(await settings.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+  await settings.getByRole("button", { name: /^Ganti mode:/ }).tap();
+  await settings.getByRole("radio", { name: "Debugger", exact: true }).tap();
+  await page.keyboard.press("Escape");
+  await expect(chat.getByRole("button", { name: "Pengaturan Cirra", exact: true })).toHaveAttribute("data-value", "debugger");
   await expect(page.getByRole("menu")).toHaveCount(0);
   await input.tap(); await input.fill("Baris mobile"); await input.press("Enter"); await expect(input).toHaveValue("Baris mobile\n");
   await expect(chat.locator('[data-message-role="user"]')).toHaveCount(0);
@@ -216,9 +221,9 @@ test("touch Enter creates a newline; visible viewport, focus and reduced motion 
   await expect(chat.locator("[data-revealing]")).toHaveCount(0);
   expect(await chat.locator('[data-message-role="assistant"]').evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
   await expect.poll(() => chat.locator('[data-message-role="assistant"] img').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
-  await chat.getByRole("button", { name: "Opsi percakapan" }).tap(); await expect(page.getByRole("menu")).toBeVisible();
-  await page.keyboard.press("ArrowDown"); await expect(page.getByRole("menuitem", { name: "Bersihkan" })).toBeFocused();
-  await page.keyboard.press("Escape"); await expect(chat.getByRole("button", { name: "Opsi percakapan" })).toBeFocused();
+  await chat.getByRole("button", { name: "Pengaturan Cirra", exact: true }).tap(); await expect(settings).toBeVisible();
+  await settings.getByRole("button", { name: "Hapus percakapan" }).focus(); await expect(settings.getByRole("button", { name: "Hapus percakapan" })).toBeFocused();
+  await page.keyboard.press("Escape"); await expect(chat.getByRole("button", { name: "Pengaturan Cirra", exact: true })).toBeFocused();
   await input.fill("Tetap tersimpan"); await page.screenshot({ path: "test-results/cirra-ux-mobile-viewport.png", fullPage: true });
   await page.getByRole("button", { name: "Minimalkan Cirra" }).tap(); await expect(page.getByRole("button", { name: "Buka Cirra", exact: true })).toBeFocused();
   expect(await page.evaluate(() => document.body.style.overflow)).not.toBe("hidden");

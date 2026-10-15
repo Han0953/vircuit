@@ -1,3 +1,4 @@
+import { selectCirraMode } from "./helpers/cirra-controls";
 import { test, expect, type Page } from "@playwright/test";
 const fixture = "http://127.0.0.1:3031";
 const lesson = "/dashboard/learn/dasar-iot/blink";
@@ -48,7 +49,7 @@ test("challenge Debugger and Assistant do not mutate circuit/code or complete ch
   await page.getByRole("button", { name: "Tantangan & evaluasi" }).click();
   await page.getByRole("button", { name: "Tanya Cirra tentang tantangan" }).click();
   const chat = page.getByRole("region", { name: "Percakapan Cirra" });
-  await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "debugger");
+  await expect(chat.getByRole("button", { name: "Pengaturan Cirra", exact: true })).toHaveAttribute("data-value", "debugger");
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Beri aku petunjuk untuk challenge ini"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("log")).toContainText("wiring dan kode aktual");
   await expect(page.locator(".react-flow__node")).toHaveCount(3);
@@ -66,7 +67,7 @@ test("challenge Debugger and Assistant do not mutate circuit/code or complete ch
   await page.getByRole("button", { name: "Minimalkan Cirra" }).click();
   await page.getByRole("link", { name: "Circuit", exact: true }).click();
   await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
-  await chat.getByLabel("Mode", { exact: true }).click(); await page.getByRole("menuitemradio", { name: "Project Assistant", exact: true }).click();
+  await selectCirraMode(page, "Project Assistant");
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Aku mau membuat smart plant monitoring"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("log")).toContainText("komponen yang didukung");
   await expect(chat.getByRole("region", { name: "Rencana proyek" })).toBeVisible();
@@ -78,14 +79,14 @@ test("challenge Debugger and Assistant do not mutate circuit/code or complete ch
 test("new project planning and Problems handoff use the existing canvas without edits", async ({ page }) => {
   await login(page); await page.getByRole("region", { name: "Proyek terbaru" }).getByRole("button", { name: "Proyek baru", exact: true }).click(); await expect(page).toHaveURL(/\/simulator$/);
   await page.getByRole("button", { name: "Buka Cirra", exact: true }).click();
-  await page.getByLabel("Mode", { exact: true }).click(); await page.getByRole("menuitemradio", { name: "Project Assistant", exact: true }).click();
+  await selectCirraMode(page, "Project Assistant");
   const chat = page.getByRole("region", { name: "Percakapan Cirra" });
-  await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "project-assistant");
+  await expect(chat.getByRole("button", { name: "Pengaturan Cirra", exact: true })).toHaveAttribute("data-value", "project-assistant");
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Bantu aku merencanakan lampu sederhana"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   await expect(chat.getByRole("region", { name: "Rencana proyek" })).toBeVisible(); await expect(page.locator(".react-flow__node")).toHaveCount(0);
   await page.getByRole("tab", { name: "Problems", exact: true }).click(); await page.getByRole("button", { name: "Periksa rangkaian" }).click();
   await page.getByRole("button", { name: "Tanya Cirra", exact: true }).click();
-  await expect(chat.getByLabel("Mode", { exact: true })).toHaveAttribute("data-value", "debugger");
+  await expect(chat.getByRole("button", { name: "Pengaturan Cirra", exact: true })).toHaveAttribute("data-value", "debugger");
   const sent = page.waitForRequest((request) => request.url().endsWith("/api/ai/cirra"));
   await chat.getByLabel("Pertanyaan untuk Cirra").fill("Jelaskan diagnostic ini"); await chat.getByRole("button", { name: "Kirim", exact: true }).click();
   expect((await sent).postDataJSON().selectedProblemId).toBe("board-count");

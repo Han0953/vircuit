@@ -62,10 +62,14 @@ export async function POST(request: Request, context: { params: Promise<{ action
       const callback = new URL("/auth/callback", request.url); callback.searchParams.set("next", next);
       const { data, error } = await supabase.auth.signUp({ ...parsed.data, options: { emailRedirectTo: callback.href } });
       if (error) throw new RequestError("Pendaftaran belum berhasil. Periksa data atau coba lagi nanti.", 400);
-      return Response.json({ confirmation: !data.session, next }, { headers: { "Cache-Control": "no-store" } });
+      return Response.json({ confirmation: !data.session, next, ...(data.session && data.user ? { user: { id: data.user.id } } : {}) }, { headers: { "Cache-Control": "no-store" } });
     }
-    const { error } = await supabase.auth.signInWithPassword(parsed.data);
+    const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
     if (error) throw new RequestError("Email atau kata sandi tidak sesuai, atau email belum dikonfirmasi.", 401);
-    return Response.json({ next }, { headers: { "Cache-Control": "no-store" } });
+    if (!data.user || !data.session) throw new RequestError("Sesi belum dapat diverifikasi. Coba masuk kembali.", 401);
+    // Auth's password exchange has already verified these credentials. Return
+    // only the identity needed for local motion preferences, never the tokens.
+    // The navigation action and destination still verify the cookie session.
+    return Response.json({ next, user: { id: data.user.id } }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return errorResponse(error); }
 }

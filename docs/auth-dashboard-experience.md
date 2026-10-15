@@ -2,6 +2,14 @@
 
 Implementation checkpoint: 15 October 2026.
 
+## Production login handoff latency fix — 15 October 2026
+
+The form no longer makes a separate `/api/auth/session` request between the successful credential exchange and `navigateAfterLogin`. The login/register Route Handler returns only the authenticated user's ID when a session exists, used solely to read local motion preferences. It does not return session tokens. The Server Action still calls `getUser()` against the cookie session before invalidation/redirect, and dashboard server guards remain unchanged. Missing identity/session, forged client responses and failed navigation fail closed and restore the form. Desktop rolling and mobile fade durations/choreography are unchanged.
+
+Reproduction on a local production build with a delayed session endpoint showed an unnecessary wait after the doors were visually open. After the fix, no extra session request occurred and the measured full-door-duration-to-sidebar gap was 7.7 ms. The initial measurement used a within-1px threshold, which precedes the end of the eased timeline; the regression now measures from first door frame plus the actual 1500ms duration. This distinguishes navigation latency from the accepted easing tail.
+
+LOCAL validation: lint/typecheck/build PASS; 361 unit tests PASS, 6 skipped. 24 unique Playwright scenarios verified across a 23-pass batch and corrected targeted rerun: login/registration states, failed credentials, forged identity, slow auth/navigation/data, desktop/mobile, reduced motion, learning destinations, refresh/no replay, and guest-draft preservation. Production browser tests use loopback Auth fixtures; deployed production/remote Supabase latency was not measured. Restart any already-running local production server after rebuilding so it serves the matching client/server manifests. No deployment, schema changes or account mutations.
+
 ## Demo entry animation — 15 October 2026
 
 Lihat demo dashboard now starts the same sanitized form-screen transition as login: desktop uses the existing 1500ms split opening; mobile uses the existing 360ms fade. Both real and demo shells call `useDashboardIntro`, sharing the exact sidebar/header/content choreography and timing. Only an explicit entry click starts it; tab navigation, refresh and direct visits do not replay it. Reduced motion skips the transition and intro.

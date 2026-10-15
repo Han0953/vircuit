@@ -39,11 +39,11 @@ export function AuthForm({ register = false, active = true, switching = false, n
       if (!alive.current) return;
       if (!response.ok) { setMessage(data.error ?? "Autentikasi gagal."); return; }
       if (data.confirmation) { setMessage("Periksa email untuk konfirmasi akun, lalu kembali masuk. Draft lokal tetap disimpan."); return; }
-      const session = await fetch("/api/auth/session", { cache: "no-store", signal: AbortSignal.timeout(5000) });
-      const value = await session.json();
-      if (!alive.current) return;
-      if (!session.ok || typeof value.user?.id !== "string") { setMessage("Sesi belum dapat diverifikasi. Coba masuk kembali."); return; }
-      if (reduced || readPreferences(value.user.id).motion === "reduced") {
+      // The server's credential exchange supplies the verified identity for
+      // presentation preferences. Avoid an extra session HTTP round trip;
+      // navigateAfterLogin still verifies cookies server-side before redirect.
+      if (typeof data.user?.id !== "string" || !data.user.id) { setMessage("Sesi belum dapat diverifikasi. Coba masuk kembali."); return; }
+      if (reduced || readPreferences(data.user.id).motion === "reduced") {
         transition.cancel(intent, true);
         await navigateAfterLogin(safeDestination(data.next));
         handedOff = true;
