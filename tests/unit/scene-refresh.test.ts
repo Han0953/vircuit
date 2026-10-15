@@ -53,4 +53,25 @@ describe("marketing scene refresh scheduling", () => {
     moving = false; window.dispatchEvent(new Event("home-scroll-settled")); flush();
     expect(ScrollTrigger.refresh).toHaveBeenCalledTimes(1);
   });
+
+  it("defers lazy scene measurement until native scroll momentum settles", () => {
+    cancel.push(requestSceneRefresh());
+    window.dispatchEvent(new Event("scroll"));
+    expect(frames.size).toBe(0);
+    vi.advanceTimersByTime(119);
+    expect(ScrollTrigger.refresh).not.toHaveBeenCalled();
+    window.dispatchEvent(new Event("scroll"));
+    vi.advanceTimersByTime(119);
+    expect(ScrollTrigger.refresh).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1); flush();
+    expect(ScrollTrigger.refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("removes pending scroll work when the last scene unmounts", () => {
+    const stop = requestSceneRefresh();
+    window.dispatchEvent(new Event("scroll")); stop();
+    window.dispatchEvent(new Event("scroll")); flush();
+    expect(ScrollTrigger.refresh).not.toHaveBeenCalled();
+    expect(frames.size).toBe(0);
+  });
 });

@@ -38,7 +38,7 @@ for (const width of [360, 390, 430, 768, 1280, 1440]) {
         await page.getByRole("button", { name: "Buka menu navigasi" }).click();
         const menu = page.getByRole("dialog");
         await expect(menu).toBeVisible();
-        await expect(menu.getByRole("link", { name: "Buka Virtual Lab", exact: true })).toHaveCount(0);
+        await expect(menu.getByRole("link", { name: "Buka Virtual Lab", exact: true })).toBeVisible();
         await expect.poll(async () => Math.round((await menu.boundingBox())!.x)).toBe(0);
         expect(Math.round((await menu.boundingBox())!.width)).toBe(width);
         if (route === "/") await page.screenshot({ path: `playwright-report/fullscreen-menu-${width}.png` });

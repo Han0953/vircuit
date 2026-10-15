@@ -136,7 +136,8 @@ test("card choreography, reversible story and shared controls stay scoped", asyn
   await testInfo.attach("shared-coverage", { body: JSON.stringify({ count: shared.size, ids: [...shared] }, null, 2), contentType: "application/json" });
   console.log(JSON.stringify({ sharedGroups: shared.size }));
   await page.goto("/masuk");
-  await expect(page.locator("html")).toHaveAttribute("data-home-scroll", "native");
+  // Auth has no marketing scroll owner; teardown removes the marker entirely.
+  await expect(page.locator("html")).not.toHaveAttribute("data-home-scroll", "lenis");
   await expect(page.locator("[data-motion-group='shared.back-top']")).toHaveCount(0);
 });
 test("public content and FAQ remain available without JS", async ({ browser }) => {

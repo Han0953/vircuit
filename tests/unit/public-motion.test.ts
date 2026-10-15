@@ -17,7 +17,10 @@ describe("public motion contracts", () => {
     expect(new Set(cycleIds).size).toBe(8);
     expect(new Set(projectCatalog.map((project) => project.slug)).size).toBe(9);
     expect(motion.mobileDistance).toBeLessThan(motion.desktopDistance);
-    expect(motion.reveal).toBeLessThanOrEqual(.4);
+    expect(motion.reveal).toBeGreaterThanOrEqual(.5);
+    expect(motion.reveal).toBeLessThanOrEqual(.7);
+    expect(motion.mobileReveal).toBeGreaterThanOrEqual(.4);
+    expect(motion.mobileReveal).toBeLessThan(motion.reveal);
   });
   it("maps each real catalog item to internal choreography", () => {
     for (const id of featureIds) for (const [suffix, treatment] of [["identity", "identity"], ["title", "text"], ["description", "text"], ["details", "details"]]) {

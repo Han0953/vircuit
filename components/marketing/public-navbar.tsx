@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowUpRight, Menu } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { BrandLogo } from "@/components/shared/brand-logo";
 import { MarketingThemeToggle } from "./marketing-theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,10 @@ import { cn } from "@/lib/utils";
 import { isActiveRoute, marketingRoutes, primaryNavigation } from "./marketing-routes";
 import { scrolledHeader } from "./scenes/scroll-policy";
 import styles from "./home-controls.module.css";
+
+function MenuLines({ open }: { open: boolean }) {
+  return <span aria-hidden="true" className={styles.menuLines} data-open={open}><span /><span /><span /></span>;
+}
 
 export function PublicNavbar() {
   const pathname = usePathname();
@@ -116,14 +120,15 @@ export function PublicNavbar() {
           <span data-motion-group="nav.theme" data-motion="control"><MarketingThemeToggle /></span>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
-              <Button ref={menuTrigger} data-motion-group="nav.menu" data-motion="control" variant="outline" size="icon" aria-label="Buka menu navigasi">
-                <Menu aria-hidden="true" className="size-5" />
+              <Button ref={menuTrigger} data-motion-group="nav.menu" data-motion="control" className={styles.menuButton} variant="outline" size="icon" aria-label="Buka menu navigasi">
+                <MenuLines open={menuOpen} />
               </Button>
             </SheetTrigger>
-            <SheetContent data-motion-group="nav.sheet" data-motion="control" className={styles.mobileMenu} onCloseAutoFocus={(event) => {
+            <SheetContent data-motion-group="nav.sheet" data-motion="control" className={styles.mobileMenu} showCloseButton={false} onCloseAutoFocus={(event) => {
               event.preventDefault();
               menuTrigger.current?.focus({ preventScroll: true });
             }}>
+              <SheetClose asChild><Button variant="ghost" size="icon" className={styles.menuClose} aria-label="Tutup"><MenuLines open={menuOpen} /></Button></SheetClose>
               <SheetHeader className="p-6 pr-16 text-left"><div className="flex items-center justify-between gap-3">
                 <SheetTitle className="flex items-center gap-2 text-xl"><BrandLogo size="sm" /></SheetTitle>
                 <MarketingThemeToggle /></div><SheetDescription>Belajar IoT lewat praktik.</SheetDescription>
@@ -154,6 +159,7 @@ export function PublicNavbar() {
                 })}
               </nav>
               <div className="mx-4 flex flex-col gap-3 border-t pt-4">
+                <SheetClose asChild><Button asChild><Link href={marketingRoutes.simulator} onClick={() => setMenuOpen(false)}>Buka Virtual Lab<ArrowUpRight aria-hidden="true" /></Link></Button></SheetClose>
                 <SheetClose asChild>
                   <Button
                     asChild

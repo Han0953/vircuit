@@ -11,7 +11,8 @@ export function addBackgroundMotion(timeline: gsap.core.Timeline, backdrop: Elem
   if (nodes) timeline.fromTo(nodes, { opacity: .2 }, { opacity: 1, duration: .7, ease: "none" }, .3);
   // Avoid compositing an entire tall section's illumination on small screens.
   if (desktop) timeline.fromTo(backdrop.querySelector("[data-bg-drift]"), { y: -20 }, { y: 20, duration: 1.5, ease: "none" }, 0);
-  timeline.fromTo(backdrop.querySelector("[data-bg-sweep]"), { xPercent: desktop ? -70 : -16, opacity: 0 }, { xPercent: desktop ? 70 : 16, opacity: .65, duration: 1.5, ease: "none" }, 0);
+  const sweep = backdrop.querySelector("[data-bg-sweep]");
+  timeline.fromTo(sweep, desktop ? { xPercent: -70, opacity: 0 } : { opacity: .15 }, desktop ? { xPercent: 70, opacity: .65, duration: 1.5, ease: "none" } : { opacity: .45, duration: 1.5, ease: "none" }, 0);
 }
 
 export function animateMarketingBackgrounds(root: HTMLElement, desktop: boolean) {

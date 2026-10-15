@@ -47,14 +47,17 @@ export function animatePublic(root: HTMLElement, route: string) {
         const hero = item.closest("[data-hero]");
         timeline.fromTo(item, { y: hero ? 4 : desktop ? motion.desktopDistance : motion.mobileDistance, opacity: hero ? 1 : .65 }, { y: 0, opacity: 1, clearProps: "transform,opacity" }, Math.min(index * (desktop ? motion.desktopStagger : motion.stagger), .24));
         const rows = item.querySelectorAll("li, [data-motion-row]");
-        if (rows.length) timeline.fromTo(rows, { x: -4, opacity: .65 }, { x: 0, opacity: 1, duration: .25, stagger: { amount: Math.min(.28, rows.length * motion.stagger) }, clearProps: "transform,opacity" }, Math.min(index * motion.stagger, .2) + .08);
-        if (treatment === "identity") timeline.fromTo(item.querySelectorAll("svg"), { scale: .96 }, { scale: 1, transformOrigin: "center", clearProps: "transform", duration: .25 }, index * motion.stagger);
+        if (rows.length) timeline.fromTo(rows, { x: -4, opacity: .65 }, { x: 0, opacity: 1, duration: desktop ? .42 : .36, stagger: { amount: Math.min(.24, rows.length * motion.stagger) }, clearProps: "transform,opacity" }, Math.min(index * motion.stagger, .18) + .06);
+        if (treatment === "identity") timeline.fromTo(item.querySelectorAll("svg"), { scale: .96 }, { scale: 1, transformOrigin: "center", clearProps: "transform", duration: .38 }, Math.min(index * motion.stagger, .24));
         const storyOwned = item.hasAttribute("data-story") && matchMedia("(min-width:1024px) and (min-height:620px)").matches;
         if (treatment === "art" && !storyOwned) {
-          const paths = Array.from(item.querySelectorAll<SVGPathElement>("[data-trace]"));
-          paths.forEach((path) => { const length = path.getTotalLength(); timeline.fromTo(path, { strokeDasharray: length, strokeDashoffset: length }, { strokeDashoffset: 0, duration: .7, clearProps: "strokeDasharray,strokeDashoffset" }, .15); });
-          timeline.fromTo(item.querySelectorAll("[data-part]"), { y: -8, opacity: .45 }, { y: 0, opacity: 1, stagger: .06, clearProps: "transform,opacity", duration: .5 }, .1);
-          timeline.fromTo(item.querySelectorAll("[data-output]"), { opacity: .3 }, { opacity: 1, duration: .4, clearProps: "opacity" }, .5);
+          // Keep technical illustrations readable while limiting simultaneous
+          // SVG repaints and nested transforms on small screens.
+          const paths = Array.from(item.querySelectorAll<SVGPathElement>("[data-trace]")).slice(0, desktop ? undefined : 3);
+          paths.forEach((path) => { const length = path.getTotalLength(); timeline.fromTo(path, { strokeDasharray: length, strokeDashoffset: length }, { strokeDashoffset: 0, duration: desktop ? .72 : .5, clearProps: "strokeDasharray,strokeDashoffset" }, .12); });
+          const parts = Array.from(item.querySelectorAll("[data-part]")).slice(0, desktop ? undefined : 6);
+          timeline.fromTo(parts, desktop ? { y: -8, opacity: .45 } : { opacity: .65 }, { ...(desktop ? { y: 0 } : {}), opacity: 1, stagger: { amount: Math.min(.2, parts.length * .04) }, clearProps: "transform,opacity", duration: desktop ? .56 : .42 }, .1);
+          timeline.fromTo(item.querySelectorAll("[data-output]"), { opacity: .3 }, { opacity: 1, duration: .42, clearProps: "opacity" }, .36);
         }
       });
     };
@@ -65,7 +68,6 @@ export function animatePublic(root: HTMLElement, route: string) {
           let visibleOrder = 0;
           gsap.context(() => entries.forEach((entry) => {
             if (entry.isIntersecting) reveal(entry.target as HTMLElement, visibleOrder++);
-            else timelines.get(entry.target)?.progress(1);
           }), root);
         }, { threshold: .08 });
         targets().forEach((target) => {

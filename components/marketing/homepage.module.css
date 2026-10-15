@@ -6,7 +6,7 @@
 .home a svg, .home summary svg { transition: transform var(--motion-ui); }
 .home a:hover > svg { transform: translate(2px, -2px); }
 .home a:active, .home button:active { translate: 0 1px; }
-.home[data-home-motion='full'] [data-home-played='true'][data-home-reveal], .home[data-home-motion='full'] [data-home-played='true'] [data-home-reveal] { animation: home-copy-enter var(--home-reveal-duration, .4s) cubic-bezier(.2,.7,.3,1) var(--home-reveal-delay, 0s) backwards; }
+.home[data-home-motion='full'] [data-home-played='true'][data-home-reveal], .home[data-home-motion='full'] [data-home-played='true'] [data-home-reveal] { animation: home-copy-enter var(--home-reveal-duration, .62s) cubic-bezier(.22,.8,.25,1) var(--home-reveal-delay, 0s) backwards; }
 .home [data-home-zone='hero'] { --home-reveal-travel: 4px; --home-reveal-opacity: 1; }
 @keyframes home-copy-enter { from { opacity: var(--home-reveal-opacity, .55); translate: 0 var(--home-reveal-travel, 8px); } to { opacity: 1; translate: 0 0; } }
 .cinematicSlot { position: relative; min-width: 0; pointer-events: none; }
@@ -124,6 +124,12 @@
 .heroFigure[data-hero-phase] .heroFloat { animation: hero-float 5s ease-in-out infinite; }
 .heroFigure[data-hero-phase='holding'] [data-hero-scene]:not([data-hero-scene='nano']) [data-hero-lens] { animation: hero-output-pulse 1.3s ease-in-out 2; }
 .heroFigure[data-hero-paused='true'] .heroFloat, .heroFigure[data-hero-paused='true'] [data-hero-lens] { animation-play-state: paused; }
+/* The entrance, wiring and five-second board cycle remain on touch screens.
+   Avoid continuously repainting a detailed, filtered SVG while reading. */
+@media (max-width:1023px) {
+  .heroFigure[data-hero-phase] .heroFloat { animation:none; }
+  .heroBoardDepth { filter:drop-shadow(0 8px 8px color-mix(in srgb,var(--part-outline) 22%,transparent)); }
+}
 @keyframes hero-float { 0%, 100% { transform: translateY(0) rotate(.25deg); } 50% { transform: translateY(-5px) rotate(-.25deg); } }
 @keyframes hero-output-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
 @media (prefers-reduced-motion: reduce) {

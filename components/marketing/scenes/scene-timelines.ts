@@ -16,8 +16,8 @@ function hero(root: HTMLElement) {
   const intro = gsap.timeline({ defaults: { ease: "power2.out" }, scrollTrigger: { id: "home-hero", trigger: section, start: "top bottom", toggleActions: "play pause resume pause" } });
   intro.from(q("[data-grid]"), { opacity: 0, duration: .5 })
     // SSR copy remains opaque for LCP; reveal its position, not its availability.
-    .from(copy, { y: 10, stagger: .08, duration: .55 }, 0)
-    .from(q("[data-hero-controls]"), { y: 6, duration: .3 }, .4);
+    .from(copy, { y: 10, stagger: .09, duration: .72 }, 0)
+    .from(q("[data-hero-controls]"), { y: 6, duration: .46 }, .36);
 }
 
 function story(root: HTMLElement, desktop: boolean, tall: boolean, channel: StoryChannel | null) {
@@ -27,6 +27,11 @@ function story(root: HTMLElement, desktop: boolean, tall: boolean, channel: Stor
   const count = q("[data-stage-count]")[0] as HTMLElement;
   count.textContent = "01 / 04";
   const frames = q("[data-frame]");
+  const progressBar = q("[data-progress]");
+  const feedback = root.querySelector("[data-diagnostic-copy]");
+  const code = root.querySelector("[data-story-code]");
+  let activeFrame = -1;
+  let lastBeat = 0;
   gsap.set(frames, { autoAlpha: 0 });
   gsap.set(frames[0], { autoAlpha: 1 });
   const progress = { value: 0 };
@@ -35,14 +40,16 @@ function story(root: HTMLElement, desktop: boolean, tall: boolean, channel: Stor
     const state = sampleStory(p);
     channel?.publish(p);
     const beat = Math.min(4, Math.floor(p * 4) + 1);
-    count.textContent = `0${beat} / 04`;
-    root.dataset.beat = String(beat); root.dataset.progress = p.toFixed(3); root.dataset.subscene = storyNames[state.segment];
-    gsap.set(q("[data-progress]"), { scaleX: p });
-    frames.forEach((frame, i) => gsap.set(frame, { autoAlpha: (i === 0 && p < .3) || (i === 1 && p >= .5 && p < .7) || (i === 2 && p >= .7) ? 1 : 0 }));
-    const feedback = root.querySelector("[data-diagnostic-copy]");
-    if (feedback) feedback.textContent = state.diagnostic ? "Contoh ilustratif: wiring D3, kode D5. Cocokkan pin sebelum evaluasi ulang." : "Pin sudah sesuai. Jalankan ulang dan periksa hasil evaluasi. Ilustrasi, bukan hasil akun.";
-    const code = root.querySelector("[data-story-code]");
-    if (code) code.textContent = p < .58 ? "digitalRead(2);" : p < .64 ? "digitalWrite(3, HIGH);" : "analogRead(A0);";
+    if (beat !== lastBeat) { count.textContent = `0${beat} / 04`; root.dataset.beat = String(beat); lastBeat = beat; }
+    root.dataset.progress = p.toFixed(3);
+    if (root.dataset.subscene !== storyNames[state.segment]) root.dataset.subscene = storyNames[state.segment];
+    gsap.set(progressBar, { scaleX: p });
+    const nextFrame = p < .3 ? 0 : p < .5 ? -1 : p < .7 ? 1 : 2;
+    if (nextFrame !== activeFrame) { frames.forEach((frame, i) => gsap.set(frame, { autoAlpha: i === nextFrame ? 1 : 0 })); activeFrame = nextFrame; }
+    const feedbackText = state.diagnostic ? "Contoh ilustratif: wiring D3, kode D5. Cocokkan pin sebelum evaluasi ulang." : "Pin sudah sesuai. Jalankan ulang dan periksa hasil evaluasi. Ilustrasi, bukan hasil akun.";
+    if (feedback && feedback.textContent !== feedbackText) feedback.textContent = feedbackText;
+    const codeText = p < .58 ? "digitalRead(2);" : p < .64 ? "digitalWrite(3, HIGH);" : "analogRead(A0);";
+    if (code && code.textContent !== codeText) code.textContent = codeText;
   };
   const timeline = gsap.timeline({ scrollTrigger: {
     id: "home-story", trigger: grid, start: () => tall ? `top top+=${(document.querySelector<HTMLElement>("[data-home-header]")?.offsetHeight ?? 0) + 16}` : "top 65%",
@@ -78,8 +85,8 @@ export function animateScene(kind: SceneKind, root: HTMLElement, conditions: Rec
     return;
   }
   const q = gsap.utils.selector(root);
-  const timeline = gsap.timeline({ defaults: { ease: "power2.out", duration: .5 }, scrollTrigger: {
-    id: `home-${kind}`, trigger: root, start: "top 80%", toggleActions: "play pause resume pause",
+  const timeline = gsap.timeline({ defaults: { ease: "power2.out", duration: conditions.desktop ? .62 : .48 }, scrollTrigger: {
+    id: `home-${kind}`, trigger: root, start: "top 85%", toggleActions: "play none none none",
   } });
   if (kind === "simulator") {
     timeline.from(q("[data-input]"), { scale: .92, transformOrigin: "center" })
@@ -93,10 +100,10 @@ export function animateScene(kind: SceneKind, root: HTMLElement, conditions: Rec
       .from(q("[data-reply]"), { y: 12, opacity: 0 }, .65)
       .from(q("[data-next]"), { opacity: 0 }, 1);
   } else if (kind === "challenge") {
-    timeline.from(q("[data-requirement]"), { x: -8, opacity: .2, stagger: .16 })
-      .from(q("[data-attempt]"), { y: 8, opacity: 0 }, .45)
-      .from(q("[data-correction]"), { y: 8, opacity: 0 }, 1)
-      .from(q("[data-result]"), { y: 8, opacity: 0 }, 1.5);
+    timeline.from(q("[data-requirement]"), { x: -8, opacity: .2, stagger: { amount: .24 } })
+      .from(q("[data-attempt]"), { y: 8, opacity: 0 }, .32)
+      .from(q("[data-correction]"), { y: 8, opacity: 0 }, .64)
+      .from(q("[data-result]"), { y: 8, opacity: 0 }, .96);
   } else {
     timeline.to(wires(root), { strokeDashoffset: 0, stagger: .15, duration: 1 });
   }
