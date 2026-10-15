@@ -105,7 +105,7 @@ test("dashboard theme, account preference, system updates and reduced motion use
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page.locator("#dashboard-main h1")).toContainText("Halo, Astra");
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   const promise = colorTrace(page);
   await chooseTheme(page, "Gelap");
   const result = await promise;

@@ -11,7 +11,7 @@ async function login(page: Page) {
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page.getByRole("heading", { name: "Halo, Astra" })).toBeVisible();
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
 }
 test.beforeEach(async ({ page, request }) => {
   await request.post(`${provider}/__fixture/reset`, { data: { count: 4 } });

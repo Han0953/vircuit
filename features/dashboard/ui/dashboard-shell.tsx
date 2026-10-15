@@ -13,7 +13,7 @@ import { DashboardSidebar } from "./dashboard-sidebar";
 import { DashboardMobileDock } from "./dashboard-mobile-dock";
 import { dashboardLinks, activeDashboardLink } from "../navigation";
 import { useDashboardSwipe } from "../navigation/use-dashboard-swipe";
-import { dashboardIntroTiming, headerDuration, headerItemStagger, sidebarEntryDuration, sidebarItemsStart, sidebarItemDuration, sidebarItemStagger } from "../motion/intro-timing";
+import { dashboardIntroTiming, headerDuration, headerItemStagger, sidebarEntryDuration, sidebarItemsStart, sidebarItemDuration, sidebarItemStagger, mobileHeaderDuration } from "../motion/intro-timing";
 import "./dashboard.css";
 
 gsap.registerPlugin(useGSAP);
@@ -93,6 +93,28 @@ function DashboardSurface({ user, children, initialSidebar = "expanded", authEnt
   useGSAP(() => {
     if (!transition.intro || reduced) return;
     const mobile = window.innerWidth < 1024;
+    if (mobile) {
+      // Mobile has no sliding sidebar. Read top-to-bottom: compact header,
+      // capsule surface, then individual navigation items and page content.
+      const headerItems = root.current?.querySelectorAll("[data-dashboard-header-copy] > *, [data-dashboard-header] button");
+      const dockItems = root.current?.querySelectorAll("[data-dock-index]");
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.out", clearProps: "opacity,transform" } });
+      gsap.set("[data-dashboard-header]", { opacity: 1 });
+      if (headerItems?.length) {
+        gsap.set(headerItems, { opacity: 0, y: 6 });
+        tl.to(headerItems, { opacity: 1, y: 0, duration: mobileHeaderDuration, stagger: 0.055 }, 0);
+      }
+      gsap.set("[data-dashboard-dock]", { opacity: 0, y: 10 });
+      tl.to("[data-dashboard-dock]", { opacity: 1, y: 0, duration: 0.34 }, 0.12);
+      if (dockItems?.length) {
+        gsap.set(dockItems, { opacity: 0, y: 5 });
+        tl.to(dockItems, { opacity: 1, y: 0, duration: 0.38, stagger: 0.06 }, 0.24);
+      }
+      gsap.set("[data-dock-pill]", { opacity: 0 });
+      tl.to("[data-dock-pill]", { opacity: 1, duration: 0.25 }, 0.24);
+      tl.seek(Math.max(0, (performance.now() - transition.introStartedAt) / 1000), true).play();
+      return;
+    }
     const items = root.current?.querySelectorAll(mobile ? "[data-dock-index]" : "[data-dashboard-sidebar] nav [data-shell-item], [data-sidebar-logout]");
     const brand = mobile ? [] : root.current?.querySelectorAll("[data-shell-brand] [data-shell-item]");
     const headerItems = root.current?.querySelectorAll("[data-dashboard-header-copy] > *, [data-dashboard-header] button");

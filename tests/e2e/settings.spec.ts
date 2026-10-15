@@ -10,7 +10,7 @@ async function login(page: Page) {
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page).toHaveURL(/\/dashboard\/pengaturan$/);
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.getByLabel("Nama tampilan")).toHaveValue("Astra");
 }
 async function category(page: Page, name: string) {

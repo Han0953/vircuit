@@ -24,7 +24,7 @@ for (const width of [390, 1440]) test(`login reaches requested learning page wit
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page).toHaveURL(/\/dashboard\/learn$/, { timeout: 12000 });
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0, { timeout: 10000 });
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0, { timeout: 10000 });
   await expect(page.locator("#dashboard-main h1")).toHaveText("Dasar IoT dengan Arduino Uno");
   await expect(page.locator("#dashboard-main h1")).toBeVisible();
   await expect(page.getByText(/Menyiapkan halaman akun|Menyiapkan akun/)).toHaveCount(0);
@@ -36,7 +36,7 @@ for (const width of [390, 1440]) test(`login reaches requested learning page wit
   await page.reload();
   await expect(page.locator("#dashboard-main h1")).toHaveText("Dasar IoT dengan Arduino Uno");
   await expect(page.locator("#dashboard-main h1")).toBeVisible();
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.locator("[data-dashboard-shell]")).not.toHaveAttribute("data-login-intro");
 });
 
@@ -49,7 +49,7 @@ for (const width of [390, 1440]) test(`learning login after a client-side anonym
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page).toHaveURL(/\/dashboard\/learn$/, { timeout: 10000 });
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.locator("#dashboard-main h1")).toHaveText("Dasar IoT dengan Arduino Uno");
   await expect(page.locator("#dashboard-main h1")).toBeVisible();
   await expect(page.locator("html")).not.toHaveAttribute("data-account-preparation-seen");
@@ -76,7 +76,7 @@ test("reduced-motion learning login also discards the anonymous route tree", asy
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page.locator("#dashboard-main h1")).toHaveText("Dasar IoT dengan Arduino Uno");
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.locator("[data-dashboard-shell]")).not.toHaveAttribute("data-login-intro");
 });
 
@@ -90,12 +90,12 @@ test("failed navigation restores the filled login form and a retry reaches learn
   await page.getByLabel("Email", { exact: true }).fill("dashboard@example.test");
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.locator("[data-auth-feedback]")).toContainText("Koneksi gagal");
   await expect(page.getByLabel("Kata sandi", { exact: true })).toHaveValue("fixture-password");
   await expect(page.locator("[data-dashboard-shell]")).toHaveCount(0);
   await page.unroute("**/masuk?next=*");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page.locator("#dashboard-main h1")).toHaveText("Dasar IoT dengan Arduino Uno");
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
 });

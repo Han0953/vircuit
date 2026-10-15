@@ -4,8 +4,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { authEntryCookie, doorDeadline, transitionTarget, type AuthEntry } from "./transition-contract";
 import { captureLoginScreen } from "./login-screen";
 import Door from "./door-overlay";
+import MobileLoginTransition from "./mobile-login-transition";
 
-type Transition = AuthEntry & { phase: "authenticating" | "waiting" | "opening" | "cancelling"; rolled: boolean };
+type Transition = AuthEntry & { phase: "authenticating" | "waiting" | "opening" | "cancelling"; rolled: boolean; mobile: boolean };
 const Context = createContext<{ begin: (target: string) => string | null; start: (target: string, intent?: string | null) => boolean; cancel: (intent: string | null, immediate?: boolean) => void; ready: (entry?: AuthEntry | null, reduced?: boolean) => void; intro: string; introStartedAt: number; handledEntry: string; waiting: boolean }>({ begin: () => null, start: () => false, cancel: () => {}, ready: () => {}, intro: "", introStartedAt: 0, handledEntry: "", waiting: false });
 export const useAuthTransition = () => useContext(Context);
 
@@ -26,7 +27,7 @@ export function AuthTransitionProvider({ children }: { children: ReactNode }) {
     if (current.current) return null;
     setFailure("");
     setScreen(captureLoginScreen());
-    const entry: Transition = { id: crypto.randomUUID(), target: transitionTarget(destination), expires: Date.now() + 25000, phase: "authenticating", rolled: false };
+    const entry: Transition = { id: crypto.randomUUID(), target: transitionTarget(destination), expires: Date.now() + 25000, phase: "authenticating", rolled: false, mobile: window.innerWidth < 1024 };
     // Presentation only: no navigation or entry cookie before verification.
     update(entry);
     return entry.id;
@@ -41,7 +42,7 @@ export function AuthTransitionProvider({ children }: { children: ReactNode }) {
     if (!intent && current.current) return false;
     setFailure("");
     if (!intent) setScreen(captureLoginScreen());
-    const entry: Transition = { id: intent ?? crypto.randomUUID(), target: transitionTarget(destination), expires: Date.now() + doorDeadline, phase: "waiting", rolled: current.current?.rolled ?? false };
+    const entry: Transition = { id: intent ?? crypto.randomUUID(), target: transitionTarget(destination), expires: Date.now() + doorDeadline, phase: "waiting", rolled: current.current?.rolled ?? false, mobile: current.current?.mobile ?? window.innerWidth < 1024 };
     // A short-lived presentation marker lets streamed SSR hide the intro groups
     // until their animation owner hydrates. It carries no authentication data.
     document.cookie = `${authEntryCookie}=${encodeURIComponent(JSON.stringify(entry))}; Path=/; Max-Age=60; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
@@ -117,7 +118,7 @@ export function AuthTransitionProvider({ children }: { children: ReactNode }) {
   const value = useMemo(() => ({ begin, start, cancel, ready, intro: intro?.path === pathname ? intro.id : "", introStartedAt: intro?.path === pathname ? intro.startedAt : 0, handledEntry, waiting }), [begin, start, cancel, ready, intro, pathname, handledEntry, waiting]);
   return <Context.Provider value={value}>
     <div style={{ display: "contents" }} inert={!!transition}>{children}</div>
-    {transition && <Door screen={screen} phase={transition.phase} onCancelled={finish} onFinished={complete} />}
+    {transition && (transition.mobile ? <MobileLoginTransition screen={screen} phase={transition.phase} onCancelled={finish} onFinished={complete} /> : <Door screen={screen} phase={transition.phase} onCancelled={finish} onFinished={complete} />)}
     {transition && transition.phase !== "cancelling" && <span role="status" className="sr-only">{transition.phase === "authenticating" ? "Memeriksa akun…" : "Membuka halaman…"}</span>}
     {failure && <div role="status" className="fixed right-4 bottom-4 z-[100] max-w-sm rounded-xl border bg-surface p-4 text-sm shadow-lg">Halaman masih dimuat. <button className="underline" onClick={() => window.location.assign(failure)}>Coba lagi</button><button className="ml-3 underline" onClick={() => setFailure("")}>Tutup</button></div>}
   </Context.Provider>;

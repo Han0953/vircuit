@@ -11,6 +11,7 @@ export function LessonStatus({ owner, lessonId, informational, row }: { owner: s
   const pathname = usePathname();
   const [state, setState] = useState<ProgressRow | null>(row);
   const [error, setError] = useState(""); const [pending, setPending] = useState(false);
+  const [failedAction, setFailedAction] = useState<"open" | "complete">("open");
   async function send(action: "open" | "complete") {
     setPending(true); setError("");
     try {
@@ -18,6 +19,7 @@ export function LessonStatus({ owner, lessonId, informational, row }: { owner: s
       if (confirmed.user_id !== owner) throw new Error("Session akun berubah. Muat ulang lesson.");
       setState(confirmed); if (action === "complete") router.refresh();
     } catch (cause) {
+      setFailedAction(action);
       if (cause instanceof CloudError && cause.status === 401) router.replace(`/masuk?next=${encodeURIComponent(safeDestination(pathname))}`);
       setError(cause instanceof Error ? cause.message : "Progress belum tersimpan.");
     }
@@ -29,5 +31,11 @@ export function LessonStatus({ owner, lessonId, informational, row }: { owner: s
     // A visit records activity once per lesson route, never a completion event.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonId]);
-  return <section data-motion="notice" aria-label="Status belajar" className="space-y-3 rounded-md border p-4 text-sm"><p>Tahap aktif: Materi</p><p role="status">{state?.status === "completed" ? "Materi selesai" : state?.status === "in_progress" ? "Sedang dipelajari" : "Belum ada status tersinkronisasi"}</p>{error && <div role="alert"><p>{error}</p><Button variant="outline" disabled={pending} onClick={() => void send("open")}>Coba lagi</Button></div>}{informational && state?.status !== "completed" && <Button disabled={pending} onClick={() => void send("complete")}>{pending ? "Menyimpan…" : "Selesaikan materi"}</Button>}{!informational && <p className="text-text-secondary">Completion dicatat setelah tantangan terpenuhi dan diverifikasi server.</p>}</section>;
+  return <section data-motion="notice" aria-label="Status belajar" className="space-y-3 rounded-md border p-4 text-sm">
+    <p>Tahap aktif: Materi</p>
+    <p role="status">{state?.status === "completed" ? "Materi selesai" : state?.status === "in_progress" ? "Sedang dipelajari" : "Belum ada status tersinkronisasi"}</p>
+    {error && <div role="alert"><p>{error}</p><Button variant="outline" disabled={pending} onClick={() => void send(failedAction)}>{pending ? "Menyimpan…" : "Coba lagi"}</Button></div>}
+    {informational && state?.status !== "completed" && <Button disabled={pending} onClick={() => void send("complete")}>{pending ? "Menyimpan…" : "Selesaikan materi"}</Button>}
+    {!informational && <p className="text-text-secondary">Completion dicatat setelah tantangan terpenuhi dan diverifikasi server.</p>}
+  </section>;
 }

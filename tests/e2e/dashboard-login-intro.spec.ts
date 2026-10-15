@@ -111,7 +111,7 @@ test("each successful login gets one fresh intro, while an existing session does
     await page.getByLabel("Email", { exact: true }).fill("dashboard@example.test");
     await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
     await page.getByRole("button", { name: "Masuk dengan email" }).click();
-    await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+    await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
     await expect.poll(async () => (await trace(page)).ids.length).toBe(1);
     ids.push((await trace(page)).ids[0]);
     if (!attempt) {

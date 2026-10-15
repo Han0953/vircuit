@@ -9,7 +9,7 @@ async function login(page: Page) {
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
 }
 test.beforeEach(async ({ request, page }) => {
   await request.post(`${provider}/__fixture/reset`, { data: { count: 4 } });
@@ -35,7 +35,7 @@ test("auth panels preserve values, reverse safely, and unavailable Google never 
   expect(await page.evaluate(() => !!document.activeElement?.closest("[hidden]"))).toBe(false);
   await page.getByRole("button", { name: "Lanjutkan dengan Google" }).click();
   await expect(page.getByRole("status")).toContainText("Google");
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page).toHaveURL(/\/masuk\?next=/);
   await page.screenshot({ path: info.outputPath("auth-desktop.png"), fullPage: true });
   for (const width of [360,390,430,768,1024,1280,1440]) {
@@ -54,7 +54,7 @@ test("verified login door recovers from slow navigation and does not replay on r
   await page.getByLabel("Kata sandi", { exact: true }).fill("wrong-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page.getByRole("status")).toContainText("tidak sesuai");
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page).toHaveURL(/\/masuk$/);
   await expect(page.getByLabel("Kata sandi", { exact: true })).toHaveValue("wrong-password");
   await expect(page.locator("[data-dashboard-shell]")).toHaveCount(0);
@@ -62,19 +62,19 @@ test("verified login door recovers from slow navigation and does not replay on r
   await page.route("**/dashboard", async (route) => { await new Promise((resolve) => setTimeout(resolve, 2200)); await route.continue(); });
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
-  await expect(page.locator("[data-auth-door]")).toBeVisible();
+  await expect(page.locator("[data-auth-transition]")).toBeVisible();
   await expect(page.locator("[data-auth-screen-snapshot]")).toHaveCount(2);
   await expect(page.locator("[data-auth-screen-snapshot] [data-auth-panel]:not([hidden]) h1")).toHaveText(["Masuk ke Vircuit", "Masuk ke Vircuit"]);
   expect(await page.locator("[data-door-panel]").evaluateAll((panels) => panels.every((panel) => getComputedStyle(panel).backgroundImage === "none"))).toBe(true);
   expect(await page.locator("[data-auth-screen-snapshot] input[type=password]").evaluateAll((inputs) => inputs.every((input) => (input as HTMLInputElement).value !== "fixture-password"))).toBe(true);
   expect(await page.locator("[data-auth-screen-snapshot]").evaluateAll((copies) => copies.every((copy) => (copy as HTMLElement).inert))).toBe(true);
   await expect(page.getByText(/Menyiapkan ruang belajar/)).toHaveCount(0);
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0, { timeout: 9000 });
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0, { timeout: 9000 });
   await expect(page).toHaveURL(/\/dashboard$/);
   await page.unroute("**/dashboard");
   await page.reload();
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.locator("[data-dashboard-shell]")).not.toHaveAttribute("data-login-intro");
   await expect(page.locator("#dashboard-main [data-motion]").first()).toHaveCSS("opacity", "1");
 });
@@ -92,7 +92,7 @@ test("continuous login rolling reveals a slower sidebar with overlapping header 
     await new Promise<void>((resolve) => {
       function frame() {
         const now = performance.now() - start;
-        const door = document.querySelector("[data-auth-door]");
+        const door = document.querySelector("[data-auth-transition]");
         const panels = door?.querySelectorAll("[data-door-panel]");
         if (door && panels?.length) {
           times.door ??= now;
@@ -180,7 +180,7 @@ test("continuous login rolling reveals a slower sidebar with overlapping header 
   await expect(page.locator("[data-dashboard-shell]")).not.toHaveAttribute("data-login-intro");
 });
 
-for (const width of [390, 1440]) test(`rolling never holds partway through slow authentication at ${width}px`, async ({ page }, info) => {
+for (const width of [1440]) test(`rolling never holds partway through slow authentication at ${width}px`, async ({ page }, info) => {
   await page.setViewportSize({ width, height: 960 });
   await page.goto("/masuk");
   await page.getByLabel("Email", { exact: true }).fill("dashboard@example.test");
@@ -225,7 +225,7 @@ for (const width of [390, 1440]) test(`rolling never holds partway through slow 
   await expect(page.locator("[data-dashboard-shell]")).toHaveCount(0);
   expect((await page.context().cookies()).some((cookie) => cookie.name === "vircuit-auth-entry")).toBe(false);
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.locator("[data-auth-screen-snapshot]")).toHaveCount(0);
   await expect(page.locator("[data-auth-loading]")).toHaveCount(0);
 });
@@ -241,7 +241,7 @@ test("verified shell enters without an interstitial while slow page data streams
     await new Promise<void>((resolve) => {
       function frame() {
         const now = performance.now() - start;
-        const door = document.querySelector("[data-auth-door]");
+        const door = document.querySelector("[data-auth-transition]");
         if (door) seenDoor = true;
         if (seenDoor && !door) times.doorEnd ??= now;
         loaderSeen ||= !!document.querySelector("[data-auth-loading]");
@@ -258,7 +258,7 @@ test("verified shell enters without an interstitial while slow page data streams
     return { times, loaderSeen };
   });
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.locator('[aria-label="Memuat dashboard"]')).toHaveCSS("visibility", "hidden");
   const trace = await tracePromise;
   console.log("STREAMED_DASHBOARD_ENTRY", JSON.stringify(trace));
@@ -340,7 +340,7 @@ test("login motion begins before slow authentication; failed or unverified reque
     return new Promise<{ delay: number; phase: string | null }>((resolve) => {
       const frame = () => {
         const clicked = Number(document.documentElement.dataset.loginClick);
-        const door = document.querySelector("[data-auth-door]");
+        const door = document.querySelector("[data-auth-transition]");
         const panel = door?.querySelector("[data-door-panel]");
         if (clicked && panel && Math.abs(new DOMMatrix(getComputedStyle(panel).transform).m41) > 0.1) resolve({ delay: performance.now() - clicked, phase: door?.getAttribute("data-phase") ?? null });
         else requestAnimationFrame(frame);
@@ -361,7 +361,7 @@ test("login motion begins before slow authentication; failed or unverified reque
   await expect(page.locator("[data-dashboard-shell]")).toHaveCount(0);
   expect((await page.context().cookies()).some((cookie) => cookie.name === "vircuit-auth-entry")).toBe(false);
   await page.screenshot({ path: info.outputPath("login-authenticating.png") });
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.getByRole("status")).toContainText("tidak sesuai");
   await expect(page.getByLabel("Email", { exact: true })).toHaveValue("dashboard@example.test");
   await expect(page.getByLabel("Kata sandi", { exact: true })).toHaveValue("wrong-password");
@@ -369,7 +369,7 @@ test("login motion begins before slow authentication; failed or unverified reque
   await page.unroute("**/api/auth/login");
   await page.route("**/api/auth/login", (route) => route.abort("failed"));
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.getByRole("status")).toContainText("Koneksi gagal");
   await expect(page.getByLabel("Kata sandi", { exact: true })).toHaveValue("wrong-password");
   await page.unroute("**/api/auth/login");
@@ -377,24 +377,26 @@ test("login motion begins before slow authentication; failed or unverified reque
   await page.route("**/api/auth/login", (route) => route.fulfill({ status: 200, json: { next: "/dashboard" } }));
   await page.route("**/api/auth/session", (route) => route.fulfill({ status: 200, json: { user: null } }));
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.getByRole("status")).toContainText("Sesi belum dapat diverifikasi");
   await expect(page).toHaveURL(/\/masuk$/);
   await expect(page.locator("[data-dashboard-shell]")).toHaveCount(0);
 });
 
-test("mobile login opens a full-height door and keeps the one-time intro usable", async ({ page }, info) => {
+test("mobile login uses a simple fade and keeps the one-time intro usable", async ({ page }, info) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/masuk");
   await page.getByLabel("Email", { exact: true }).fill("dashboard@example.test");
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
-  await expect(page.locator("[data-auth-door]")).toBeVisible();
-  const doorBox = await page.locator("[data-auth-door]").boundingBox();
+  await expect(page.locator("[data-auth-transition]")).toBeVisible();
+  const doorBox = await page.locator("[data-auth-transition]").boundingBox();
   expect(doorBox?.width).toBe(390); expect(doorBox?.height).toBe(844);
-  await expect(page.locator("[data-auth-screen-snapshot]")).toHaveCount(2);
+  await expect(page.locator("[data-auth-screen-snapshot]")).toHaveCount(1);
+  await expect(page.locator("[data-auth-mobile]")).toHaveCount(1);
+  await expect(page.locator("[data-door-panel]")).toHaveCount(0);
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.locator("[data-dashboard-shell]")).toHaveAttribute("data-login-intro", /.+/);
   await expect.poll(() => page.locator("#dashboard-main [data-motion]").evaluateAll((items) => items.every((item) => Number(getComputedStyle(item).opacity) >= 0.99)), { timeout: 10000 }).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -475,13 +477,13 @@ test("reduced motion, auth themes, and invalid recovery remain usable", async ({
   await page.goto("/masuk");
   // Account preferences only become known after authentication. Anticipation may
   // start, but the full exit and dashboard intro must be skipped for this owner.
-  await page.evaluate(() => { const observer = new MutationObserver(() => { if (document.querySelector('[data-auth-door][data-phase="opening"]')) document.documentElement.dataset.doorOpened = "true"; }); observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-phase"] }); });
+  await page.evaluate(() => { const observer = new MutationObserver(() => { if (document.querySelector('[data-auth-transition][data-phase="opening"]')) document.documentElement.dataset.doorOpened = "true"; }); observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-phase"] }); });
   await page.getByLabel("Email", { exact: true }).fill("dashboard@example.test");
   await page.getByLabel("Kata sandi", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Masuk dengan email" }).click();
   await expect(page.locator("[data-dashboard-shell]")).toHaveAttribute("data-motion-preference", "reduced");
   await expect(page.locator("html")).not.toHaveAttribute("data-door-opened", "true");
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page.locator("[data-dashboard-shell]")).not.toHaveAttribute("data-login-intro");
 });
 
@@ -517,7 +519,7 @@ test("auth motion sampling and confirmation state on desktop and mobile", async 
   await page.getByLabel("Kata sandi", { exact: true }).fill("confirmation-password");
   await page.getByRole("button", { name: "Daftar dengan email" }).click();
   await expect(page.getByRole("status")).toContainText("Periksa email");
-  await expect(page.locator("[data-auth-door]")).toHaveCount(0);
+  await expect(page.locator("[data-auth-transition]")).toHaveCount(0);
   await expect(page).toHaveURL(/\/daftar/);
 });
 

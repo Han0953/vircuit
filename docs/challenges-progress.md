@@ -20,7 +20,7 @@ Fresh challenge code is unfinished. Debug starts with wrong code and a wrong LED
 
 ## Trusted persistence
 
-Apply `supabase/migrations/20261007120000_challenges_progress.sql` after the existing auth/project migration using the project's normal migration workflow or Supabase SQL Editor. Tests apply both migrations to temporary PGlite databases; they do not apply a remote migration.
+`supabase/migrations/20261007120000_challenges_progress.sql` is applied remotely after the auth/project migration as of 15 October 2026 (verification below). Local tests separately apply both migrations to temporary PGlite databases.
 
 Configure `SUPABASE_SECRET_KEY` in `.env.local` for local development and as a server-only deployment variable. Use a Supabase secret key (`sb_secret_…`) from the project dashboard. Never put its value in chat, Git, examples, logs or a `NEXT_PUBLIC_` variable. Keep publishable configuration for user-context reads. See [Supabase key guidance](https://supabase.com/docs/guides/getting-started/api-keys).
 
@@ -48,4 +48,13 @@ Logout clears only that account's pending queue alongside its private project ca
 
 Checkpoint 2026-10-07: lint, typecheck, build and 80 Vitest tests across 24 files pass. The 21-test Playwright suite covers desktop/mobile, Light/Dark/System, verified Blink completion, manual informational completion, dashboard counts, offline refresh/retry, and existing auth/project/simulator/workspace regressions. Debug golden tests require correcting both starter wiring and code. Desktop and mobile screenshots were inspected. No remote migration, remote user-isolation verification, commit or deployment was performed.
 
-Remote prerequisites: apply the migration, configure the server-only writer, and test own/cross-user/anonymous reads and denied client writes with real user JWTs. Do not use a secret/service role as proof of user isolation.
+At the 7 October checkpoint, the remaining remote prerequisites were applying the migration, configuring the server-only writer, and verifying own/cross-user/anonymous reads and denied client writes with real JWTs. These prerequisites were verified on 15 October as recorded below. A secret/service role is never proof of user isolation.
+
+## Remote persistence repair — 15 October 2026
+
+- The repeated dashboard “Data tidak tersedia / Progress gagal dimuat” was traced to missing remote `learning_progress` and `challenge_attempts` tables (PostgREST PGRST205/404). Remote migration history had auth/projects and Settings only. This was a schema deployment blocker, not an empty-user state.
+- Applied the existing `20261007120000_challenges_progress.sql` without changing its contents, in a transaction with its migration-history record and a PostgREST schema-cache notification. A checksum guard verified the SQL before execution; stored/local whitespace-normalized MD5 match: `b6deeed9f33190d0522640cb137c9035`. No database reset, existing-data deletion or unrelated migration.
+- `tests/security/remote-progress.mjs`: **25 remote assertions PASS**. Real authenticated A/B JWT contexts can read their own progress/attempts, cannot read the other's rows, cannot directly update/delete or invoke trusted writer RPCs; anonymous reads are denied. A privileged client only creates and cleans uniquely identified, unpassed synthetic attempts. Synthetic records were cleaned.
+- `tests/remote/dashboard-progress.spec.ts`: **2/2 PASS** against actual Supabase using the production app on port 3003. Dashboard/Learn/Challenges/Progress/Projects load at 1440/390px with no data-error/retry UI or overflow. Real lesson activity and manual completion return through the existing server writer, survive reload, and update Dashboard to 1/7 lessons (14%) with the next lesson recommendation. The test account's original lesson row is restored in `finally`; no personal account was changed.
+- Retry UI now exposes pending/disabled state while re-fetching server data. Next 16's `retry` callback replaces the legacy boundary-only `reset` in Dashboard/Learning error boundaries. Failed manual completion retries `complete`, rather than accidentally recording only `open`. Actual outage errors remain visible and never become fake zero progress.
+- Inspected screenshots: `test-results/dashboard-progress-remote/dashboard-progress-real-Su-bc852-pages-on-desktop-and-mobile/remote-dashboard-{1440,390}.png` and `test-results/dashboard-progress-remote/dashboard-progress-lesson--65a96-al-server-writer-and-reload/remote-completed-progress.png`. These are local production-browser sessions connected to Supabase, not a website deployment or physical-device test.

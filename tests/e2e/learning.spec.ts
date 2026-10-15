@@ -99,9 +99,13 @@ test("mobile learning navigation, keyboard focus, all themes and handoff failure
   await expect(page.getByRole("button", { name: "Daftar lesson", exact: true })).toBeFocused();
   for (const theme of ["Terang", "Gelap", "Sistem"]) {
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.getByRole("button", { name: /^Pilih tema tampilan/ }).click();
+    const trigger = page.getByRole("button", { name: /^Pilih tema tampilan/ });
+    await trigger.focus();
+    await trigger.press("Enter");
     await page.getByRole("radio", { name: theme, exact: true }).click();
     await expect(page.locator("html")).toHaveClass(theme === "Terang" ? /light/ : /dark/);
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByRole("radiogroup", { name: "Pilihan tema" })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
   await page.screenshot({ path: "test-results/learning-mobile.png", fullPage: true });
