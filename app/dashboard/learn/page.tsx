@@ -10,7 +10,7 @@ import {
   PlayCircle,
   Sparkles,
 } from "lucide-react";
-import { dashboardIdentity } from "@/features/dashboard/server";
+import { dashboardGuard } from "@/features/dashboard/server";
 import { learningCatalog, lessonHref } from "@/features/learning/registry";
 import { progressForPage } from "@/features/progress/server";
 import { LearningSummary } from "@/features/progress/ui/learning-summary";
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export default async function LearningPage() {
-  await dashboardIdentity();
+  await dashboardGuard();
   const courses = learningCatalog();
   const progress = await progressForPage();
   const rows = progress.rows ?? [];

@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { cloudRequest } from "@/features/projects/cloud/request";
 import { clearPrivateState } from "@/features/projects/local/controller";
-import { PreferenceOwner, savePreferences, usePreferences, useReducedMotion } from "@/features/settings/preferences";
+import { PreferenceOwner, readPreferences, savePreferences, usePreferences, useReducedMotion } from "@/features/settings/preferences";
 import { useAuthTransition } from "@/features/auth/motion/auth-transition";
 import type { AuthEntry } from "@/features/auth/motion/transition-contract";
 import { UserMenu, type DashboardIdentity } from "./user-menu";
@@ -34,7 +34,6 @@ function DashboardSurface({ user, children, initialSidebar = "expanded", authEnt
   const main = useRef<HTMLElement>(null);
   const previousWidth = useRef(initialSidebar === "collapsed" ? 80 : 256);
   const previousPath = useRef(pathname);
-  const lastIntro = useRef("");
   const pageMotionPath = useRef(pathname);
   const [sessionError, setSessionError] = useState(false);
   const [preferenceError, setPreferenceError] = useState("");
@@ -42,8 +41,11 @@ function DashboardSurface({ user, children, initialSidebar = "expanded", authEnt
   useEffect(() => {
     if (!mounted) return;
     // The verified shell can enter while its independent data streams finish.
-    ready(authEntry, reduced);
-  }, [ready, authEntry, reduced, mounted, pathname]);
+    // Resolve the real client preference before consuming a one-time entry;
+    // useReducedMotion's conservative SSR snapshot is not a user preference.
+    const { motion } = readPreferences(user.id);
+    ready(authEntry, motion === "reduced" || (motion === "system" && window.matchMedia("(prefers-reduced-motion: reduce)").matches));
+  }, [ready, authEntry, reduced, mounted, pathname, user.id]);
   useEffect(() => {
     let alive = true;
     let leaving = false;
@@ -89,8 +91,7 @@ function DashboardSurface({ user, children, initialSidebar = "expanded", authEnt
     }
   }, { scope: root, dependencies: [collapsed, reduced], revertOnUpdate: true });
   useGSAP(() => {
-    if (!transition.intro || lastIntro.current === transition.intro || reduced) return;
-    lastIntro.current = transition.intro;
+    if (!transition.intro || reduced) return;
     const mobile = window.innerWidth < 1024;
     const items = root.current?.querySelectorAll(mobile ? "[data-dock-index]" : "[data-dashboard-sidebar] nav [data-shell-item], [data-sidebar-logout]");
     const brand = mobile ? [] : root.current?.querySelectorAll("[data-shell-brand] [data-shell-item]");
@@ -104,17 +105,20 @@ function DashboardSurface({ user, children, initialSidebar = "expanded", authEnt
     if (headerItems?.length) gsap.set(headerItems, { opacity: 0, y: -12 });
     gsap.set("[data-dashboard-dock]", { opacity: 1 });
     gsap.set("[data-sidebar-pill], [data-dock-pill]", { opacity: 0 });
-    const tl = gsap.timeline({ defaults: { ease: "power3.out", clearProps: "opacity,transform" } });
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out", clearProps: "opacity,transform" } });
     tl.to("[data-dashboard-sidebar]", { xPercent: 0, duration: sidebarEntryDuration, ease: "power2.inOut" }, 0);
-    if (brand?.length) tl.to(brand, { opacity: 1, x: 0, duration: 0.65, stagger: 0.075 }, sidebarItemsStart);
+    if (brand?.length) tl.to(brand, { opacity: 1, x: 0, duration: 0.72, stagger: 0.075 }, sidebarItemsStart);
     // The mobile dock is already in place; only the desktop sidebar needs to
     // finish its slide before its contents begin.
     const menuStart = (mobile ? 0.12 : sidebarItemsStart) + (brand?.length ?? 0) * sidebarItemStagger;
     if (items?.length) tl.to(items, { opacity: 1, x: 0, duration: sidebarItemDuration, stagger: sidebarItemStagger }, menuStart);
     tl.to("[data-sidebar-pill], [data-dock-pill]", { opacity: 1, duration: 0.3, clearProps: "opacity" }, menuStart);
-    tl.to("[data-dashboard-header]", { opacity: 1, duration: 0.55, clearProps: "opacity" }, headerStart);
+    tl.to("[data-dashboard-header]", { opacity: 1, duration: 0.62, clearProps: "opacity" }, headerStart);
     if (headerItems?.length) tl.to(headerItems, { opacity: 1, y: 0, duration: headerDuration, stagger: headerItemStagger }, headerStart);
-  }, { scope: root, dependencies: [transition.intro, reduced], revertOnUpdate: true });
+    // GSAP cleanup reverts its styles. Rebinding resumes the original clock
+    // instead of skipping a cleaned-up timeline or replaying a completed one.
+    tl.seek(Math.max(0, (performance.now() - transition.introStartedAt) / 1000), true).play();
+  }, { scope: root, dependencies: [transition.intro, transition.introStartedAt, reduced], revertOnUpdate: true });
   useGSAP((context, contextSafe) => {
     if (pageMotionPath.current === pathname) return;
     pageMotionPath.current = pathname;
@@ -125,7 +129,7 @@ function DashboardSurface({ user, children, initialSidebar = "expanded", authEnt
     const reveal = contextSafe?.(() => {
       if (revealed || !page.querySelector("h1")) return false;
       revealed = true;
-      gsap.fromTo(page, { opacity: 0.72, y: 6 }, { opacity: 1, y: 0, duration: 0.32, ease: "power2.out", clearProps: "opacity,transform" });
+      gsap.fromTo(page, { opacity: 0.72, y: 6 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out", clearProps: "opacity,transform" });
       return true;
     });
     if (reveal?.()) return;

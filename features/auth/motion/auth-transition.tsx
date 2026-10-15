@@ -76,7 +76,7 @@ export function AuthTransitionProvider({ children }: { children: ReactNode }) {
     } else if (entry && entry.expires > Date.now() && new URL(entry.target, window.location.origin).pathname === window.location.pathname) {
       document.cookie = `${authEntryCookie}=; Path=/; Max-Age=0; SameSite=Lax`;
       if (consumed.current.has(entry.id)) return;
-      try { if (sessionStorage.getItem(`vircuit-entry:${entry.id}`)) return; sessionStorage.setItem(`vircuit-entry:${entry.id}`, "1"); } catch { return; }
+      try { if (sessionStorage.getItem(`vircuit-entry:${entry.id}`)) return; sessionStorage.setItem(`vircuit-entry:${entry.id}`, "1"); } catch { /* In-memory consumption still prevents replay when storage is blocked. */ }
       // A callback has no login screen to open. Use the dashboard intro directly.
       consumed.current.add(entry.id);
       introRoute.current = window.location.pathname;

@@ -13,7 +13,7 @@ export function UserMenu({ user }: { user: DashboardIdentity }) {
     <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="size-11" aria-label="Menu akun"><ProfileAvatar user={user} /></Button></DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-w-[calc(100vw-2rem)]">
         <DropdownMenuLabel className="max-w-64 break-all">{user.name}<span className="block text-xs font-normal text-text-secondary">{user.email}</span></DropdownMenuLabel>
-        <DropdownMenuSeparator /><DropdownMenuItem asChild><Link href="/dashboard/pengaturan"><Settings2 aria-hidden />Pengaturan</Link></DropdownMenuItem>
+        <DropdownMenuSeparator /><DropdownMenuItem asChild><Link href="/dashboard/pengaturan" prefetch={true}><Settings2 aria-hidden />Pengaturan</Link></DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   </div>;

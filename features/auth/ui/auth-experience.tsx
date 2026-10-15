@@ -22,6 +22,7 @@ export function AuthExperience({ children }: { children: ReactNode }) {
   const [pending, setPending] = useState({ login: false, register: false });
   const root = useRef<HTMLDivElement>(null);
   const first = useRef(true);
+  const artworkMode = useRef(register);
   const reduced = useReducedMotion();
   const next = safeDestination(params.get("next"));
   const busy = pending.login || pending.register;
@@ -36,6 +37,8 @@ export function AuthExperience({ children }: { children: ReactNode }) {
     gsap.to(panel, { opacity: 0, y: -8, duration: 0.3, ease: "power2.inOut", onComplete: () => setShown(register) });
   }, { scope: root, dependencies: [register, reduced, authPage], revertOnUpdate: true });
   useGSAP(() => {
+    const modeChanged = artworkMode.current !== shown;
+    artworkMode.current = shown;
     if (!authPage || !root.current) return;
     const initial = first.current;
     first.current = false;
@@ -50,8 +53,10 @@ export function AuthExperience({ children }: { children: ReactNode }) {
     const tl = gsap.timeline({ onComplete: focus });
     tl.to(panel, { opacity: 1, x: 0, duration: 0.65, ease: "power3.out", clearProps: "opacity,transform" });
     tl.to(fields, { opacity: 1, y: 0, duration: 0.55, stagger: 0.06, ease: "power3.out", clearProps: "opacity,transform" }, 0.12);
-    if (!mobile) {
-      gsap.set("[data-auth-art]", { xPercent: initial ? 0 : (shown ? 100 : -100) });
+    // Initial entry, refresh, logout and motion-preference hydration keep the
+    // complete SVG static. Only a real Login/Daftar switch moves the artwork.
+    if (!mobile && modeChanged) {
+      gsap.set("[data-auth-art]", { xPercent: shown ? 100 : -100 });
       gsap.set("[data-auth-art-copy]", { opacity: 0, y: 10 });
       gsap.set("[data-auth-trace]", { strokeDasharray: 700, strokeDashoffset: 700 });
       tl.to("[data-auth-art]", { xPercent: 0, duration: 0.85, ease: "power3.inOut", clearProps: "transform" }, 0);

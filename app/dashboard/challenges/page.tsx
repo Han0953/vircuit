@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { dashboardIdentity } from "@/features/dashboard/server";
+import { dashboardGuard } from "@/features/dashboard/server";
 import { challengeCatalog } from "@/features/challenges/registry";
 import { findLesson } from "@/features/learning/registry";
 import { progressForPage } from "@/features/progress/server";
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ChallengesPage() {
-  await dashboardIdentity();
+  await dashboardGuard();
   const challenges = challengeCatalog();
   const progress = await progressForPage();
 

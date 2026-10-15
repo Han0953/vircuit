@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Award, Layers, RefreshCcw } from "lucide-react";
-import { dashboardIdentity } from "@/features/dashboard/server";
+import { dashboardGuard } from "@/features/dashboard/server";
 import { progressForPage } from "@/features/progress/server";
 import { deriveProgress } from "@/features/progress/derive";
 import { ProgressError } from "@/features/progress/ui/progress-error";
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProgressPage() {
-  await dashboardIdentity();
+  await dashboardGuard();
   const result = await progressForPage();
 
   if (!result.rows) {

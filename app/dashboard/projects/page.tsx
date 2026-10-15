@@ -17,8 +17,7 @@ export default async function ProjectsPage({
   searchParams: Promise<{ search?: string; page?: string }>;
 }) {
   const query = await searchParams;
-  const user = await dashboardIdentity();
-  const result = await dashboardProjects(query);
+  const [user, result] = await Promise.all([dashboardIdentity(), dashboardProjects(query)]);
 
   const projectCount = result.data?.items.length ?? 0;
 

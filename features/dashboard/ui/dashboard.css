@@ -20,6 +20,10 @@
 .dashboard-dock-item[aria-current=page],.dashboard-dock-item:hover { color:var(--primary); }
 .dashboard-main { padding-bottom:calc(100px + env(safe-area-inset-bottom)); touch-action:pan-y pinch-zoom; }
 .dashboard-main h1[tabindex="-1"]:focus { outline:none; }
+/* Avoid a one-frame skeleton flash on warm navigation; slow requests still
+   expose their real loading state. The status remains available to AT. */
+.dashboard-root [data-dashboard-page] > [role="status"] { animation:dashboard-loading-reveal 1ms 140ms both; }
+@keyframes dashboard-loading-reveal { from { opacity:0; } to { opacity:1; } }
 .dashboard-root:is([data-intro-pending=true],[data-login-intro]) [data-dashboard-page] > [role="status"] { visibility:hidden; }
 .dashboard-root[data-login-intro] [data-dashboard-content-ready]:not([data-content-motion-ready]) { visibility:hidden; }
 .dashboard-root :is(button,a):active { transition-duration:100ms; }

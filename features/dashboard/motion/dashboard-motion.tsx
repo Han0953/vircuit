@@ -17,7 +17,6 @@ export function DashboardMotionSection({ children, className, delay = 0 }: { chi
   const preferences = usePreferences();
   const transition = useAuthTransition();
   const pathname = usePathname();
-  const loginIntro = useRef("");
   useEffect(() => {
     if (transition.waiting) return;
     const timer = window.setTimeout(() => {
@@ -34,9 +33,11 @@ export function DashboardMotionSection({ children, className, delay = 0 }: { chi
     const container = root.current;
     if (!container || transition.waiting || (!!container.closest("[data-intro-pending=true]") && !transition.intro)) return;
     if (reduced) { gsap.set(container.querySelectorAll(selector), { clearProps: "opacity,transform" }); gsap.set(container, { attr: { "data-content-motion-ready": "true" } }); return; }
-    const entering = !!transition.intro && loginIntro.current !== transition.intro;
-    if (entering) loginIntro.current = transition.intro;
-    const contentStart = entering ? Math.max(0, dashboardIntroTiming(window.innerWidth < 1024 ? 5 : dashboardLinks.length + 1).contentStart - (performance.now() - transition.introStartedAt) / 1000) : 0;
+    const entering = !!transition.intro;
+    const contentStart = entering ? dashboardIntroTiming(window.innerWidth < 1024 ? 5 : dashboardLinks.length + 1).contentStart : 0;
+    // Effect cleanup restores the DOM. Its new context must own those same
+    // nodes again, resuming the entry clock instead of skipping seen nodes.
+    seen.current = new WeakSet<Element>();
     let firstReveal = true;
     const reveal = contextSafe?.(() => {
       const elements = Array.from(container.querySelectorAll<HTMLElement>(selector)).filter((element) => {
@@ -53,13 +54,14 @@ export function DashboardMotionSection({ children, className, delay = 0 }: { chi
       }
       const loginGroup = firstReveal && entering;
       firstReveal = false;
-      const tl = gsap.timeline({ delay: Math.max(0, delay) + (loginGroup ? contentStart : 0), defaults: { ease: "power3.out", clearProps: "opacity,transform" } });
+      const tl = gsap.timeline({ paused: loginGroup, delay: loginGroup ? 0 : Math.max(0, delay), defaults: { ease: "power3.out", clearProps: "opacity,transform" } });
       elements.forEach((element, index) => {
         seen.current.add(element);
         const meter = element.dataset.motion === "meter";
         gsap.set(element, meter ? { scaleX: 0.6, transformOrigin: "left center" } : { opacity: loginGroup ? 0 : 0.6, y: window.innerWidth < 768 ? 8 : 14 });
-        tl.to(element, meter ? { scaleX: 1, duration: contentDuration } : { opacity: 1, y: 0, duration: loginGroup ? contentDuration : 0.68 }, index * (loginGroup ? contentStagger : 0.045));
+        tl.to(element, meter ? { scaleX: 1, duration: contentDuration } : { opacity: 1, y: 0, duration: loginGroup ? contentDuration : 0.68 }, (loginGroup ? contentStart + Math.max(0, delay) : 0) + index * (loginGroup ? contentStagger : 0.045));
       });
+      if (loginGroup) tl.seek(Math.max(0, (performance.now() - transition.introStartedAt) / 1000), true).play();
     });
     reveal?.();
     gsap.set(container, { attr: { "data-content-motion-ready": "true" } });
