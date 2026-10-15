@@ -15,6 +15,10 @@
 @property --primary-active { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --primary-soft { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --primary-foreground { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --button-primary { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --button-primary-hover { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --button-primary-active { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --button-primary-foreground { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --ai { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --iot { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --section-bg { syntax: '<color>'; inherits: true; initial-value: transparent; }
@@ -34,7 +38,7 @@
 html[data-theme-ready] {
   --theme-duration: 300ms;
   --theme-ease: cubic-bezier(.22, 1, .36, 1);
-  transition-property: --background, --foreground, --surface, --surface-muted, --surface-elevated, --border, --border-strong, --text-primary, --text-secondary, --text-tertiary, --primary, --primary-hover, --primary-active, --primary-soft, --primary-foreground, --ai, --iot !important;
+  transition-property: --background, --foreground, --surface, --surface-muted, --surface-elevated, --border, --border-strong, --text-primary, --text-secondary, --text-tertiary, --primary, --primary-hover, --primary-active, --primary-soft, --primary-foreground, --button-primary, --button-primary-hover, --button-primary-active, --button-primary-foreground, --ai, --iot !important;
   transition-duration: var(--theme-duration) !important;
   transition-timing-function: var(--theme-ease) !important;
   transition-delay: 0s !important;

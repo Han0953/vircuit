@@ -28,6 +28,6 @@ export function BackToTop() {
   }, [pathname]);
   if (!marketingScrollRoute(pathname)) return null;
   return <button data-motion-group="shared.back-top" data-motion="control" type="button" className={styles.backToTop} data-footer-wordmark={footerVisible} data-visible={visible || focused} tabIndex={visible || focused ? 0 : -1} aria-hidden={!visible && !focused} aria-label="Kembali ke atas halaman" onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} onClick={() => scrollHomeTo(0, document.getElementById("main-content") ?? undefined)}>
-    <ArrowUp size={20} aria-hidden="true" />
+    <ArrowUp size={18} aria-hidden="true" />
   </button>;
 }

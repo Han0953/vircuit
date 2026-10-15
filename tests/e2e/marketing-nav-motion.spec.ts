@@ -26,11 +26,18 @@ for (const width of [360, 390, 430, 768, 1440]) test(`marketing capsule and anim
         const hamburger = header.getByRole("button", { name: "Buka menu navigasi" });
         await expect(hamburger.locator("[data-open] > span")).toHaveCount(3);
         const before = await page.evaluate(() => scrollY);
+        const hamburgerBox = (await hamburger.boundingBox())!;
         await hamburger.click();
         const menu = page.getByRole("dialog");
         await expect(menu).toBeVisible();
         await expect(menu).toHaveCSS("backdrop-filter", "blur(4px)");
         await expect(menu.locator("[data-open]")).toHaveAttribute("data-open", "true");
+        await expect(menu.locator("[data-mobile-menu-header] button, [data-mobile-menu-header] svg")).toHaveCount(0);
+        await expect(menu.getByRole("button", { name: /Pilih tema/ })).toHaveCount(0);
+        await expect.poll(() => menu.evaluate((element) => Math.round(element.getBoundingClientRect().x))).toBe(0);
+        const closeBox = (await menu.getByRole("button", { name: "Tutup", exact: true }).boundingBox())!;
+        expect(Math.abs(closeBox.x - hamburgerBox.x)).toBeLessThanOrEqual(1);
+        expect(Math.abs(closeBox.y - hamburgerBox.y)).toBeLessThanOrEqual(1);
         const lab = menu.getByRole("link", { name: "Buka Virtual Lab", exact: true });
         const login = menu.getByRole("link", { name: "Masuk", exact: true });
         await expect(lab).toBeVisible();

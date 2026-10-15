@@ -16,6 +16,12 @@
   --primary-active: #1e40af;
   --primary-soft: #dbeafe;
   --primary-foreground: #ffffff;
+  /* Filled actions retain white labels and readable blue surfaces in every
+     theme, including inverted marketing sections. */
+  --button-primary: #2563eb;
+  --button-primary-hover: #1d4ed8;
+  --button-primary-active: #1e40af;
+  --button-primary-foreground: #ffffff;
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
@@ -105,6 +111,10 @@
   --primary-active: #2563eb;
   --primary-soft: #0b1f3a;
   --primary-foreground: #000000;
+  --button-primary: #2563eb;
+  --button-primary-hover: #1d4ed8;
+  --button-primary-active: #1e40af;
+  --button-primary-foreground: #ffffff;
   --ai: #a78bfa;
   --iot: #22d3ee;
 }
@@ -125,6 +135,10 @@
   --color-primary-active: var(--primary-active);
   --color-primary-soft: var(--primary-soft);
   --color-primary-foreground: var(--primary-foreground);
+  --color-button-primary: var(--button-primary);
+  --color-button-primary-hover: var(--button-primary-hover);
+  --color-button-primary-active: var(--button-primary-active);
+  --color-button-primary-foreground: var(--button-primary-foreground);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);

@@ -4,7 +4,6 @@ import { backgroundScenes } from "../../components/marketing/backgrounds/backgro
 const routes = ["/", "/fitur", "/belajar", "/jelajahi", "/harga"];
 const counts = [10, 8, 6, 8, 5];
 async function theme(page: Page, value: "Terang" | "Gelap" | "Sistem", mobile: boolean) {
-  if (mobile) await page.getByRole("button", { name: "Buka menu navigasi" }).click();
   await page.getByRole("button", { name: /^Pilih tema:/ }).click();
   await page.getByRole("menuitemradio", { name: value }).click();
   if (mobile) await page.keyboard.press("Escape");

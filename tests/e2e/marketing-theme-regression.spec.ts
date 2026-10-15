@@ -32,10 +32,6 @@ test(`theme changes preserve scroll and compact header at ${width}`, async ({ pa
     const before = await page.evaluate(() => scrollY);
     expect(before).toBeGreaterThan(100);
     for (const name of ["Gelap", "Terang"] as const) {
-      if (width < 1024) {
-        await press(page, page.getByRole("button", { name: "Buka menu navigasi" }), true);
-        await expect.poll(async () => Math.round((await page.getByRole("dialog").boundingBox())!.x)).toBe(0);
-      }
       const trigger = page.getByRole("button", { name: /^Pilih tema:/ });
       await press(page, trigger, width < 1024);
       const afterOpen = await page.evaluate(() => scrollY);
@@ -50,7 +46,6 @@ test(`theme changes preserve scroll and compact header at ${width}`, async ({ pa
       }));
       await press(page, page.getByRole("menuitemradio", { name, exact: true }), width < 1024);
       await expect(trigger).toBeFocused();
-      if (width < 1024) await page.keyboard.press("Escape");
       const result = await samples;
       await testInfo.attach(`${route}-${name}-${width}`, { body: JSON.stringify({ before, afterOpen, ...result }), contentType: "application/json" });
       expect(Math.abs(afterOpen - before)).toBeLessThanOrEqual(2);

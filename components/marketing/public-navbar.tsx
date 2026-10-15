@@ -12,7 +12,6 @@ import {
   SheetClose,
   SheetContent,
   SheetDescription,
-  SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
@@ -129,10 +128,10 @@ export function PublicNavbar() {
               menuTrigger.current?.focus({ preventScroll: true });
             }}>
               <SheetClose asChild><Button variant="ghost" size="icon" className={styles.menuClose} aria-label="Tutup"><MenuLines open={menuOpen} /></Button></SheetClose>
-              <SheetHeader className="p-6 pr-16 text-left"><div className="flex items-center justify-between gap-3">
-                <SheetTitle className="flex items-center gap-2 text-xl"><BrandLogo size="sm" /></SheetTitle>
-                <MarketingThemeToggle /></div><SheetDescription>Belajar IoT lewat praktik.</SheetDescription>
-              </SheetHeader>
+              <div data-mobile-menu-header className={styles.mobileMenuHeader}>
+                <SheetTitle className="sr-only">Navigasi Vircuit</SheetTitle>
+                <SheetDescription className="sr-only">Pilih halaman yang ingin dibuka.</SheetDescription>
+              </div>
               <nav aria-label="Navigasi mobile" className={styles.mobileLinks}>
                 {primaryNavigation.map(({ label, href }) => {
                   const active = isActiveRoute(pathname, href);

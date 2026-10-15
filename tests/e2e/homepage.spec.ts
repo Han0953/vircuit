@@ -88,7 +88,6 @@ test("reduced motion, theme switching and short viewport remain usable", async (
   await expect(page.locator('[data-scene="story"]')).not.toHaveAttribute("data-motion");
   await expect(page.locator(".pin-spacer")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Coba, perbaiki, lalu pahami." })).toBeVisible();
-  await page.getByRole("button", { name: "Buka menu navigasi" }).click();
   await page.getByRole("button", { name: /Pilih tema:/ }).click();
   await page.getByRole("menuitemradio", { name: "Terang" }).click();
   await expect(page.locator("html")).not.toHaveClass(/dark/);

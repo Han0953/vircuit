@@ -29,7 +29,9 @@
 .mobileMenu[data-state='closed'] { animation-name: menu-close; animation-duration: 280ms; }
 .menuClose { position:absolute; z-index:1; box-shadow:none; }
 .menuClose:focus-visible { box-shadow:none; outline:2px solid color-mix(in srgb,var(--foreground) 45%,transparent); outline-offset:2px; }
-.mobileMenu > button { top: calc(env(safe-area-inset-top, 0px) + .5rem); right: max(.5rem, env(safe-area-inset-right, 0px)); }
+.mobileMenuHeader { height:64px; }
+.mobileMenu > button { top: calc(env(safe-area-inset-top, 0px) + 10px); right: max(16px, env(safe-area-inset-right, 0px)); }
+@media(min-width:640px) { .mobileMenu > button { right:max(32px,env(safe-area-inset-right,0px)); } }
 .mobileLinks { display: flex; min-height: 0; overflow-y: auto; overscroll-behavior: contain; flex-direction: column; justify-content: safe center; align-items: stretch; gap: .4rem; padding: 1rem 1.5rem; text-align: center; }
 .mobileLinks a { justify-content: center; min-height: 52px; height: auto; font-size: clamp(1.5rem, 6vw, 2.25rem); letter-spacing: -.025em; padding: .65rem 1rem; }
 .mobileMenu[data-state='open'] .mobileLinks { animation: menu-links 420ms cubic-bezier(.22,.8,.25,1) backwards; animation-delay: 70ms; }
@@ -55,7 +57,10 @@
 @keyframes logo-settle { from { transform: translateY(-4px) rotate(-5deg); } to { transform: none; } }
 .header[data-menu-open='true'] ~ .backToTop { visibility: hidden; pointer-events: none; }
 :global(html:has([data-home-header])) { --home-header-height: 64px; scroll-padding-top: calc(var(--home-header-height) + 16px); }
-.backToTop { position: fixed; z-index: 30; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); width: 44px; height: 44px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--surface-elevated); color: var(--foreground); box-shadow: var(--shadow-overlay); display: grid; place-items: center; opacity: 0; transform: translateY(8px); visibility: hidden; pointer-events: none; transition: opacity 180ms ease-out, transform 180ms ease-out, visibility 180ms, bottom 180ms ease-out; }
+.backToTop { position: fixed; z-index: 30; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); width: 44px; height: 44px; border: 0; border-radius: var(--radius-md); background: transparent; color: var(--foreground); box-shadow: none; display: grid; place-items: center; opacity: 0; transform: translateY(8px); visibility: hidden; pointer-events: none; transition: opacity 180ms ease-out, transform 180ms ease-out, visibility 180ms, bottom 180ms ease-out; }
+/* A real 44px button owns hit testing; only its visible surface is smaller. */
+.backToTop::before { content:''; position:absolute; top:50%; left:50%; width:38px; height:38px; transform:translate(-50%,-50%); border:1px solid var(--border-strong); border-radius:inherit; background:var(--surface-elevated); pointer-events:none; }
+.backToTop svg { position:relative; z-index:1; }
 .backToTop[data-visible='true'], .backToTop:focus-visible { opacity: 1; transform: none; visibility: visible; pointer-events: auto; }
 .backToTop:hover { color: var(--primary); }
 .backToTop[data-footer-wordmark='true'] { bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 100vw / 7); }

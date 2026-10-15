@@ -83,11 +83,9 @@ for (const width of [360, 390, 430, 768, 1280, 1440]) test(`all public routes re
     await expect(page.locator("html")).toHaveAttribute("data-home-scroll", width < 1024 ? "native" : "lenis");
     for (const theme of ["light", "dark", "system"]) {
       await page.emulateMedia({ colorScheme: "dark" });
-      if (width < 1024) await page.getByRole("button", { name: "Buka menu navigasi" }).click();
       await page.getByRole("button", { name: /^Pilih tema:/ }).click();
       await page.getByRole("menuitemradio", { name: ({ light: "Terang", dark: "Gelap", system: "Sistem" })[theme]! }).click();
       await expect(page.getByRole("menu")).not.toBeVisible();
-      if (width < 1024) { await page.keyboard.press("Escape"); await expect(page.getByRole("dialog")).not.toBeVisible(); }
       if (theme === "light") await expect(page.locator("html")).not.toHaveClass(/dark/);
       else await expect(page.locator("html")).toHaveClass(/dark/);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
