@@ -54,7 +54,7 @@ export function WorkspaceProjectHandoff({ verified }: { verified: boolean }) {
         <DialogDescription>{state === "conflict" ? "Proyek ini memiliki draft lokal. Pilih versi yang ingin dilanjutkan. Draft lama diarsipkan jika membuka versi cloud." : state === "error" ? "Rangkaian lokal tetap tersedia." : "Memulihkan draft dan memeriksa proyek…"}</DialogDescription></DialogHeader>
       {state === "loading" && <p role="status" className="text-sm">Memuat proyek…</p>}
       {state === "error" && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
         {state === "conflict" && <><Button onClick={finish}>Lanjutkan draft lokal</Button><Button variant="outline" onClick={() => void run("cloud")}>Buka versi cloud</Button></>}
         {state === "error" && <><Button onClick={() => void run()}>Coba lagi</Button><Button variant="outline" onClick={finish}>Kembali ke draft lokal</Button></>}
       </div>

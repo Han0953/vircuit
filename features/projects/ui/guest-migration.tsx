@@ -29,7 +29,7 @@ export function GuestMigration({ verified }: { verified: boolean }) {
     <DialogContent className="max-h-[90dvh] overflow-y-auto" onEscapeKeyDown={(event) => { if (pending) event.preventDefault(); }} onPointerDownOutside={(event) => { if (pending) event.preventDefault(); }}>
       <DialogHeader><DialogTitle>Simpan draft tamu ke akun?</DialogTitle><DialogDescription>Draft “{guest?.project.metadata.name}” tersedia di browser ini. Proyek akun aktif dicadangkan sebelum draft dipindahkan. Draft tamu baru dihapus setelah penyimpanan cloud dikonfirmasi.</DialogDescription></DialogHeader>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <div className="flex flex-wrap gap-2"><Button disabled={pending || busy} onClick={() => {
+      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2"><Button disabled={pending || busy} onClick={() => {
         if (!guest) return;
         setPending(true); setError("");
         void migrateGuestDraft(guest.id).then(() => { setDismissed(owner!); setGuest(null); }).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : "Draft belum tersimpan. Coba lagi.")).finally(() => setPending(false));

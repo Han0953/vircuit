@@ -59,7 +59,7 @@ function ProjectActionDialog({ action, project, owner, close }: { action: "renam
       {action === "rename" && <div className="space-y-2"><label htmlFor={`title-${project.id}`} className="text-sm font-medium">Nama proyek</label><Input id={`title-${project.id}`} maxLength={200} disabled={pending} aria-invalid={!!form.formState.errors.title} aria-describedby={`title-error-${project.id}`} {...form.register("title")} /><p id={`title-error-${project.id}`} className="text-sm text-destructive">{form.formState.errors.title && "Nama harus berisi 1–200 karakter."}</p></div>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {conflict && <Button type="button" variant="outline" onClick={() => { router.refresh(); close(); }}>Muat versi terbaru</Button>}
-      <div className="flex flex-wrap gap-2"><Button type="submit" variant={action === "delete" ? "destructive" : "default"} disabled={pending || conflict}>{pending ? "Memproses…" : action === "rename" ? "Simpan nama" : confirmedDelete ? "Pulihkan draft lokal" : "Hapus proyek"}</Button><Button type="button" variant="outline" disabled={pending} onClick={close}>Batal</Button></div>
+      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2"><Button type="submit" variant={action === "delete" ? "destructive" : "default"} disabled={pending || conflict}>{pending ? "Memproses…" : action === "rename" ? "Simpan nama" : confirmedDelete ? "Pulihkan draft lokal" : "Hapus proyek"}</Button><Button type="button" variant="outline" disabled={pending} onClick={close}>Batal</Button></div>
     </form>
   </DialogContent></Dialog>;
 }

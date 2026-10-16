@@ -53,7 +53,7 @@ export function LogoutButton({ user, disabled = false, className, iconOnly = fal
       {pendingResults > 0 && <p role="status" className="text-sm">{pendingResults} hasil tantangan belum tersinkronisasi. Keluar akan menghapus antrean lokal akun ini. Pilih Batal dan sinkronkan melalui dashboard jika hasilnya masih diperlukan.</p>}
       {drafts.length > 0 && <div className="space-y-2"><p className="text-sm">Unduh cadangan draft dan arsip yang masih diperlukan sebelum keluar.</p>{drafts.map((draft) => <Button key={draft.scope} variant="outline" className="w-full justify-start" onClick={() => download(draft)}><Download aria-hidden /><span className="truncate">{draft.project.metadata.name}</span></Button>)}</div>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <div className="flex flex-wrap gap-2"><Button disabled={pending || !!error} onClick={() => void leave()}>{pending ? "Memproses…" : "Keluar akun"}</Button><Button variant="outline" disabled={pending} onClick={() => setOpen(false)}>Batal</Button>{error && <Button variant="outline" onClick={() => void prepare()}>Coba lagi</Button>}</div>
+      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2"><Button disabled={pending || !!error} onClick={() => void leave()}>{pending ? "Memproses…" : "Keluar akun"}</Button><Button variant="outline" disabled={pending} onClick={() => setOpen(false)}>Batal</Button>{error && <Button variant="outline" onClick={() => void prepare()}>Coba lagi</Button>}</div>
     </DialogContent></Dialog>
   </>;
 }

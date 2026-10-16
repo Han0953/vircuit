@@ -24,7 +24,7 @@ export function SelectionToolbar({ area, onAreaChange, focusCanvas }: { area: bo
     <Dialog open={confirm} onOpenChange={setConfirm}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto" onCloseAutoFocus={(event) => { event.preventDefault(); focusCanvas(); }}>
         <DialogHeader><DialogTitle>Hapus seluruh rangkaian?</DialogTitle><DialogDescription>Semua komponen dan kabel akan dihapus. Kode C++, nama proyek, dan metadata tetap disimpan. Kamu dapat membatalkannya dengan Undo.</DialogDescription></DialogHeader>
-        <div className="flex flex-wrap justify-end gap-2"><DialogClose asChild><Button variant="outline">Batal</Button></DialogClose><Button variant="destructive" onClick={() => { useProject.getState().clearCircuit(); useCanvas.getState().select([]); setConfirm(false); }}>Hapus rangkaian</Button></div>
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2"><DialogClose asChild><Button variant="outline">Batal</Button></DialogClose><Button variant="destructive" onClick={() => { useProject.getState().clearCircuit(); useCanvas.getState().select([]); setConfirm(false); }}>Hapus rangkaian</Button></div>
       </DialogContent>
     </Dialog>
   </>;
