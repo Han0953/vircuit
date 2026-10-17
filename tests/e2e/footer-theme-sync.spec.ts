@@ -13,9 +13,14 @@ async function chooseTheme(page: Page, name: "Terang" | "Gelap" | "Sistem") {
   await page.mouse.click(optionBox.x + optionBox.width / 2, optionBox.y + optionBox.height / 2);
 }
 async function colorTrace(page: Page) {
-  return page.evaluate(() => new Promise<{ changes: string[]; owners: { property: string; start: number; duration: number; delay: number }[]; tail: string[]; scrollDelta: number }>((resolve) => {
+  return page.evaluate(() => new Promise<{ changes: string[]; layers: Record<string, number>; compositor: string[]; compositorDuration: number; owners: { property: string; start: number; duration: number; delay: number }[]; tail: string[]; scrollDelta: number }>((resolve) => {
     const originalY = scrollY;
     const changes = new Set<string>();
+    const layers = new Map<string, Set<string>>();
+    const background = document.querySelector("[data-marketing-background]");
+    const inverse = document.querySelector("[data-bg-tone='inverse']")?.parentElement;
+    const compositor = new Set<string>();
+    let compositorDuration = 0;
     const owners = new Map<string, { property: string; start: number; duration: number; delay: number }>();
     let start = 0;
     const observer = new MutationObserver(() => {
@@ -27,6 +32,24 @@ async function colorTrace(page: Page) {
     function frame() {
       const root = document.documentElement;
       changes.add(getComputedStyle(document.body).backgroundColor);
+      const sample = (name: string, element: Element | null | undefined, property: string) => {
+        if (!element) return;
+        const values = layers.get(name) ?? new Set<string>();
+        values.add(getComputedStyle(element).getPropertyValue(property)); layers.set(name, values);
+      };
+      sample("wordmark", document.querySelector(".footer-wordmark"), "background-color");
+      sample("surface", background?.parentElement, "background-color");
+      sample("text", background?.parentElement, "color");
+      sample("gradient", background?.children[1], "background-image");
+      sample("pattern", background?.children[2], "background-image");
+      sample("inverse", inverse, "background-color");
+      sample("wire", background?.querySelector("path"), "stroke");
+      sample("card", document.querySelector("[data-slot='card']"), "background-color");
+      if (root.dataset.themeChanging === "snapshot") {
+        compositor.add(getComputedStyle(root, "::view-transition-new(root)").opacity);
+        const fade = document.getAnimations().find(animation => animation instanceof CSSAnimation && animation.animationName === "theme-palette-fade");
+        if (fade) compositorDuration = Number(fade.effect?.getTiming().duration ?? 0);
+      }
       const targets = [root, ...document.querySelectorAll(':is(section,div):has(> [data-marketing-background])')];
       targets.forEach((target, index) => target.getAnimations().forEach((animation) => {
         if (!(animation instanceof CSSTransition) || !animation.transitionProperty.startsWith("--")) return;
@@ -34,10 +57,55 @@ async function colorTrace(page: Page) {
         if (typeof animation.startTime === "number" && timing) owners.set(`${index}:${animation.transitionProperty}`, { property: animation.transitionProperty, start: animation.startTime, duration: Number(timing.duration), delay: timing.delay ?? 0 });
       }));
       if (performance.now() - start < 650) requestAnimationFrame(frame);
-      else resolve({ changes: [...changes], owners: [...owners.values()], tail: document.getAnimations().filter((animation) => animation instanceof CSSTransition && /^(--|color|background-color|border-color|fill|stroke|filter)/.test(animation.transitionProperty)).map((animation) => (animation as CSSTransition).transitionProperty), scrollDelta: Math.abs(scrollY - originalY) });
+      else resolve({ changes: [...changes], layers: Object.fromEntries([...layers].map(([name, values]) => [name, values.size])), compositor: [...compositor], compositorDuration, owners: [...owners.values()], tail: document.getAnimations().filter((animation) => animation instanceof CSSTransition && /^(--|color|background-color|border-color|fill|stroke|filter)/.test(animation.transitionProperty)).map((animation) => (animation as CSSTransition).transitionProperty), scrollDelta: Math.abs(scrollY - originalY) });
     }
   }));
 }
+function expectPaletteMotion(result: Awaited<ReturnType<typeof colorTrace>>) {
+  // Snapshot opacity can look smooth while the real palette jumps instantly
+  // and foreground animation is frozen. Require live intermediate colors.
+  expect(result.compositorDuration).toBe(0);
+  expect(result.changes.length).toBeGreaterThan(2);
+  // Some authored dark sections keep an identical foreground in both themes.
+  // A changing layer must have intermediate colors, never just two endpoints.
+  for (const [layer, colors] of Object.entries(result.layers)) expect(colors, `live interpolation: ${layer}`).not.toBe(2);
+  expect(result.owners.some(owner => owner.property === "--background")).toBe(true);
+  expect(result.owners.every(owner => owner.duration === 300 && owner.delay === 0)).toBe(true);
+  expect(Math.max(...result.owners.map(owner => owner.start)) - Math.min(...result.owners.map(owner => owner.start))).toBeLessThan(35);
+}
+
+test("theme animation keeps its CSS fallback when View Transitions are unavailable", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("vircuit-theme", "light");
+    Object.defineProperty(document, "startViewTransition", { value: undefined, configurable: true });
+  });
+  await page.goto("/harga");
+  const trace = colorTrace(page);
+  await chooseTheme(page, "Gelap");
+  const result = await trace;
+  expect(result.compositorDuration).toBe(0);
+  expectPaletteMotion(result);
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect(page.locator("html")).not.toHaveAttribute("data-theme-changing");
+});
+
+test("theme starts live without a snapshot and unrelated scroll classes cannot reverse it", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("vircuit-theme", "light");
+    document.startViewTransition = () => { throw new Error("Theme must not pause for a page snapshot"); };
+    new MutationObserver(() => {
+      if (document.documentElement.dataset.themeChanging === "colors") document.documentElement.classList.toggle("audit-scroll-active");
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme-changing"] });
+  });
+  await page.goto("/harga");
+  for (const name of ["Gelap", "Terang"] as const) {
+    const trace = colorTrace(page);
+    await chooseTheme(page, name);
+    expectPaletteMotion(await trace);
+    await expect(page.locator("html")).not.toHaveAttribute("data-theme-changing");
+    await expect(page.locator("html")).toHaveClass(name === "Gelap" ? /dark/ : /light/);
+  }
+});
 
 for (const width of [390, 1440]) test(`five public footers bleed to viewport and theme colors share one clock at ${width}px`, async ({ page }, info) => {
   test.setTimeout(120000);
@@ -62,10 +130,7 @@ for (const width of [390, 1440]) test(`five public footers bleed to viewport and
       const result = await promise;
       console.log("THEME_PALETTE_SAMPLE", JSON.stringify({ width, route, name, changes: result.changes.length, owners: result.owners.length, tail: result.tail, scroll: result.scrollDelta }));
       if (result.tail.length) console.log("THEME_TAIL_DETAILS", JSON.stringify(await page.evaluate(() => document.getAnimations().filter((animation) => animation instanceof CSSTransition).map((animation) => ({ property: (animation as CSSTransition).transitionProperty, elapsed: animation.currentTime, duration: animation.effect?.getTiming().duration, target: ((animation.effect as KeyframeEffect | null)?.target as Element | null)?.outerHTML.slice(0, 160) })))));
-      expect(result.changes.length).toBeGreaterThan(2);
-      expect(result.owners.some((owner) => owner.property === "--background")).toBe(true);
-      expect(result.owners.every((owner) => owner.duration === 300 && owner.delay === 0)).toBe(true);
-      expect(Math.max(...result.owners.map((owner) => owner.start)) - Math.min(...result.owners.map((owner) => owner.start))).toBeLessThan(35);
+      expectPaletteMotion(result);
       expect(result.tail).toEqual([]);
       expect(result.scrollDelta).toBeLessThanOrEqual(2);
       expect(await mark.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe(name === "Gelap" ? "rgb(245, 247, 250)" : "rgb(10, 10, 10)");
@@ -109,7 +174,7 @@ test("dashboard theme, account preference, system updates and reduced motion use
   const promise = colorTrace(page);
   await chooseTheme(page, "Gelap");
   const result = await promise;
-  expect(result.changes.length).toBeGreaterThan(2);
+  expectPaletteMotion(result);
   expect(result.tail).toEqual([]);
   expect(result.owners.every((owner) => owner.duration === 300)).toBe(true);
   await page.getByRole("navigation", { name: "Navigasi dashboard" }).getByRole("link", { name: "Pengaturan", exact: true }).click();
@@ -121,7 +186,7 @@ test("dashboard theme, account preference, system updates and reduced motion use
   await expect(page.locator("html")).not.toHaveAttribute("data-theme-changing");
   const system = colorTrace(page);
   await page.emulateMedia({ colorScheme: "dark" });
-  expect((await system).changes.length).toBeGreaterThan(2);
+  expectPaletteMotion(await system);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await chooseTheme(page, "Terang");
   await expect(page.locator("html")).toHaveClass(/light/);

@@ -19,9 +19,10 @@ import { SelectionToolbar } from "../components/selection-toolbar";
 import { usePreferences } from "@/features/settings/preferences";
 import { usePersistence } from "@/features/projects/store";
 import "@xyflow/react/dist/style.css";
+import { CanvasActivity } from "./canvas-activity";
 const nodeTypes = { component: ComponentNode };
 const edgeTypes = { wire: CircuitWire };
-function CanvasContent() {
+function CanvasContent({ active }: { active: boolean }) {
   const owner = usePersistence((state) => state.userId);
   const preferences = usePreferences(owner);
   const [preview, setPreview] = useState<{ component: ComponentInstance; placement: Placement } | null>(null);
@@ -29,7 +30,7 @@ function CanvasContent() {
   const [area, setArea] = useState(false);
   const reconnecting = useRef<string | null>(null);
   const canvasElement = useRef<HTMLDivElement>(null);
-  const routing = useWireRouting();
+  const routing = useWireRouting(active);
   const [elements] = useState(() => new FlowElements());
   const components = useProject((s) => s.project.components);
   const selection = useCanvas((s) => s.selection);
@@ -41,17 +42,24 @@ function CanvasContent() {
   const { resolvedTheme } = useTheme();
   const nodes = useMemo(() => elements.componentNodes(components, selection), [elements, components, selection]);
   useEffect(() => useProject.subscribe((state, previous) => {
-    if (state.project.components !== previous.project.components || state.project.wires !== previous.project.wires) {
+    if (state.project.components.length !== previous.project.components.length || state.project.wires.length !== previous.project.wires.length ||
+      state.project.components.some((component, index) => component.id !== previous.project.components[index]?.id) ||
+      state.project.wires.some((wire, index) => wire.id !== previous.project.wires[index]?.id)) {
       useCanvas.getState().select(validSelection(state.project, useCanvas.getState().selection));
     }
   }), []);
   const focusCanvas = () => canvasElement.current?.focus({ preventScroll: true });
   function changeNodes(changes: NodeChange<CircuitNode>[]) {
-    useCanvas.getState().select(updateSelection(useCanvas.getState().selection, changes.flatMap((c) => c.type === "select" ? [{ id: c.id, selected: c.selected }] : [])));
+    const selected = changes.flatMap((c) => c.type === "select" ? [{ id: c.id, selected: c.selected }] : []);
+    if (selected.length) useCanvas.getState().select(updateSelection(useCanvas.getState().selection, selected));
+    const positions = new Map<string, { x: number; y: number }>();
+    const removed: string[] = [];
     for (const change of changes) {
-      if (change.type === "position" && change.position) edit((p) => ({ ...p, components: p.components.map((c) => c.id === change.id ? { ...c, position: change.position! } : c) }), false);
-      if (change.type === "remove") useProject.getState().remove([change.id]);
+      if (change.type === "position" && change.position) positions.set(change.id, change.position);
+      if (change.type === "remove") removed.push(change.id);
     }
+    useProject.getState().move(positions);
+    if (removed.length) useProject.getState().remove(removed);
   }
   return <div ref={canvasElement} tabIndex={0} className="flex h-full min-h-0 flex-col focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2" data-testid="circuit-canvas" data-routing-pending={routing.pending} data-routing-revision={routing.revision} data-routing-batch-ms={routing.controller.stats.maxBatchMs.toFixed(2)} data-routing-compute-ms={routing.controller.stats.searchMs.toFixed(2)} onKeyDown={(e) => {
     if (isEditingText(e.target) || e.nativeEvent.isComposing) return;
@@ -96,7 +104,7 @@ function CanvasContent() {
       } else setNotice(placement?.reason ?? null);
       setPreview(null);
       routing.controller.endDrag();
-    }} onPaneClick={() => { setNotice(null); useCanvas.getState().select([]); focusCanvas(); }} viewport={viewport} onViewportChange={(viewport) => edit((p) => ({ ...p, viewport }), false)} minZoom={0.25} maxZoom={4} panOnDrag={area ? [1, 2] : true} zoomOnPinch selectionKeyCode="Shift" multiSelectionKeyCode={["Shift", "Control", "Meta"]} selectionOnDrag={area} selectionMode={SelectionMode.Partial} panActivationKeyCode="Space" deleteKeyCode={null} colorMode={resolvedTheme === "dark" ? "dark" : "light"}
+    }} onPaneClick={() => { setNotice(null); useCanvas.getState().select([]); focusCanvas(); }} viewport={viewport} onViewportChange={(viewport) => edit((p) => p.viewport.x === viewport.x && p.viewport.y === viewport.y && p.viewport.zoom === viewport.zoom ? p : { ...p, viewport }, false)} minZoom={0.25} maxZoom={4} panOnDrag={area ? [1, 2] : true} zoomOnPinch selectionKeyCode="Shift" multiSelectionKeyCode={["Shift", "Control", "Meta"]} selectionOnDrag={area} selectionMode={SelectionMode.Partial} panActivationKeyCode="Space" deleteKeyCode={null} colorMode={resolvedTheme === "dark" ? "dark" : "light"}
     onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }} onDrop={(e) => { e.preventDefault(); const type = e.dataTransfer.getData("application/vircuit-component"); if (catalog.some((c) => c.key === type)) useProject.getState().add(type, screenToFlowPosition({ x: e.clientX, y: e.clientY })); }}>
     {preferences.grid && <Background variant={BackgroundVariant.Dots} gap={20} color="var(--border-strong)" />}
     <Controls />
@@ -106,4 +114,4 @@ function CanvasContent() {
     {!nodes.length && <div className="pointer-events-none absolute inset-x-4 top-4 text-center text-xs text-text-secondary">Tambahkan komponen dari Parts untuk mulai merangkai.</div>}
   </ReactFlow></div></div>;
 }
-export function CircuitCanvas() { return <ReactFlowProvider><CanvasContent /></ReactFlowProvider>; }
+export function CircuitCanvas({ active = true }: { active?: boolean }) { return <CanvasActivity value={active}><ReactFlowProvider><CanvasContent active={active} /></ReactFlowProvider></CanvasActivity>; }

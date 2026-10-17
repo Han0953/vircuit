@@ -46,10 +46,15 @@ export function PublicNavbar() {
   useEffect(() => {
     if (!header.current) return;
     const element = header.current;
-    const measure = () => document.documentElement.style.setProperty("--home-header-height", `${element.offsetHeight}px`);
+    const measure: ResizeObserverCallback = (entries) => {
+      const height = entries[0]?.borderBoxSize?.[0]?.blockSize ?? entries[0]?.target.getBoundingClientRect().height;
+      if (height === undefined) return;
+      const value = `${height}px`, style = document.documentElement.style;
+      if (style.getPropertyValue("--home-header-height") !== value) style.setProperty("--home-header-height", value);
+    };
     const update = () => setScrolled((previous) => scrolledHeader(previous, scrollY));
     const observer = new ResizeObserver(measure);
-    observer.observe(element); measure();
+    observer.observe(element);
     const frame = requestAnimationFrame(update);
     window.addEventListener("scroll", update, { passive: true });
     return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener("scroll", update); document.documentElement.style.removeProperty("--home-header-height"); };

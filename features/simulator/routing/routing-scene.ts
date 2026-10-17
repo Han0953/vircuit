@@ -13,7 +13,7 @@ export function geometrySignature(components: readonly ComponentInstance[], wire
   ]);
 }
 
-export function buildRoutingScene(components: readonly ComponentInstance[], wires: readonly Wire[], cache: GeometryCache = new Map()): RoutingScene {
+export function buildRoutingScene(components: readonly ComponentInstance[], wires: readonly Wire[], cache: GeometryCache = new Map(), signature = geometrySignature(components, wires)): RoutingScene {
   const ports = new Map<string, Port>(), obstacles: Obstacle[] = [];
   const attached = new Set(wires.flatMap((w) => [endpointKey(w.from), endpointKey(w.to)]));
   for (const component of components) {
@@ -31,7 +31,7 @@ export function buildRoutingScene(components: readonly ComponentInstance[], wire
   const present = new Set(components.map((c) => c.id));
   for (const id of cache.keys()) if (!present.has(id)) cache.delete(id);
   obstacles.sort((a, b) => a.id.localeCompare(b.id));
-  return { signature: geometrySignature(components, wires), ports, obstacles };
+  return { signature, ports, obstacles };
 }
 
 export function wireInput(scene: RoutingScene, wire: Wire): RoutingInput | undefined {

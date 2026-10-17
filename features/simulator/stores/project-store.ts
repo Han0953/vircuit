@@ -8,6 +8,7 @@ interface ProjectStore {
   project: Project; past: Project[]; future: Project[];
   edit: (update: (project: Project) => Project, history?: boolean) => void;
   checkpoint: () => void;
+  move: (positions: ReadonlyMap<string, { x: number; y: number }>) => void;
   add: (type: string, position: { x: number; y: number }) => void;
   remove: (ids: string[]) => void;
   clearCircuit: () => void;
@@ -23,6 +24,19 @@ export const useProject = create<ProjectStore>((set, get) => ({
     return { project, past: history ? [...s.past.slice(-49), s.project] : s.past, future: history ? [] : s.future };
   }),
   checkpoint: () => set((s) => ({ past: [...s.past.slice(-49), s.project], future: [] })),
+  move: (positions) => {
+    if (!positions.size) return;
+    get().edit((project) => {
+      let changed = false;
+      const components = project.components.map((component) => {
+        const position = positions.get(component.id);
+        if (!position || (position.x === component.position.x && position.y === component.position.y)) return component;
+        changed = true;
+        return { ...component, position };
+      });
+      return changed ? { ...project, components } : project;
+    }, false);
+  },
   add: (type, position) => {
     if (get().project.components.length >= 100) return;
     const definition = getDefinition(type);

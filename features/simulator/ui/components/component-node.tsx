@@ -1,6 +1,7 @@
 import { RuntimeControls } from "./runtime-controls";
 import { PinHandles } from "./pin-handles";
-import { memo, useEffect, useMemo } from "react";
+import { memo, useContext, useEffect, useMemo } from "react";
+import { CanvasActivity } from "../workspace/canvas-activity";
 import { useUpdateNodeInternals, type Node, type NodeProps } from "@xyflow/react";
 import { getDefinition } from "../../catalog/registry";
 import type { ComponentInstance } from "../../types/project";
@@ -10,13 +11,14 @@ import { useSimulation } from "../../stores/simulation-store";
 export type CircuitNode = Node<{ component: ComponentInstance }, "component">;
 export const ComponentNode = memo(function ComponentNode({ data, selected, id }: NodeProps<CircuitNode>) {
   const component = data.component;
+  const active = useContext(CanvasActivity);
   const definition = getDefinition(component.type);
-  const output = useSimulation((s) => s.outputs[component.id] ?? 0);
-  const display = useSimulation((s) => s.displays[component.id]);
+  const output = useSimulation((s) => active ? s.outputs[component.id] ?? 0 : 0);
+  const display = useSimulation((s) => active ? s.displays[component.id] : undefined);
   const inputKey = component.type === "button" ? "pressed" : component.type === "ldr" ? "light" : component.type === "pir" ? "motion" : "value";
-  const value = useSimulation((s) => s.inputs[component.id]?.[inputKey] ?? component.properties[inputKey] ?? definition.defaults[inputKey] ?? 0);
-  const temperature = useSimulation((s) => s.inputs[component.id]?.temperature ?? component.properties.temperature);
-  const humidity = useSimulation((s) => s.inputs[component.id]?.humidity ?? component.properties.humidity);
+  const value = useSimulation((s) => (active ? s.inputs[component.id]?.[inputKey] : undefined) ?? component.properties[inputKey] ?? definition.defaults[inputKey] ?? 0);
+  const temperature = useSimulation((s) => (active ? s.inputs[component.id]?.temperature : undefined) ?? component.properties.temperature);
+  const humidity = useSimulation((s) => (active ? s.inputs[component.id]?.humidity : undefined) ?? component.properties.humidity);
   const layout = useMemo(() => visualLayout(definition), [definition]);
   const rotated = useMemo(() => rotateLayout(layout, component.rotation), [layout, component.rotation]);
   const update = useUpdateNodeInternals();
@@ -29,4 +31,9 @@ export const ComponentNode = memo(function ComponentNode({ data, selected, id }:
     </div>
     <PinHandles layout={rotated} label={component.label} />
   </div>;
-}, (previous, next) => previous.id === next.id && previous.selected === next.selected && previous.data.component === next.data.component);
+}, (previous, next) => {
+  const a = previous.data.component, b = next.data.component;
+  // XYFlow owns translation; moving a node does not change its SVG or pins.
+  return previous.id === next.id && previous.selected === next.selected &&
+    a.type === b.type && a.label === b.label && a.rotation === b.rotation && a.properties === b.properties;
+});

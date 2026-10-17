@@ -17,6 +17,21 @@ function setup() {
   return { project, frames, controller };
 }
 
+it("pauses hidden workspace jobs and resumes without invalidating completed routes", () => {
+  const { project, frames, controller } = setup();
+  controller.update(project.components, project.wires);
+  controller.pause();
+  expect(frames.callbacks.size).toBe(0);
+  controller.resume(); frames.flush();
+  const completed = controller.getSnapshot();
+  controller.pause();
+  controller.update(project.components, project.wires);
+  controller.resume();
+  expect(controller.getSnapshot()).toBe(completed);
+  expect(frames.callbacks.size).toBe(0);
+  controller.dispose();
+});
+
 it("keeps routing isolated from project changes, history and persistence subscriptions", () => {
   const { project, controller, frames } = setup();
   useProject.setState({ project, past: [], future: [] });

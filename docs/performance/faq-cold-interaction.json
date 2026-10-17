@@ -1,0 +1,1640 @@
+{
+  "note": "Cold FAQ first interaction; 4x CPU, 1.6Mbps, 40ms latency. Baseline rebuilt from pre-change HEAD in isolated directory; Turbopack root adjusted only to resolve existing dependency junction.",
+  "before": [
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 390,
+      "lcpMs": 1800,
+      "cls": 0.5022222222222222,
+      "shifts": [
+        {
+          "start": 5913.5999999996275,
+          "value": 0.5022222222222222,
+          "nodes": [
+            {
+              "tag": "DIV",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 462.875,
+                "top": 0,
+                "right": 390,
+                "bottom": 462.875,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 43.765625,
+                "width": 390,
+                "height": 856.234375,
+                "top": 43.765625,
+                "right": 390,
+                "bottom": 900,
+                "left": 0
+              }
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 43.765625,
+                "width": 390,
+                "height": 443.109375,
+                "top": 43.765625,
+                "right": 390,
+                "bottom": 486.875,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 43.765625,
+                "width": 390,
+                "height": 856.234375,
+                "top": 43.765625,
+                "right": 390,
+                "bottom": 900,
+                "left": 0
+              }
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 462.875,
+                "width": 390,
+                "height": 437.125,
+                "top": 462.875,
+                "right": 390,
+                "bottom": 900,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            {
+              "tag": "SECTION",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 43.765625,
+                "top": 0,
+                "right": 390,
+                "bottom": 43.765625,
+                "left": 0
+              }
+            }
+          ]
+        }
+      ],
+      "maxObservedInteractionMs": 648,
+      "interactionEntries": 5,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 4160.5999999996275,
+          "duration": 648,
+          "processing": 563.6999999992549
+        },
+        {
+          "name": "pointerup",
+          "start": 4160.699999999255,
+          "duration": 648,
+          "processing": 1.400000000372529
+        },
+        {
+          "name": "click",
+          "start": 4160.699999999255,
+          "duration": 648,
+          "processing": 12.899999998509884
+        },
+        {
+          "name": "keydown",
+          "start": 5958.9000000003725,
+          "duration": 72,
+          "processing": 9.900000000372529
+        },
+        {
+          "name": "keyup",
+          "start": 5988.199999999255,
+          "duration": 56,
+          "processing": 0.599999999627471
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2871.9000000003725,
+          "duration": 205
+        },
+        {
+          "start": 3593.9000000003725,
+          "duration": 190
+        },
+        {
+          "start": 3848.5,
+          "duration": 98
+        },
+        {
+          "start": 3949.5,
+          "duration": 136
+        },
+        {
+          "start": 4164.4000000003725,
+          "duration": 630
+        },
+        {
+          "start": 4863.699999999255,
+          "duration": 136
+        },
+        {
+          "start": 5036.4000000003725,
+          "duration": 321
+        },
+        {
+          "start": 5358.199999999255,
+          "duration": 83
+        },
+        {
+          "start": 5442,
+          "duration": 117
+        },
+        {
+          "start": 5590.0999999996275,
+          "duration": 104
+        },
+        {
+          "start": 5805.199999999255,
+          "duration": 100
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1u648gz3e4la6.js",
+          "gzip": 9503
+        },
+        {
+          "url": "/_next/static/chunks/2w9a6wz8107l3.js",
+          "gzip": 27130
+        },
+        {
+          "url": "/_next/static/chunks/16aw_7l9qnlap.js",
+          "gzip": 6604
+        },
+        {
+          "url": "/_next/static/chunks/1dpgkesh5n4yf.js",
+          "gzip": 17481
+        },
+        {
+          "url": "/_next/static/chunks/3k-7ix-cejyso.js",
+          "gzip": 12840
+        }
+      ],
+      "motionGzipBytes": 73558,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    },
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 1440,
+      "lcpMs": 1544,
+      "cls": 0,
+      "shifts": [],
+      "maxObservedInteractionMs": 488,
+      "interactionEntries": 5,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3805.2000000011176,
+          "duration": 488,
+          "processing": 393.80000000074506
+        },
+        {
+          "name": "pointerup",
+          "start": 3805.4000000003725,
+          "duration": 480,
+          "processing": 1.300000000745058
+        },
+        {
+          "name": "click",
+          "start": 3805.4000000003725,
+          "duration": 480,
+          "processing": 13.5
+        },
+        {
+          "name": "keydown",
+          "start": 5502.300000000745,
+          "duration": 56,
+          "processing": 3.299999998882413
+        },
+        {
+          "name": "keyup",
+          "start": 5514.9000000003725,
+          "duration": 56,
+          "processing": 0.599999999627471
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2592.300000000745,
+          "duration": 176
+        },
+        {
+          "start": 3215.300000000745,
+          "duration": 141
+        },
+        {
+          "start": 3454,
+          "duration": 69
+        },
+        {
+          "start": 3654.5,
+          "duration": 139
+        },
+        {
+          "start": 3811.800000000745,
+          "duration": 454
+        },
+        {
+          "start": 4350.5,
+          "duration": 286
+        },
+        {
+          "start": 4669,
+          "duration": 197
+        },
+        {
+          "start": 4867.200000001118,
+          "duration": 67
+        },
+        {
+          "start": 4936.700000001118,
+          "duration": 112
+        },
+        {
+          "start": 5194.800000000745,
+          "duration": 86
+        },
+        {
+          "start": 5293,
+          "duration": 197
+        },
+        {
+          "start": 5564.60000000149,
+          "duration": 123
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1u648gz3e4la6.js",
+          "gzip": 9503
+        },
+        {
+          "url": "/_next/static/chunks/2w9a6wz8107l3.js",
+          "gzip": 27130
+        },
+        {
+          "url": "/_next/static/chunks/16aw_7l9qnlap.js",
+          "gzip": 6604
+        },
+        {
+          "url": "/_next/static/chunks/1dpgkesh5n4yf.js",
+          "gzip": 17481
+        },
+        {
+          "url": "/_next/static/chunks/3k-7ix-cejyso.js",
+          "gzip": 12840
+        }
+      ],
+      "motionGzipBytes": 73558,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    },
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 390,
+      "lcpMs": 2148,
+      "cls": 0.5022222222222222,
+      "shifts": [
+        {
+          "start": 5661.5999999996275,
+          "value": 0.5022222222222222,
+          "nodes": [
+            {
+              "tag": "DIV",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 462.875,
+                "top": 0,
+                "right": 390,
+                "bottom": 462.875,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 43.765625,
+                "width": 390,
+                "height": 856.234375,
+                "top": 43.765625,
+                "right": 390,
+                "bottom": 900,
+                "left": 0
+              }
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 43.765625,
+                "width": 390,
+                "height": 443.109375,
+                "top": 43.765625,
+                "right": 390,
+                "bottom": 486.875,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 43.765625,
+                "width": 390,
+                "height": 856.234375,
+                "top": 43.765625,
+                "right": 390,
+                "bottom": 900,
+                "left": 0
+              }
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 462.875,
+                "width": 390,
+                "height": 437.125,
+                "top": 462.875,
+                "right": 390,
+                "bottom": 900,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            {
+              "tag": "SECTION",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 43.765625,
+                "top": 0,
+                "right": 390,
+                "bottom": 43.765625,
+                "left": 0
+              }
+            }
+          ]
+        }
+      ],
+      "maxObservedInteractionMs": 624,
+      "interactionEntries": 3,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3905.199999999255,
+          "duration": 624,
+          "processing": 529.1999999992549
+        },
+        {
+          "name": "pointerup",
+          "start": 3905.2999999988824,
+          "duration": 624,
+          "processing": 1.400000000372529
+        },
+        {
+          "name": "click",
+          "start": 3905.2999999988824,
+          "duration": 624,
+          "processing": 12.799999998882413
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2589.5,
+          "duration": 313
+        },
+        {
+          "start": 3318.7999999988824,
+          "duration": 195
+        },
+        {
+          "start": 3563.5999999996275,
+          "duration": 127
+        },
+        {
+          "start": 3692.7999999988824,
+          "duration": 132
+        },
+        {
+          "start": 3910.5999999996275,
+          "duration": 586
+        },
+        {
+          "start": 4505.699999999255,
+          "duration": 144
+        },
+        {
+          "start": 4713.4000000003725,
+          "duration": 347
+        },
+        {
+          "start": 5062.5999999996275,
+          "duration": 82
+        },
+        {
+          "start": 5145.0999999996275,
+          "duration": 128
+        },
+        {
+          "start": 5306.299999998882,
+          "duration": 88
+        },
+        {
+          "start": 5528.4000000003725,
+          "duration": 127
+        },
+        {
+          "start": 5655.699999999255,
+          "duration": 95
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1u648gz3e4la6.js",
+          "gzip": 9503
+        },
+        {
+          "url": "/_next/static/chunks/2w9a6wz8107l3.js",
+          "gzip": 27130
+        },
+        {
+          "url": "/_next/static/chunks/16aw_7l9qnlap.js",
+          "gzip": 6604
+        },
+        {
+          "url": "/_next/static/chunks/1dpgkesh5n4yf.js",
+          "gzip": 17481
+        },
+        {
+          "url": "/_next/static/chunks/3k-7ix-cejyso.js",
+          "gzip": 12840
+        }
+      ],
+      "motionGzipBytes": 73558,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    },
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 1440,
+      "lcpMs": 1668,
+      "cls": 0,
+      "shifts": [],
+      "maxObservedInteractionMs": 632,
+      "interactionEntries": 5,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3882.199999999255,
+          "duration": 632,
+          "processing": 540.6999999992549
+        },
+        {
+          "name": "pointerup",
+          "start": 3882.199999999255,
+          "duration": 632,
+          "processing": 1
+        },
+        {
+          "name": "click",
+          "start": 3882.199999999255,
+          "duration": 632,
+          "processing": 12.700000001117587
+        },
+        {
+          "name": "keydown",
+          "start": 5634.299999998882,
+          "duration": 80,
+          "processing": 7
+        },
+        {
+          "name": "keyup",
+          "start": 5648.4000000003725,
+          "duration": 80,
+          "processing": 0.09999999962747097
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2649.2999999988824,
+          "duration": 185
+        },
+        {
+          "start": 3322,
+          "duration": 203
+        },
+        {
+          "start": 3591.7999999988824,
+          "duration": 113
+        },
+        {
+          "start": 3725.699999999255,
+          "duration": 112
+        },
+        {
+          "start": 3887.0999999996275,
+          "duration": 587
+        },
+        {
+          "start": 4554.4000000003725,
+          "duration": 143
+        },
+        {
+          "start": 4740.5999999996275,
+          "duration": 303
+        },
+        {
+          "start": 5069.4000000003725,
+          "duration": 155
+        },
+        {
+          "start": 5377.9000000003725,
+          "duration": 94
+        },
+        {
+          "start": 5474.799999998882,
+          "duration": 149
+        },
+        {
+          "start": 5810.799999998882,
+          "duration": 51
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1u648gz3e4la6.js",
+          "gzip": 9503
+        },
+        {
+          "url": "/_next/static/chunks/2w9a6wz8107l3.js",
+          "gzip": 27130
+        },
+        {
+          "url": "/_next/static/chunks/16aw_7l9qnlap.js",
+          "gzip": 6604
+        },
+        {
+          "url": "/_next/static/chunks/1dpgkesh5n4yf.js",
+          "gzip": 17481
+        },
+        {
+          "url": "/_next/static/chunks/3k-7ix-cejyso.js",
+          "gzip": 12840
+        }
+      ],
+      "motionGzipBytes": 73558,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    },
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 390,
+      "lcpMs": 1660,
+      "cls": 0.5022222222222222,
+      "shifts": [
+        {
+          "start": 5480.0999999996275,
+          "value": 0.5022222222222222,
+          "nodes": [
+            {
+              "tag": "DIV",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 462.875,
+                "top": 0,
+                "right": 390,
+                "bottom": 462.875,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 43.765625,
+                "width": 390,
+                "height": 856.234375,
+                "top": 43.765625,
+                "right": 390,
+                "bottom": 900,
+                "left": 0
+              }
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 43.765625,
+                "width": 390,
+                "height": 443.109375,
+                "top": 43.765625,
+                "right": 390,
+                "bottom": 486.875,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 43.765625,
+                "width": 390,
+                "height": 856.234375,
+                "top": 43.765625,
+                "right": 390,
+                "bottom": 900,
+                "left": 0
+              }
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 462.875,
+                "width": 390,
+                "height": 437.125,
+                "top": 462.875,
+                "right": 390,
+                "bottom": 900,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            },
+            {
+              "tag": "SECTION",
+              "id": "",
+              "previous": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 43.765625,
+                "top": 0,
+                "right": 390,
+                "bottom": 43.765625,
+                "left": 0
+              }
+            }
+          ]
+        }
+      ],
+      "maxObservedInteractionMs": 504,
+      "interactionEntries": 5,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3869.5999999996275,
+          "duration": 504,
+          "processing": 397.80000000074506
+        },
+        {
+          "name": "pointerup",
+          "start": 3869.699999999255,
+          "duration": 504,
+          "processing": 1.799999998882413
+        },
+        {
+          "name": "click",
+          "start": 3869.699999999255,
+          "duration": 504,
+          "processing": 17.09999999962747
+        },
+        {
+          "name": "keydown",
+          "start": 5472.5,
+          "duration": 120,
+          "processing": 9
+        },
+        {
+          "name": "keyup",
+          "start": 5547.800000000745,
+          "duration": 56,
+          "processing": 0.2999999988824129
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2586.5,
+          "duration": 194
+        },
+        {
+          "start": 3183.300000000745,
+          "duration": 183
+        },
+        {
+          "start": 3494.0999999996275,
+          "duration": 100
+        },
+        {
+          "start": 3648.5,
+          "duration": 145
+        },
+        {
+          "start": 3872.4000000003725,
+          "duration": 474
+        },
+        {
+          "start": 4415.800000000745,
+          "duration": 402
+        },
+        {
+          "start": 4819.9000000003725,
+          "duration": 97
+        },
+        {
+          "start": 4918.800000000745,
+          "duration": 101
+        },
+        {
+          "start": 5045.5,
+          "duration": 53
+        },
+        {
+          "start": 5166.300000000745,
+          "duration": 131
+        },
+        {
+          "start": 5363.4000000003725,
+          "duration": 98
+        },
+        {
+          "start": 5470.300000000745,
+          "duration": 66
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1u648gz3e4la6.js",
+          "gzip": 9503
+        },
+        {
+          "url": "/_next/static/chunks/16aw_7l9qnlap.js",
+          "gzip": 6604
+        },
+        {
+          "url": "/_next/static/chunks/2w9a6wz8107l3.js",
+          "gzip": 27130
+        },
+        {
+          "url": "/_next/static/chunks/1dpgkesh5n4yf.js",
+          "gzip": 17481
+        },
+        {
+          "url": "/_next/static/chunks/3k-7ix-cejyso.js",
+          "gzip": 12840
+        }
+      ],
+      "motionGzipBytes": 73558,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    },
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 1440,
+      "lcpMs": 1668,
+      "cls": 0,
+      "shifts": [],
+      "maxObservedInteractionMs": 544,
+      "interactionEntries": 3,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3851.7999999988824,
+          "duration": 544,
+          "processing": 451.7000000011176
+        },
+        {
+          "name": "pointerup",
+          "start": 3851.9000000003725,
+          "duration": 544,
+          "processing": 2.800000000745058
+        },
+        {
+          "name": "click",
+          "start": 3851.9000000003725,
+          "duration": 544,
+          "processing": 14
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2579.5,
+          "duration": 180
+        },
+        {
+          "start": 3332.5999999996275,
+          "duration": 171
+        },
+        {
+          "start": 3544.5,
+          "duration": 78
+        },
+        {
+          "start": 3654,
+          "duration": 133
+        },
+        {
+          "start": 3857,
+          "duration": 513
+        },
+        {
+          "start": 4476.799999998882,
+          "duration": 382
+        },
+        {
+          "start": 4881.9000000003725,
+          "duration": 112
+        },
+        {
+          "start": 5047.199999999255,
+          "duration": 108
+        },
+        {
+          "start": 5193.4000000003725,
+          "duration": 136
+        },
+        {
+          "start": 5472.0999999996275,
+          "duration": 105
+        },
+        {
+          "start": 5577.5,
+          "duration": 157
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1u648gz3e4la6.js",
+          "gzip": 9503
+        },
+        {
+          "url": "/_next/static/chunks/2w9a6wz8107l3.js",
+          "gzip": 27130
+        },
+        {
+          "url": "/_next/static/chunks/16aw_7l9qnlap.js",
+          "gzip": 6604
+        },
+        {
+          "url": "/_next/static/chunks/1dpgkesh5n4yf.js",
+          "gzip": 17481
+        },
+        {
+          "url": "/_next/static/chunks/3k-7ix-cejyso.js",
+          "gzip": 12840
+        }
+      ],
+      "motionGzipBytes": 73558,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    }
+  ],
+  "after": [
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 390,
+      "lcpMs": 1380,
+      "cls": 0,
+      "shifts": [],
+      "maxObservedInteractionMs": 368,
+      "interactionEntries": 5,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3079.199999999255,
+          "duration": 368,
+          "processing": 190.5
+        },
+        {
+          "name": "pointerup",
+          "start": 3079.199999999255,
+          "duration": 368,
+          "processing": 0.900000000372529
+        },
+        {
+          "name": "click",
+          "start": 3079.199999999255,
+          "duration": 368,
+          "processing": 10.699999999254942
+        },
+        {
+          "name": "keydown",
+          "start": 4354.699999999255,
+          "duration": 88,
+          "processing": 7.300000000745058
+        },
+        {
+          "name": "keyup",
+          "start": 4405.199999999255,
+          "duration": 40,
+          "processing": 0.5
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2275.699999999255,
+          "duration": 187
+        },
+        {
+          "start": 2704.7999999988824,
+          "duration": 134
+        },
+        {
+          "start": 2864.199999999255,
+          "duration": 66
+        },
+        {
+          "start": 3080,
+          "duration": 342
+        },
+        {
+          "start": 3491.699999999255,
+          "duration": 124
+        },
+        {
+          "start": 3647,
+          "duration": 276
+        },
+        {
+          "start": 3946,
+          "duration": 92
+        },
+        {
+          "start": 4038.5,
+          "duration": 61
+        },
+        {
+          "start": 4100.5,
+          "duration": 89
+        },
+        {
+          "start": 4256.199999999255,
+          "duration": 86
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1_ig8quf8g4u8.js",
+          "gzip": 9744
+        },
+        {
+          "url": "/_next/static/chunks/3wp-i15cixhox.js",
+          "gzip": 27133
+        },
+        {
+          "url": "/_next/static/chunks/02u6z-s3n75-d.js",
+          "gzip": 6688
+        },
+        {
+          "url": "/_next/static/chunks/0polnukrgbvxk.js",
+          "gzip": 17485
+        },
+        {
+          "url": "/_next/static/chunks/1-ossii4v7dvb.js",
+          "gzip": 12839
+        }
+      ],
+      "motionGzipBytes": 73889,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    },
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 1440,
+      "lcpMs": 1744,
+      "cls": 0,
+      "shifts": [],
+      "maxObservedInteractionMs": 344,
+      "interactionEntries": 5,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3084.699999999255,
+          "duration": 344,
+          "processing": 157.30000000074506
+        },
+        {
+          "name": "pointerup",
+          "start": 3084.7999999988824,
+          "duration": 344,
+          "processing": 1.199999999254942
+        },
+        {
+          "name": "click",
+          "start": 3084.7999999988824,
+          "duration": 344,
+          "processing": 9.800000000745058
+        },
+        {
+          "name": "keydown",
+          "start": 4520,
+          "duration": 56,
+          "processing": 7.400000000372529
+        },
+        {
+          "name": "keyup",
+          "start": 4536.0999999996275,
+          "duration": 56,
+          "processing": 0.599999999627471
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2248.89999999851,
+          "duration": 165
+        },
+        {
+          "start": 2567.39999999851,
+          "duration": 135
+        },
+        {
+          "start": 2831.5999999996275,
+          "duration": 76
+        },
+        {
+          "start": 3089.699999999255,
+          "duration": 308
+        },
+        {
+          "start": 3417.5,
+          "duration": 128
+        },
+        {
+          "start": 3586.699999999255,
+          "duration": 218
+        },
+        {
+          "start": 3829.5999999996275,
+          "duration": 141
+        },
+        {
+          "start": 4020,
+          "duration": 105
+        },
+        {
+          "start": 4273.699999999255,
+          "duration": 96
+        },
+        {
+          "start": 4370.5,
+          "duration": 138
+        },
+        {
+          "start": 4706.199999999255,
+          "duration": 52
+        },
+        {
+          "start": 4786.799999998882,
+          "duration": 131
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1_ig8quf8g4u8.js",
+          "gzip": 9744
+        },
+        {
+          "url": "/_next/static/chunks/02u6z-s3n75-d.js",
+          "gzip": 6688
+        },
+        {
+          "url": "/_next/static/chunks/3wp-i15cixhox.js",
+          "gzip": 27133
+        },
+        {
+          "url": "/_next/static/chunks/0polnukrgbvxk.js",
+          "gzip": 17485
+        },
+        {
+          "url": "/_next/static/chunks/1-ossii4v7dvb.js",
+          "gzip": 12839
+        }
+      ],
+      "motionGzipBytes": 73889,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    },
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 390,
+      "lcpMs": 1476,
+      "cls": 0,
+      "shifts": [],
+      "maxObservedInteractionMs": 504,
+      "interactionEntries": 5,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3084.10000000149,
+          "duration": 504,
+          "processing": 277.5
+        },
+        {
+          "name": "pointerup",
+          "start": 3084.2000000011176,
+          "duration": 504,
+          "processing": 1.099999999627471
+        },
+        {
+          "name": "click",
+          "start": 3084.2000000011176,
+          "duration": 504,
+          "processing": 11.5
+        },
+        {
+          "name": "keydown",
+          "start": 4656.4000000003725,
+          "duration": 80,
+          "processing": 5.699999999254942
+        },
+        {
+          "name": "keyup",
+          "start": 4707.200000001118,
+          "duration": 48,
+          "processing": 0.40000000037252903
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2286.7000000011176,
+          "duration": 199
+        },
+        {
+          "start": 2738.4000000003725,
+          "duration": 150
+        },
+        {
+          "start": 2928.300000000745,
+          "duration": 73
+        },
+        {
+          "start": 3088.800000000745,
+          "duration": 483
+        },
+        {
+          "start": 3648.7000000011176,
+          "duration": 122
+        },
+        {
+          "start": 3808.10000000149,
+          "duration": 328
+        },
+        {
+          "start": 4159.10000000149,
+          "duration": 108
+        },
+        {
+          "start": 4267.800000000745,
+          "duration": 90
+        },
+        {
+          "start": 4358.4000000003725,
+          "duration": 84
+        },
+        {
+          "start": 4549,
+          "duration": 97
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1_ig8quf8g4u8.js",
+          "gzip": 9744
+        },
+        {
+          "url": "/_next/static/chunks/02u6z-s3n75-d.js",
+          "gzip": 6688
+        },
+        {
+          "url": "/_next/static/chunks/3wp-i15cixhox.js",
+          "gzip": 27133
+        },
+        {
+          "url": "/_next/static/chunks/0polnukrgbvxk.js",
+          "gzip": 17485
+        },
+        {
+          "url": "/_next/static/chunks/1-ossii4v7dvb.js",
+          "gzip": 12839
+        }
+      ],
+      "motionGzipBytes": 73889,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    },
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 1440,
+      "lcpMs": 1496,
+      "cls": 0,
+      "shifts": [],
+      "maxObservedInteractionMs": 496,
+      "interactionEntries": 5,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3779,
+          "duration": 496,
+          "processing": 263.90000000037253
+        },
+        {
+          "name": "pointerup",
+          "start": 3779.0999999996275,
+          "duration": 496,
+          "processing": 1.300000000745058
+        },
+        {
+          "name": "click",
+          "start": 3779.0999999996275,
+          "duration": 496,
+          "processing": 11.799999998882413
+        },
+        {
+          "name": "keydown",
+          "start": 5570.5999999996275,
+          "duration": 56,
+          "processing": 6.599999999627471
+        },
+        {
+          "name": "keyup",
+          "start": 5585.299999998882,
+          "duration": 56,
+          "processing": 0.5
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2502.7999999988824,
+          "duration": 225
+        },
+        {
+          "start": 3204.2999999988824,
+          "duration": 186
+        },
+        {
+          "start": 3426.7999999988824,
+          "duration": 86
+        },
+        {
+          "start": 3628.0999999996275,
+          "duration": 136
+        },
+        {
+          "start": 3785,
+          "duration": 478
+        },
+        {
+          "start": 4354.0999999996275,
+          "duration": 281
+        },
+        {
+          "start": 4666.0999999996275,
+          "duration": 149
+        },
+        {
+          "start": 4861.699999999255,
+          "duration": 90
+        },
+        {
+          "start": 4953.199999999255,
+          "duration": 55
+        },
+        {
+          "start": 5073.9000000003725,
+          "duration": 127
+        },
+        {
+          "start": 5299.0999999996275,
+          "duration": 109
+        },
+        {
+          "start": 5408.9000000003725,
+          "duration": 151
+        },
+        {
+          "start": 5773.9000000003725,
+          "duration": 59
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1_ig8quf8g4u8.js",
+          "gzip": 9744
+        },
+        {
+          "url": "/_next/static/chunks/02u6z-s3n75-d.js",
+          "gzip": 6688
+        },
+        {
+          "url": "/_next/static/chunks/3wp-i15cixhox.js",
+          "gzip": 27133
+        },
+        {
+          "url": "/_next/static/chunks/0polnukrgbvxk.js",
+          "gzip": 17485
+        },
+        {
+          "url": "/_next/static/chunks/1-ossii4v7dvb.js",
+          "gzip": 12839
+        }
+      ],
+      "motionGzipBytes": 73889,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    },
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 390,
+      "lcpMs": 1476,
+      "cls": 0,
+      "shifts": [],
+      "maxObservedInteractionMs": 360,
+      "interactionEntries": 5,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3069.0999999996275,
+          "duration": 360,
+          "processing": 184.90000000037253
+        },
+        {
+          "name": "pointerup",
+          "start": 3069.0999999996275,
+          "duration": 360,
+          "processing": 0.900000000372529
+        },
+        {
+          "name": "click",
+          "start": 3069.0999999996275,
+          "duration": 360,
+          "processing": 10.199999999254942
+        },
+        {
+          "name": "keydown",
+          "start": 4350.4000000003725,
+          "duration": 88,
+          "processing": 7.299999998882413
+        },
+        {
+          "name": "keyup",
+          "start": 4372.699999999255,
+          "duration": 88,
+          "processing": 0.6999999992549419
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2298.5,
+          "duration": 172
+        },
+        {
+          "start": 2702.699999999255,
+          "duration": 130
+        },
+        {
+          "start": 2869.5,
+          "duration": 62
+        },
+        {
+          "start": 3069.800000000745,
+          "duration": 331
+        },
+        {
+          "start": 3419.199999999255,
+          "duration": 126
+        },
+        {
+          "start": 3592.5,
+          "duration": 267
+        },
+        {
+          "start": 3880.5999999996275,
+          "duration": 107
+        },
+        {
+          "start": 3988,
+          "duration": 78
+        },
+        {
+          "start": 4066.9000000003725,
+          "duration": 71
+        },
+        {
+          "start": 4256.699999999255,
+          "duration": 83
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1_ig8quf8g4u8.js",
+          "gzip": 9744
+        },
+        {
+          "url": "/_next/static/chunks/3wp-i15cixhox.js",
+          "gzip": 27133
+        },
+        {
+          "url": "/_next/static/chunks/02u6z-s3n75-d.js",
+          "gzip": 6688
+        },
+        {
+          "url": "/_next/static/chunks/0polnukrgbvxk.js",
+          "gzip": 17485
+        },
+        {
+          "url": "/_next/static/chunks/1-ossii4v7dvb.js",
+          "gzip": 12839
+        }
+      ],
+      "motionGzipBytes": 73889,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    },
+    {
+      "profile": "Local production, cold cache, 4x CPU, 1.6 Mbps, 40ms latency",
+      "width": 1440,
+      "lcpMs": 1512,
+      "cls": 0,
+      "shifts": [],
+      "maxObservedInteractionMs": 512,
+      "interactionEntries": 5,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 3380,
+          "duration": 512,
+          "processing": 255.7000000011176
+        },
+        {
+          "name": "pointerup",
+          "start": 3380.0999999996275,
+          "duration": 512,
+          "processing": 1.199999999254942
+        },
+        {
+          "name": "click",
+          "start": 3380.0999999996275,
+          "duration": 512,
+          "processing": 11.399999998509884
+        },
+        {
+          "name": "keydown",
+          "start": 5126,
+          "duration": 64,
+          "processing": 6.5
+        },
+        {
+          "name": "keyup",
+          "start": 5139.800000000745,
+          "duration": 72,
+          "processing": 1.299999998882413
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 2345.0999999996275,
+          "duration": 210
+        },
+        {
+          "start": 2876,
+          "duration": 159
+        },
+        {
+          "start": 3082.699999999255,
+          "duration": 71
+        },
+        {
+          "start": 3199.4000000003725,
+          "duration": 124
+        },
+        {
+          "start": 3385.300000000745,
+          "duration": 488
+        },
+        {
+          "start": 3951,
+          "duration": 127
+        },
+        {
+          "start": 4114.5999999996275,
+          "duration": 265
+        },
+        {
+          "start": 4402,
+          "duration": 132
+        },
+        {
+          "start": 4627.5,
+          "duration": 72
+        },
+        {
+          "start": 4846.199999999255,
+          "duration": 109
+        },
+        {
+          "start": 4955.9000000003725,
+          "duration": 159
+        },
+        {
+          "start": 5349.0999999996275,
+          "duration": 65
+        }
+      ],
+      "motionChunks": [
+        {
+          "url": "/_next/static/chunks/1_ig8quf8g4u8.js",
+          "gzip": 9744
+        },
+        {
+          "url": "/_next/static/chunks/3wp-i15cixhox.js",
+          "gzip": 27133
+        },
+        {
+          "url": "/_next/static/chunks/02u6z-s3n75-d.js",
+          "gzip": 6688
+        },
+        {
+          "url": "/_next/static/chunks/0polnukrgbvxk.js",
+          "gzip": 17485
+        },
+        {
+          "url": "/_next/static/chunks/1-ossii4v7dvb.js",
+          "gzip": 12839
+        }
+      ],
+      "motionGzipBytes": 73889,
+      "note": "Synthetic lab sample; event timing is not field INP. Zero entries means below observer threshold or unavailable."
+    }
+  ]
+}

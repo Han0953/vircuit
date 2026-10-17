@@ -62,7 +62,7 @@ export function BrandLogo({
           width={config.iconWidth}
           height={config.iconHeight}
           priority={priority}
-          unoptimized
+          sizes={`${config.iconWidth}px`}
           className={cn(
             "brand-logo-icon object-contain shrink-0",
             iconClassName
@@ -77,7 +77,7 @@ export function BrandLogo({
           width={config.textWidth}
           height={config.textHeight}
           priority={priority}
-          unoptimized
+          sizes={`${config.textWidth}px`}
           className={cn(
             "brand-logo-text object-contain shrink-0",
             textClassName

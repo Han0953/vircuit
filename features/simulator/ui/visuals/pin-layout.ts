@@ -6,8 +6,18 @@ export const pinHitSize = 20;
 export type Anchor = { pin: PinDefinition; x: number; y: number; side: "top" | "bottom" | "left" | "right" };
 export type Bounds = { x: number; y: number; width: number; height: number };
 export type VisualLayout = { width: number; height: number; anchors: Anchor[]; interaction?: Bounds };
+const layouts = new WeakMap<ComponentDefinition, VisualLayout>();
+const rotations = new WeakMap<VisualLayout, Map<number, VisualLayout>>();
 
 export function visualLayout(definition: ComponentDefinition): VisualLayout {
+  const cached = layouts.get(definition);
+  if (cached) return cached;
+  const layout = buildVisualLayout(definition);
+  layouts.set(definition, layout);
+  return layout;
+}
+
+function buildVisualLayout(definition: ComponentDefinition): VisualLayout {
   const pins = definition.pins;
   const p = visualPitch;
   if (definition.groups) {
@@ -71,12 +81,19 @@ export function visualLayout(definition: ComponentDefinition): VisualLayout {
 }
 
 export function rotateLayout(layout: VisualLayout, degrees: number): VisualLayout {
-  const quarter = normalizeRotation(degrees) / 90;
+  const rotation = normalizeRotation(degrees);
+  let cache = rotations.get(layout);
+  if (!cache) { cache = new Map(); rotations.set(layout, cache); }
+  const cached = cache.get(rotation);
+  if (cached) return cached;
+  const quarter = rotation / 90;
   const width = quarter % 2 ? layout.height : layout.width;
   const height = quarter % 2 ? layout.width : layout.height;
   const sides = ["top", "right", "bottom", "left"] as const;
-  return { width, height, anchors: layout.anchors.map((anchor) => ({ ...anchor,
-    ...rotatePoint(anchor, layout.width, layout.height, degrees),
+  const result = { width, height, anchors: layout.anchors.map((anchor) => ({ ...anchor,
+    ...rotatePoint(anchor, layout.width, layout.height, rotation),
     side: sides[(sides.indexOf(anchor.side) + quarter) % 4],
   })) };
+  cache.set(rotation, result);
+  return result;
 }

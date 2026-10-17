@@ -6,17 +6,17 @@ import { requestSave, saveToCloud } from "../cloud/client";
 import { canAutosave } from "../cloud/autosave";
 export function Autosave() {
   const router = useRouter();
-  const draft = usePersistence((s) => s.draft);
-  const userId = usePersistence((s) => s.userId);
-  const busy = usePersistence((s) => s.busy);
-  const handoffBusy = usePersistence((s) => s.handoffBusy);
-  const error = usePersistence((s) => s.error);
-  const ready = usePersistence((s) => s.ready);
   useEffect(() => {
-    if (!canAutosave(usePersistence.getState())) return;
-    const timer = setTimeout(() => { void saveToCloud().catch(() => {}); }, 1800);
-    return () => clearTimeout(timer);
-  }, [draft, userId, busy, handoffBusy, error, ready]);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const schedule = (state: ReturnType<typeof usePersistence.getState>, previous?: ReturnType<typeof usePersistence.getState>) => {
+      if (previous && state.draft === previous.draft && state.userId === previous.userId && state.busy === previous.busy && state.handoffBusy === previous.handoffBusy && state.error === previous.error && state.ready === previous.ready) return;
+      clearTimeout(timer);
+      if (canAutosave(state)) timer = setTimeout(() => { void saveToCloud().catch(() => {}); }, 1800);
+    };
+    schedule(usePersistence.getState());
+    const unsubscribe = usePersistence.subscribe(schedule);
+    return () => { unsubscribe(); clearTimeout(timer); };
+  }, []);
   useEffect(() => {
     const reconnect = () => {
       const state = usePersistence.getState();

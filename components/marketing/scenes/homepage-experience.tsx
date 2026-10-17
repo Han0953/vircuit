@@ -185,9 +185,9 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
           if (next === "none") next = approaching;
           if (!engaged || reduced || document.hidden || !("WebGL2RenderingContext" in window)) next = "none";
           select(next);
-          // Fetch shared hardware code on first scroll; render the nearest stage
-          // before entry while retaining exclusive Canvas ownership.
-          if (engaged && !reduced && !document.hidden && "WebGL2RenderingContext" in window && !loading && !failed.current) {
+          // Prewarm before board entry, without parsing offscreen 3D during
+          // a direct jump to FAQ or another non-WebGL section.
+          if (engaged && (next === "boards" || approaching === "boards") && !reduced && !document.hidden && "WebGL2RenderingContext" in window && !loading && !failed.current) {
             loading = true;
             loadTimeout = window.setTimeout(() => { if (!disposed) fail(); }, 15000);
             void import("./three/cinematic-world").then(({ default: World }) => { if (!disposed && !failed.current) setRenderer(() => World); }).catch(() => { if (!disposed) fail(); }).finally(() => clearTimeout(loadTimeout));

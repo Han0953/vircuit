@@ -93,6 +93,11 @@
   .home .scene[data-motion='story'] .journeyNames { display: none; }
   .home .scene[data-motion='story'] .storyNote { position: absolute; inset: auto .875rem .75rem; z-index: 3; padding: 0 2.75rem 0 0; }
 }
+@media (max-width: 1023px) and (min-height: 620px) and (prefers-reduced-motion: no-preference) {
+  /* Reserve the existing scroll-stage geometry before selective hydration. */
+  .home .scene[data-scene='story']:not([data-motion]) .storyGrid { min-height: calc(var(--mobile-stage-height) + 112svh); }
+  .home:not([data-boards-sticky]) .boardShowcase { min-height: calc(var(--mobile-stage-height) + 140svh); }
+}
 @media (max-width: 1023px) and (min-height: 620px) {
   .home[data-boards-sticky='true'] .boardShowcase { min-height: calc(var(--mobile-stage-height) + 140svh); }
   .home[data-boards-sticky='true'] .boardFigure { position: sticky; top: calc(var(--home-header-height, 64px) + 16px); height: var(--mobile-stage-height); overflow: hidden; }

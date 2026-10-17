@@ -15,9 +15,8 @@ const propertyFields: Record<string, { label: string; min: number; max: number }
 };
 export function PropertiesPanel() {
   const selected = useCanvas((s) => s.selection);
-  const project = useProject((s) => s.project);
-  const component = selected.length === 1 ? project.components.find((c) => selected.includes(c.id)) : undefined;
-  const wire = selected.length === 1 ? project.wires.find((w) => selected.includes(w.id)) : undefined;
+  const component = useProject((s) => selected.length === 1 ? s.project.components.find((c) => c.id === selected[0]) : undefined);
+  const wire = useProject((s) => selected.length === 1 ? s.project.wires.find((w) => w.id === selected[0]) : undefined);
   const canUndo = useProject((s) => s.past.length > 0);
   const canRedo = useProject((s) => s.future.length > 0);
   const store = useProject.getState();

@@ -3,11 +3,14 @@ import { useSimulation } from "../../stores/simulation-store";
 import { setSimulationInput } from "../../worker/bridge";
 import type { ComponentInstance } from "../../types/project";
 import type { VisualLayout } from "../visuals/pin-layout";
+import { useContext } from "react";
+import { CanvasActivity } from "../workspace/canvas-activity";
 
 export function RuntimeControls({ component, layout }: { component: ComponentInstance; layout?: VisualLayout }) {
-  const running = useSimulation((s) => s.status === "running");
-  const output = useSimulation((s) => s.outputs[component.id] ?? 0);
-  const values = useSimulation((s) => s.inputs[component.id]);
+  const active = useContext(CanvasActivity);
+  const running = useSimulation((s) => active && s.status === "running");
+  const output = useSimulation((s) => active ? s.outputs[component.id] ?? 0 : 0);
+  const values = useSimulation((s) => active ? s.inputs[component.id] : undefined);
   const motion = values?.motion ?? component.properties.motion ?? 0;
   const input = (property: string, value: number) => setSimulationInput(component.id, property, value);
   if (layout) return <>

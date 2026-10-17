@@ -5,7 +5,8 @@ import { stopSimulation } from "../../worker/bridge";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { CodePanel } from "../panels/code-panel";
+import dynamic from "next/dynamic";
+import { CodePanel, preloadCodeEditor } from "../panels/code-panel";
 import { PanelLeft, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -15,7 +16,6 @@ import { isWorkspaceTab, PropertiesPanel, WorkspacePanelContent, workspaceTabs, 
 import { WorkspaceTopbar } from "../toolbar/workspace-topbar";
 
 
-import { CircuitCanvas } from "./circuit-canvas";
 import { ResizableWorkspace } from "./resizable-workspace";
 import { DraftRecovery } from "@/features/projects/ui/draft-recovery";
 import { Autosave } from "@/features/projects/ui/autosave";
@@ -23,11 +23,19 @@ import { FloatingCirra } from "@/features/ai/ui/floating-cirra";
 import controls from "./workspace-controls.module.css";
 import { useWorkspaceViewport } from "./use-workspace-viewport";
 
+const preloadCircuit = () => import("./circuit-canvas");
+const CircuitCanvas = dynamic(() => preloadCircuit().then(module => module.CircuitCanvas), { ssr: false });
+function warmWorkspace(href: string) {
+  void (href === "/simulator/code" ? preloadCodeEditor() : preloadCircuit()).catch(() => {});
+}
+
 const subscribeDesktop = (listener: () => void) => { const query = window.matchMedia("(min-width: 1024px)"); query.addEventListener("change", listener); return () => query.removeEventListener("change", listener); };
 
 type MobilePanel = "parts" | "properties" | WorkspaceTab;
 
 export function WorkspaceShell() {
+  const pathname = usePathname();
+  useEffect(() => { warmWorkspace(pathname); }, [pathname]);
   return <DraftRecovery><WorkspaceContent /></DraftRecovery>;
 }
 
@@ -39,7 +47,9 @@ function WorkspaceContent() {
   const query = useSearchParams().toString();
   const code = pathname === "/simulator/code";
   const [codeVisited, setCodeVisited] = useState(code);
+  const [circuitVisited, setCircuitVisited] = useState(!code);
   if (code && !codeVisited) setCodeVisited(true);
+  if (!code && !circuitVisited) setCircuitVisited(true);
   const [category, setCategory] = useState("Boards");
   const [tab, setTab] = useState<WorkspaceTab>("serial");
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>("parts");
@@ -82,7 +92,7 @@ function WorkspaceContent() {
         <ResizableWorkspace
           sidebars={!code}
           overlay={<FloatingCirra desktop={desktop} blocked={sheetOpen} onOpenChange={setCirraOpen} />}
-          navigation={<nav aria-label="Tampilan workspace" className="flex gap-1">{[["/simulator", "Circuit"], ["/simulator/code", "Code"]].map(([href, label]) => <Button key={href} variant={pathname === href ? "secondary" : "ghost"} asChild><Link aria-current={pathname === href ? "page" : undefined} href={`${href}${query ? `?${query}` : ""}`}>{label}</Link></Button>)}</nav>}
+          navigation={<nav aria-label="Tampilan workspace" className="flex gap-1">{[["/simulator", "Circuit"], ["/simulator/code", "Code"]].map(([href, label]) => <Button key={href} variant={pathname === href ? "secondary" : "ghost"} asChild><Link onPointerEnter={() => warmWorkspace(href)} onFocus={() => warmWorkspace(href)} onPointerDown={() => warmWorkspace(href)} aria-current={pathname === href ? "page" : undefined} href={`${href}${query ? `?${query}` : ""}`}>{label}</Link></Button>)}</nav>}
           parts={<><h2 className="border-b px-4 py-3 text-sm font-semibold">Parts</h2><PartsPanel category={category} onCategoryChange={setCategory} /></>}
           properties={<><h2 className="border-b px-4 py-3 text-sm font-semibold">Properties</h2><PropertiesPanel /></>}
           bottom={<Tabs value={tab} onValueChange={(value) => { if (isWorkspaceTab(value)) { setTab(value); } }} className="h-full gap-0 overflow-hidden">
@@ -94,9 +104,9 @@ function WorkspaceContent() {
           <div className="relative h-full min-h-0 min-w-0">
           <section style={{ visibility: code ? "hidden" : "visible" }} inert={code} ref={canvas} id="workspace-canvas" tabIndex={-1} aria-label="Circuit Canvas" className="absolute inset-0 flex h-full min-w-0 flex-col focus-visible:outline-2 focus-visible:outline-ring">
             <div className="flex justify-end border-b lg:hidden"><Button variant="ghost" onClick={(event) => openPanel("properties", event.currentTarget)}><SlidersHorizontal />Properties</Button></div>
-            <div className="min-h-0 flex-1"><CircuitCanvas /></div>
+            <div className="min-h-0 flex-1">{circuitVisited && <CircuitCanvas active={!code} />}</div>
           </section>
-          <section aria-label="Code Workspace" inert={!code} style={{ visibility: code ? "visible" : "hidden" }} className="absolute inset-0 min-h-0 bg-background">{codeVisited && <CodePanel />}</section>
+          <section aria-label="Code Workspace" inert={!code} style={{ visibility: code ? "visible" : "hidden" }} className="absolute inset-0 min-h-0 bg-background">{codeVisited && <CodePanel active={code} />}</section>
 
           </div>
         </ResizableWorkspace>

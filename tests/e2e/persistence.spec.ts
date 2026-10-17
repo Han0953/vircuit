@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { fixture } from "../../features/simulator/tests/fixtures";
 import type { Project } from "../../features/simulator/types/project";
-const owner = "11111111-1111-4111-8111-111111111111";
+const owner = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const cloudId = "22222222-2222-4222-8222-222222222222";
 const circuit = fixture({ board: "uno", r: "resistor", led: "led" }, [["board.D13", "r.1"], ["r.2", "led.A"], ["led.K", "board.GND"]], "void setup(){pinMode(13,OUTPUT);}void loop(){digitalWrite(13,HIGH);delay(500);digitalWrite(13,LOW);delay(500);}");
 async function importCircuit(page: Page) {
@@ -37,12 +37,14 @@ test("guest snapshot survives refresh and canceled login; runtime ticks do not a
   await expect.poll(async () => (await draft(page))?.project.wires.length).toBe(3);
   await expect.poll(async () => (await draft(page))?.project.code.source).toBe(editedCode);
   const first = await draft(page);
-  await page.reload(); await expect(page.locator(".react-flow__node")).toHaveCount(3);
+  await page.reload(); await expect(page.locator(".monaco-editor")).toBeVisible();
   expect((await draft(page))?.id).toBe(first?.id);
   expect((await draft(page))?.project.code.source).toBe(editedCode);
   expect((await draft(page))?.project.components).toEqual(circuit.components);
   expect((await draft(page))?.project.wires).toEqual(circuit.wires);
   await page.getByRole("button", { name: "Run", exact: true }).click();
+  await page.getByRole("link", { name: "Circuit", exact: true }).click();
+  await expect(page.locator(".react-flow__node")).toHaveCount(3);
   await expect(page.getByTestId("output-led")).toHaveAttribute("data-value", "1");
   const revision = (await draft(page))?.localRevision;
   await page.waitForTimeout(1200);
@@ -91,7 +93,16 @@ test("explicit guest migration, save retry, rename, load, delete and logout (moc
   let loggedIn = false; let revision = 0; let payload: Project | null = null; let failSave = false;
   const operations = new Map<string, number>(); let createCount = 0;
   await page.route("**/api/auth/session", (route) => route.fulfill({ json: { user: loggedIn ? { id: owner, email: "user@example.test" } : null } }));
-  await page.route("**/api/auth/login", (route) => { loggedIn = true; return route.fulfill({ json: { next: route.request().postDataJSON().next } }); });
+  await page.route("https://*.supabase.co/auth/v1/**", async (route) => {
+    const url = new URL(route.request().url());
+    const response = await route.fetch({ url: `http://127.0.0.1:3031${url.pathname}${url.search}` });
+    await route.fulfill({ response });
+  });
+  await page.route("**/api/auth/login", async (route) => {
+    const response = await route.fetch();
+    loggedIn = response.ok();
+    await route.fulfill({ response });
+  });
   await page.route("**/api/auth/logout", (route) => { loggedIn = false; return route.fulfill({ json: { ok: true } }); });
   await page.route("**/api/projects", async (route) => {
     if (route.request().method() === "GET") return route.fulfill({ json: payload ? [{ id: cloudId, title: payload.metadata.name, revision, updated_at: new Date().toISOString() }] : [] });

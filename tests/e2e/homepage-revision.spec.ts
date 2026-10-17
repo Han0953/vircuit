@@ -63,8 +63,11 @@ test("theme colors work without page snapshots or body fades and respect reduced
   await expect(page.locator("html")).toHaveClass(/dark/);
   await expect(page.locator("body")).not.toHaveAttribute("data-theme-fades");
   await expect(page.locator('[data-home-zone="hero"]')).toHaveAttribute("data-theme-visible", "true");
-  await expect(page.locator('[data-home-zone="hero"]')).toHaveCSS("transition-duration", "0.24s");
-  await expect(page.locator('[data-home-zone="closing"]')).toHaveCSS("transition-duration", "0s");
+  // The global palette owner shares one clock, including inverse sections.
+  for (const zone of ["hero", "closing"]) {
+    await expect(page.locator(`[data-home-zone="${zone}"]`)).toHaveCSS("transition-duration", "0.3s");
+    await expect(page.locator(`[data-home-zone="${zone}"]`)).toHaveCSS("transition-delay", "0s");
+  }
   await expect(page.locator("body")).toHaveCSS("opacity", "1");
   await page.emulateMedia({ reducedMotion: "reduce" });
   await toggle.click();

@@ -1,5 +1,6 @@
 import type { VisualLayout } from "./pin-layout";
-export function BreadboardVisual({ layout }: { layout: VisualLayout }) {
+import { memo } from "react";
+export const BreadboardVisual = memo(function BreadboardVisual({ layout }: { layout: VisualLayout }) {
   const rows = layout.anchors.filter((a) => /^A\d/.test(a.pin.id));
   const rails = layout.anchors.filter((a) => /^[LR][+-]1$/.test(a.pin.id));
   const offset = rows[0].x;
@@ -15,4 +16,4 @@ export function BreadboardVisual({ layout }: { layout: VisualLayout }) {
     {rails.map(({ pin, x }) => <g key={pin.id}><path d={`M${x} 30V${layout.height - 16}`} stroke={pin.id[1] === "+" ? "var(--part-positive)" : "var(--part-negative)"} strokeWidth="16" opacity=".18" /><text x={x} y="23" textAnchor="middle" fill="var(--part-outline)" fontSize="16">{pin.id[1]}</text></g>)}
     <path d={holePath} fill="var(--part-chip)" />
   </>;
-}
+});

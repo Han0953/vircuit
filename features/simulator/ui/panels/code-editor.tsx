@@ -18,11 +18,12 @@ if (typeof window !== "undefined") {
   (window as unknown as { monaco: typeof monaco }).monaco = monaco;
 }
 
-export default function CodeEditor() {
+export default function CodeEditor({ active = true }: { active?: boolean }) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [clipboardMessage, setClipboardMessage] = useState("");
   const [copyFallback, setCopyFallback] = useState<string | null>(null);
   useEffect(() => {
+    if (!active) return;
     let frame = 0;
     const resize = () => {
       cancelAnimationFrame(frame);
@@ -34,8 +35,9 @@ export default function CodeEditor() {
       });
     };
     window.visualViewport?.addEventListener("resize", resize);
+    resize();
     return () => { cancelAnimationFrame(frame); window.visualViewport?.removeEventListener("resize", resize); };
-  }, []);
+  }, [active]);
   async function clipboard(action: "copy" | "all" | "cut" | "paste") {
     const editor = editorRef.current, model = editor?.getModel(), selection = editor?.getSelection();
     if (!editor || !model || !selection) return;
@@ -104,7 +106,7 @@ export default function CodeEditor() {
       value={source}
       theme={resolvedTheme === "dark" ? "vs-dark" : "light"}
       loading={<p className="p-4">Memuat editor…</p>}
-      options={{ automaticLayout: true, contextmenu: true, minimap: { enabled: false }, fontSize: 14, scrollBeyondLastLine: false, wordWrap: "on", tabSize: 2, ariaLabel: "Kode Arduino subset" }}
+      options={{ automaticLayout: active, contextmenu: true, minimap: { enabled: false }, fontSize: 14, scrollBeyondLastLine: false, wordWrap: "on", tabSize: 2, ariaLabel: "Kode Arduino subset" }}
       onChange={(value) => useProject.getState().edit((p) => ({ ...p, code: { ...p.code, source: value ?? "" } }), false)}
     /></div>
     <Dialog open={copyFallback !== null} onOpenChange={(open) => { if (!open) setCopyFallback(null); }}><DialogContent><DialogHeader><DialogTitle>Salin kode</DialogTitle><DialogDescription>Tahan teks untuk memilihnya, lalu gunakan Salin dari menu perangkat. Kode aktif tetap dipertahankan.</DialogDescription></DialogHeader><textarea aria-label="Kode untuk disalin" readOnly value={copyFallback ?? ""} onFocus={(event) => event.currentTarget.select()} className="h-56 w-full select-text overflow-auto rounded border p-3 font-mono text-base" /></DialogContent></Dialog>

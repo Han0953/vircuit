@@ -35,12 +35,14 @@ export class RoutingController {
   dispose() { this.cancel(); this.geometry.clear(); this.cache.clear(); this.scene = undefined; this.dragging = false; }
   beginDrag() { this.dragging = true; this.cancel(); }
   endDrag() { this.dragging = false; this.schedule(); }
+  pause() { this.cancel(); }
+  resume() { if (this.snapshot.pending && this.frame === undefined && !this.dragging) this.schedule(); }
 
   update(components: readonly ComponentInstance[], wires: readonly Wire[]) {
     const signature = geometrySignature(components, wires);
     if (this.scene?.signature === signature) return;
     this.cancel();
-    this.scene = buildRoutingScene(components, wires, this.geometry);
+    this.scene = buildRoutingScene(components, wires, this.geometry, signature);
     this.wires = [...wires].sort((a, b) => a.id.localeCompare(b.id));
     const routes = new Map<string, Route>();
     for (const wire of this.wires) {

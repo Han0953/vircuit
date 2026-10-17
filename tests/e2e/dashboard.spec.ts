@@ -109,8 +109,9 @@ test("new intent once, open URL, local conflict, save and dashboard navigation",
   expect((await (await request.get(`${provider}/__fixture/state`)).json()).saves).toBeGreaterThan(0);
   await page.goto(`/simulator/code?project=${first}`); await expect(page).toHaveURL(/\/simulator\/code$/);
   await expect(page.locator(".monaco-editor")).toBeVisible();
-  await expect(page.locator(".react-flow__node")).toHaveCount(2);
+  await expect(page.locator(".react-flow__node")).toHaveCount(0);
   await page.getByRole("link", { name: "Circuit", exact: true }).click();
+  await expect(page.locator(".react-flow__node")).toHaveCount(2);
   await expect(page).toHaveURL(/\/simulator$/);
   await expect(page.getByRole("heading", { name: "Proyek tanpa judul" })).toBeVisible();
   await page.goto("/simulator?project=invalid");

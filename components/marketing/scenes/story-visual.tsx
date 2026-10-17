@@ -30,18 +30,14 @@ export function StoryVisual() {
       if (disposed || loading || prepared || failed.current || media.matches || !host) return;
       if (!("WebGL2RenderingContext" in window)) { failed.current = true; return; }
       loading = true;
-      window.removeEventListener("scroll", warm);
       timeout = window.setTimeout(() => { if (!disposed) fail(); }, 15000);
       try { const { default: Renderer } = await import("./three/learning-world"); if (!disposed && !media.matches && !failed.current) { prepared = true; setWorld({ Renderer, host }); observer.unobserve(host); } }
       catch { if (!disposed) fail(); }
       finally { loading = false; clearTimeout(timeout); }
     }
-    const warm = () => { void load(); };
-    const preference = () => { if (media.matches) { prepared = false; channel.setWebgl(false); setWorld(null); } else { observer.unobserve(host); observer.observe(host); window.addEventListener("scroll", warm, { passive: true, once: true }); if (scrollY > 2) warm(); } };
-    window.addEventListener("scroll", warm, { passive: true, once: true });
-    if (scrollY > 2) warm();
+    const preference = () => { if (media.matches) { prepared = false; channel.setWebgl(false); setWorld(null); } else { observer.unobserve(host); observer.observe(host); } };
     observer.observe(host); media.addEventListener("change", preference);
-    return () => { disposed = true; clearTimeout(timeout); observer.disconnect(); window.removeEventListener("scroll", warm); media.removeEventListener("change", preference); channel.setWebgl(false); };
+    return () => { disposed = true; clearTimeout(timeout); observer.disconnect(); media.removeEventListener("change", preference); channel.setWebgl(false); };
   }, [channel, fail]);
   useEffect(() => {
     if (!permitted) channel?.setWebgl(false);

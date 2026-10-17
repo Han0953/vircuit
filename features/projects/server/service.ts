@@ -1,13 +1,19 @@
 import { z } from "zod";
+import { cache } from "react";
 import { serverClient } from "@/lib/supabase/server";
 import { RequestError, limitedJson, requireSameOrigin } from "@/lib/request-security";
 import { loadResultSchema, projectListSchema, projectQuerySchema, saveRequestSchema, saveResultSchema, titleSchema, type SaveRequest } from "../contracts";
 
-export async function authenticatedClient(readOnly = false) {
+async function verifyClient(readOnly: boolean) {
   const client = await serverClient(readOnly);
   const { data: { user }, error } = await client.auth.getUser();
   if (error || !user) throw new RequestError("Masuk untuk menggunakan penyimpanan akun.", 401);
   return { client, user };
+}
+// React cache is scoped to the current Server Component request, never accounts.
+const readOnlyClient = cache(() => verifyClient(true));
+export function authenticatedClient(readOnly = false) {
+  return readOnly ? readOnlyClient() : verifyClient(false);
 }
 export async function listProjectPage(query: unknown, readOnly = false, pageSize = 24) {
   const { client, user } = await authenticatedClient(readOnly);

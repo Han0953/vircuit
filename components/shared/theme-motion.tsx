@@ -12,7 +12,11 @@ export function ThemeMotion() {
     let frame = 0;
     let generation = 0;
     let alive = true;
-    const observer = new MutationObserver(() => {
+    const palette = (classes: string | null) => (classes ?? "").split(/\s+/).filter(value => value === "light" || value === "dark").sort().join(" ");
+    const observe = () => observer.observe(root, { attributes: true, attributeFilter: ["class"], attributeOldValue: true });
+    const observer = new MutationObserver((records) => {
+      const currentPalette = palette(root.className);
+      if (!records.some(record => palette(record.oldValue) !== currentPalette)) return;
       const next = root.classList.contains("dark");
       if (next === dark) return;
       dark = next;
@@ -20,10 +24,10 @@ export function ThemeMotion() {
       cancelAnimationFrame(frame);
       const current = ++generation;
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches || !!document.querySelector('[data-motion-preference="reduced"]');
+      const finish = () => { if (alive && current === generation) delete root.dataset.themeChanging; };
       // A microtask before style/paint: animate palette tokens once, rather than
       // cascading separate inherited color transitions through every child.
       root.dataset.themeChanging = reduced ? "instant" : "colors";
-      const finish = () => { if (alive && current === generation) delete root.dataset.themeChanging; };
       if (reduced) { timer = setTimeout(finish, 32); return; }
       // Read only the small set of palette owners, never every UI node. Waiting
       // for actual CSS completion avoids re-enabling child transitions early
@@ -37,7 +41,7 @@ export function ThemeMotion() {
         frame = requestAnimationFrame(() => { frame = requestAnimationFrame(finish); });
       });
     });
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    observe();
     return () => { alive = false; generation++; observer.disconnect(); clearTimeout(timer); cancelAnimationFrame(frame); delete root.dataset.themeChanging; delete root.dataset.themeReady; };
   }, []);
   return null;
