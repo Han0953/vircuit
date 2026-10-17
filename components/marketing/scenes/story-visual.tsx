@@ -6,12 +6,15 @@ import { sampleStory, type StoryChannel } from "./story-config";
 import { WorldBoundary } from "./three/world-boundary";
 import styles from "../homepage.module.css";
 import { StoryRendererPermission } from "./homepage-experience";
+import { prepareStoryWhenIdle } from "./story-preparation";
+
+type PreparedWorld = { Renderer: ComponentType<{ channel: StoryChannel; host: HTMLElement; ready: () => void; fail: () => void }>; host: HTMLElement };
 
 export function StoryVisual() {
   const channel = useContext(StoryContext);
   const permitted = useContext(StoryRendererPermission);
   const ref = useRef<HTMLDivElement>(null);
-  const [world, setWorld] = useState<{ Renderer: ComponentType<{ channel: StoryChannel; host: HTMLElement; ready: () => void; fail: () => void }>; host: HTMLElement } | null>(null);
+  const [world, setWorld] = useState<PreparedWorld | null>(null);
   const failed = useRef(false);
   const ready = useCallback(() => {
     const host = ref.current;
@@ -22,22 +25,41 @@ export function StoryVisual() {
   useEffect(() => {
     const host = ref.current; if (!host || !channel) return;
     const media = matchMedia("(prefers-reduced-motion: reduce)");
-    let disposed = false; let loading = false; let prepared = false; let timeout = 0;
+    let disposed = false; let loading = false; let prepared: PreparedWorld | null = null; let requested = false; let timeout = 0;
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) void load();
     }, { rootMargin: "600px" });
-    async function load() {
-      if (disposed || loading || prepared || failed.current || media.matches || !host) return;
+    const present = () => {
+      if (!disposed && requested && prepared && !media.matches && !failed.current) {
+        setWorld(prepared);
+        observer.unobserve(host);
+      }
+    };
+    async function load(mount = true) {
+      requested ||= mount;
+      if (prepared) { present(); return; }
+      if (disposed || failed.current || media.matches || !host) return;
       if (!("WebGL2RenderingContext" in window)) { failed.current = true; return; }
+      // Speculative preparation must not spend the scene's existing timeout
+      // while the user is still reading the hero, or force its SVG fallback.
+      if (requested && !timeout) timeout = window.setTimeout(() => { if (!disposed) fail(); }, 15000);
+      if (loading) return;
       loading = true;
-      timeout = window.setTimeout(() => { if (!disposed) fail(); }, 15000);
-      try { const { default: Renderer } = await import("./three/learning-world"); if (!disposed && !media.matches && !failed.current) { prepared = true; setWorld({ Renderer, host }); observer.unobserve(host); } }
-      catch { if (!disposed) fail(); }
-      finally { loading = false; clearTimeout(timeout); }
+      try {
+        const { default: Renderer } = await import("./three/learning-world");
+        if (!disposed && !media.matches && !failed.current) {
+          prepared = { Renderer, host };
+          host.dataset.worldPrepared = "true";
+          present();
+        }
+      }
+      catch { if (!disposed && requested) fail(); }
+      finally { loading = false; clearTimeout(timeout); timeout = 0; }
     }
-    const preference = () => { if (media.matches) { prepared = false; channel.setWebgl(false); setWorld(null); } else { observer.unobserve(host); observer.observe(host); } };
+    const cancelPreparation = prepareStoryWhenIdle(host, () => { void load(false); }, () => !failed.current && "WebGL2RenderingContext" in window && host.getBoundingClientRect().bottom > 0);
+    const preference = () => { if (media.matches) { prepared = null; requested = false; delete host.dataset.worldPrepared; channel.setWebgl(false); setWorld(null); } else { observer.unobserve(host); observer.observe(host); } };
     observer.observe(host); media.addEventListener("change", preference);
-    return () => { disposed = true; clearTimeout(timeout); observer.disconnect(); media.removeEventListener("change", preference); channel.setWebgl(false); };
+    return () => { disposed = true; clearTimeout(timeout); cancelPreparation(); observer.disconnect(); media.removeEventListener("change", preference); delete host.dataset.worldPrepared; channel.setWebgl(false); };
   }, [channel, fail]);
   useEffect(() => {
     if (!permitted) channel?.setWebgl(false);

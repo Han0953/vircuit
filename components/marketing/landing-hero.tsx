@@ -17,47 +17,52 @@ export function LandingHero() {
       <SectionBackground scene="home-hero" />
       <div className="w-full min-w-0 shrink-0">
         <p data-hero-copy className="mb-2.5 flex items-center gap-3 font-mono text-xs font-medium tracking-widest text-text-secondary uppercase sm:mb-4">
-          <span className="h-px w-8 bg-primary" aria-hidden="true" />
-          Virtual lab untuk belajar IoT
+          <span data-hero-eyebrow-line className="h-px w-8 bg-primary" aria-hidden="true" />
+          <span data-hero-eyebrow>Virtual lab untuk belajar IoT</span>
         </p>
 
         <h1
           id="hero-heading" data-hero-copy
           className={styles.heroTitle}
         >
-          Belajar IoT dengan <span className="text-primary">membangunnya</span> secara langsung.
+          <span data-hero-title-word className={styles.heroWord}>Belajar</span>{" "}
+          <span data-hero-title-word className={styles.heroWord}>IoT</span>{" "}
+          <span data-hero-title-word className={styles.heroWord}>dengan</span>{" "}
+          <span data-hero-title-word className={`${styles.heroWord} text-primary`}>membangunnya</span>{" "}
+          <span data-hero-title-word className={styles.heroWord}>secara</span>{" "}
+          <span data-hero-title-word className={styles.heroWord}>langsung.</span>
         </h1>
 
-        <p data-hero-copy className="mt-2.5 max-w-lg text-[clamp(0.875rem,1.8vh,1.05rem)] leading-relaxed text-text-secondary sm:mt-4 sm:text-base sm:text-body-lg">
+        <p data-hero-copy data-hero-description className="mt-2.5 max-w-lg text-[clamp(0.875rem,1.8vh,1.05rem)] leading-relaxed text-text-secondary sm:mt-4 sm:text-base sm:text-body-lg">
           Susun rangkaian, tulis kode, dan amati responsnya. Hubungkan materi
           dengan praktik dalam satu Virtual Lab.
         </p>
 
         <div data-hero-copy className="mt-3.5 flex gap-2.5 sm:mt-6 sm:gap-3">
           <Button asChild className="h-11 px-4 text-sm font-semibold sm:h-12 sm:px-6 sm:text-base">
-            <Link href={marketingRoutes.simulator}>
+            <Link data-hero-action href={marketingRoutes.simulator}>
               Buka Virtual Lab
               <ArrowUpRight aria-hidden="true" className="size-4 sm:size-5" />
             </Link>
           </Button>
           <Button asChild variant="outline" className="h-11 px-4 text-sm sm:h-12 sm:px-6 sm:text-base">
-            <Link href={marketingRoutes.learningApp}>
+            <Link data-hero-action href={marketingRoutes.learningApp}>
               <BookOpen aria-hidden="true" className="size-4 sm:size-5" />
               Mulai Belajar
             </Link>
           </Button>
         </div>
 
-        <p data-hero-copy className="mt-2 text-xs text-text-secondary sm:mt-3">
+        <p data-hero-copy data-hero-note className="mt-2 text-xs text-text-secondary sm:mt-3">
           Langsung coba tanpa login. Simulator inti tetap gratis.
         </p>
 
         <p data-hero-copy className="mt-6 hidden flex-wrap items-center gap-3 text-sm text-text-secondary lg:flex">
-          Rangkai
-          <ArrowRight aria-hidden="true" className="size-4 text-border-strong" />
-          Coba
-          <ArrowRight aria-hidden="true" className="size-4 text-border-strong" />
-          Pahami
+          <span data-hero-step>Rangkai</span>
+          <ArrowRight data-hero-step aria-hidden="true" className="size-4 text-border-strong" />
+          <span data-hero-step>Coba</span>
+          <ArrowRight data-hero-step aria-hidden="true" className="size-4 text-border-strong" />
+          <span data-hero-step>Pahami</span>
         </p>
       </div>
 

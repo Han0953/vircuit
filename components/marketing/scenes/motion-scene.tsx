@@ -16,6 +16,11 @@ export function MotionScene({ kind, children }: { kind: SceneKind; children: Rea
   useGSAP((_context, contextSafe) => {
     const root = ref.current;
     if (!root || !contextSafe) return;
+    // HeroShowcase owns the intro and playback together, without a lazy-import gap.
+    if (kind === "hero") {
+      root.dataset.motion = kind;
+      return () => { root.removeAttribute("data-motion"); };
+    }
     gsap.registerPlugin(ScrollTrigger, useGSAP);
     const media = gsap.matchMedia();
     let disposed = false;
@@ -49,7 +54,7 @@ export function MotionScene({ kind, children }: { kind: SceneKind; children: Rea
         setupTask = window.setTimeout(() => { setupTask = 0; void initialize(); }, 0);
       });
     };
-    if (kind === "hero" || kind === "story") schedule();
+    if (kind === "story") schedule();
     else {
       observer = new IntersectionObserver((entries) => {
         if (entries.some((entry) => entry.isIntersecting)) { observer?.disconnect(); schedule(); }

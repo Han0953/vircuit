@@ -1,22 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Pause, Play } from "lucide-react";
 import gsap from "gsap";
 import { createHeroPlayback, type HeroPlaybackState } from "./hero-playback";
 import { heroBoards, heroScenes, heroTiming } from "./hero-showcase-config";
+import { animateHeroIntro } from "./hero-intro";
 import styles from "../homepage.module.css";
 
 export function HeroShowcase({ scenes }: { scenes: ReactNode[] }) {
   const root = useRef<HTMLElement>(null);
   const playback = useRef<ReturnType<typeof createHeroPlayback> | null>(null);
   const [state, setState] = useState<HeroPlaybackState>({ index: 0, phase: "holding", paused: false, manualPaused: false, reduced: false });
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = root.current;
     if (!element) return;
     const panels = Array.from(element.querySelectorAll<HTMLElement>("[data-hero-scene]"));
     const reduce = matchMedia("(prefers-reduced-motion: reduce)");
     const fine = matchMedia("(hover: hover) and (pointer: fine)");
+    let intro: ReturnType<typeof animateHeroIntro>;
+    let started = false;
     let current = panels[0];
     let tilt: gsap.core.Tween | undefined;
     let box: DOMRect | undefined;
@@ -107,18 +110,27 @@ export function HeroShowcase({ scenes }: { scenes: ReactNode[] }) {
       changed(next) { element.dataset.heroPhase = next.phase; setState(next); },
     });
     playback.current = controller;
+    const startCircuit = () => { if (!started) { started = true; controller.start(); } };
     const reduced = () => {
       if (reduce.matches) {
         leave();
         gsap.set(element.querySelectorAll("[data-hero-tilt]"), { clearProps: "transform" });
       }
       controller.reduce(reduce.matches);
+      if (reduce.matches) { intro?.finish(); startCircuit(); element.closest<HTMLElement>("[data-home-zone='hero']")?.setAttribute("data-hero-intro", "reduced"); }
     };
-    const visibility = () => { controller.block("hidden", document.hidden); if (document.hidden) leave(); };
+    const visibility = () => {
+      controller.block("hidden", document.hidden);
+      if (document.hidden) { intro?.pause(); leave(); } else intro?.resume();
+    };
     const observer = new IntersectionObserver(([entry]) => {
       const offscreen = !entry.isIntersecting || entry.intersectionRatio < .25;
       controller.block("offscreen", offscreen);
-      if (offscreen) leave();
+      if (offscreen) {
+        const section = element.closest<HTMLElement>("[data-home-zone='hero']")?.getBoundingClientRect();
+        if (section && (section.bottom <= 0 || section.top >= innerHeight)) intro?.finish();
+        leave();
+      }
     }, { threshold: [0, .25] });
     observer.observe(element);
     const scroll = () => { box = undefined; };
@@ -132,12 +144,11 @@ export function HeroShowcase({ scenes }: { scenes: ReactNode[] }) {
     element.addEventListener("pointermove", move);
     window.addEventListener("resize", leave, { passive: true });
     window.addEventListener("scroll", scroll, { passive: true });
-    let startTask = 0;
-    const startFrame = requestAnimationFrame(() => {
-      startTask = window.setTimeout(() => { visibility(); reduced(); controller.start(); }, 0);
-    });
+    reduced();
+    if (!reduce.matches) intro = animateHeroIntro(element, startCircuit);
+    visibility();
     return () => {
-      cancelAnimationFrame(startFrame); clearTimeout(startTask);
+      intro?.dispose();
       controller.dispose(); playback.current = null; observer.disconnect(); tilt?.kill();
       reduce.removeEventListener("change", reduced);
       fine.removeEventListener("change", pointerMode);

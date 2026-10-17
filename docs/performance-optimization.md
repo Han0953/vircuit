@@ -126,3 +126,68 @@ Verification/documentation:
 - `docs/performance/faq-cold-interaction.json` (new)
 
 No deployment or commit was performed. The pre-existing generated `next-env.d.ts` difference is unrelated to the optimization.
+
+## Hero / Titik awal scroll correction — 2026-10-17
+
+Refinement of VIR-033/VIR-034. The deferred Learning by doing renderer can now
+prepare its JavaScript during an idle period after the GSAP hero intro. Pending
+preparation yields to wheel, touch, keyboard, scrolling and hidden tabs. This
+does not mount a Canvas: the existing proximity observer and exclusive scene
+ownership still decide when the renderer appears. Reduced motion and route
+teardown cancel pending work. The same import serves an overlapping viewport
+request, so entering during an unfinished download cannot lose that request.
+
+Speculative preparation does not start the existing 15-second scene timeout or
+force an SVG fallback. That timeout and error behavior still belong to an actual
+request to enter the scene. No animation timelines, scene poses, board geometry,
+CSS, theme transitions, Lenis settings or workspace/backend logic were changed
+by this correction.
+
+### Measured before / after
+
+Fresh Edge headless contexts, local production builds, light theme, 900px height,
+DPR 1, no CPU/network throttling. Three runs per width and build. Wheel input
+starts 2500ms after networkidle, then 34 increments of 70px spaced by 50ms.
+Numbers below describe that initial Hero → Titik awal → story traversal, not
+physical-device FPS, GPU timing or field INP.
+
+| Metric (median of three runs) | Before | After |
+| --- | ---: | ---: |
+| Desktop 1440px: largest long task during scroll | 80ms | None observed |
+| Desktop: maximum rAF interval | 66.7ms | 33.3ms |
+| Desktop: Hero rAF p95 | 16.8ms | 16.8ms |
+| Mobile emulation 390px: largest long task | 93ms | 89ms |
+| Mobile emulation: maximum rAF interval | 183.3ms | 199.9ms |
+
+Desktop long-task counts changed from 1/1/1 to 0/0/0. The 68–92ms import/evaluation
+work still exists, but in these after samples it completed at scrollY=0 before
+the gesture. No additional scene script downloads occurred during the measured
+after scroll. Mobile still has costly first WebGL/renderer initialization:
+its long-task counts were 3/3/3 before and 2/2/1 after. The mobile maximum frame
+interval did not improve consistently; this is not a general mobile smoothness
+claim. Immediate scrolling or slow delivery can still reach the original
+on-demand loader before idle preparation finishes.
+
+The separate desktop board-showcase frame-budget test measured approximately
+33.4ms against its 20ms threshold. A disposable-browser A/B check with the new
+idle preparation disabled measured 33.3ms, versus 33.4ms enabled; the story was
+not prepared in either traversal. That budget remains unmet independently of
+this correction. Animation quality and the assertion threshold were preserved.
+
+### Verification
+
+- Final source: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` passed;
+  372 unit tests passed and 6 were skipped.
+- Final production build: 18/18 browser tests passed for idle preparation,
+  overlapping downloads, the unchanged scene timeout, readiness before entry,
+  forward/reverse storytelling, demand rendering, failed downloads/context loss,
+  reduced motion and theme/scroll stability across all five marketing routes.
+- The broader first browser batch also checked hero autoplay, board-specific
+  wiring, pointer motion across all three hero boards, exclusive Canvas ownership
+  and motion target coverage. Its mobile intro timing assertion initially missed
+  by 9ms and passed two isolated reruns without any animation changes. Its desktop
+  board frame-budget failure remains the independently reproduced limitation
+  described above; the entire broader suite is not claimed fully passing.
+- Desktop/mobile story screenshots from the final build were inspected. No
+  physical mobile-device, 120Hz or deployed-production claim is made. No deploy
+  or commit was performed.

@@ -9,17 +9,6 @@ function wires(root: HTMLElement) {
   return paths;
 }
 
-function hero(root: HTMLElement) {
-  const q = gsap.utils.selector(root);
-  const section = root.closest<HTMLElement>("[data-home-zone='hero']")!;
-  const copy = section.querySelectorAll("[data-hero-copy]");
-  const intro = gsap.timeline({ defaults: { ease: "power2.out" }, scrollTrigger: { id: "home-hero", trigger: section, start: "top bottom", toggleActions: "play pause resume pause" } });
-  intro.from(q("[data-grid]"), { opacity: 0, duration: .5 })
-    // SSR copy remains opaque for LCP; reveal its position, not its availability.
-    .from(copy, { y: 10, stagger: .09, duration: .72 }, 0)
-    .from(q("[data-hero-controls]"), { y: 6, duration: .46 }, .36);
-}
-
 function story(root: HTMLElement, desktop: boolean, tall: boolean, channel: StoryChannel | null) {
   const q = gsap.utils.selector(root);
   const grid = q("[data-story]")[0] as HTMLElement;
@@ -64,7 +53,7 @@ function story(root: HTMLElement, desktop: boolean, tall: boolean, channel: Stor
 
 export function animateScene(kind: SceneKind, root: HTMLElement, conditions: Record<string, boolean>, channel: StoryChannel | null = null) {
   gsap.set(root, { attr: { "data-motion": kind } });
-  if (kind === "hero") return hero(root);
+  if (kind === "hero") return; // Owned by HeroShowcase's route-entry timeline.
   if (kind === "story") return story(root, conditions.desktop, conditions.tall, channel);
   if (kind === "catalog") {
     root.querySelectorAll<HTMLElement>("[data-catalog-type]").forEach((item) => {
