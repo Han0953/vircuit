@@ -191,3 +191,58 @@ this correction. Animation quality and the assertion threshold were preserved.
 - Desktop/mobile story screenshots from the final build were inspected. No
   physical mobile-device, 120Hz or deployed-production claim is made. No deploy
   or commit was performed.
+
+## Continuing-scroll and Nano LED follow-up — 2026-10-18
+
+The previous correction moved library loading out of the first wheel gesture,
+but it did not address every source of work during repeated scrolling:
+
+- The homepage controller rewrote stationary offscreen board attributes on each
+  scroll frame. Scene data/opacity now change only when their values change;
+  stable DOM references are collected once per motion-context setup. Geometry
+  is still measured at the same time, and animation poses retain their original
+  full precision. The cinematic channel skips identical frames only.
+- Returning to the hero disposed the story Canvas, forcing GPU/geometry setup
+  again on the next approach. Once mounted, the story renderer now stays idle
+  offscreen when no other scene needs the renderer. Its existing visibility
+  guards and demand loop prevent idle rendering. The board showcase still
+  releases the story renderer and owns the only active Canvas; reduced motion,
+  context loss and route teardown retain their cleanup paths. No Canvas is
+  added to the hero itself and initial code-only idle preparation still does
+  not mount a Canvas.
+- Nano's illustrative LED was explicitly excluded from the light-on timeline,
+  settled state and output pulse. All three hero boards now light the LED at
+  1.45s, when the last wire finishes drawing. Nano's simulator catalog support
+  remains visual-only; the marketing illustration is not runtime evaluation.
+
+Repeatable lab comparison: local production, headless Edge, 1440×900, DPR 1,
+light theme, CPU throttled 4×, no network throttle. Each fresh context first
+visits the story and returns to the hero, then receives four alternating runs
+of twelve 65px wheel increments, 35ms apart. Three baseline and three final
+samples were collected without a diagnostic runtime override.
+
+| Median metric | Before this follow-up | Final build |
+| --- | ---: | ---: |
+| Stationary offscreen slot attribute mutations | 741 | 0 |
+| rAF interval p95 | 33.2ms | 16.8ms |
+| Main-thread task time over the gesture | 3386ms | 2824ms |
+| Style-recalculation time over the gesture | 693ms | 593ms |
+
+Final stressed p95 samples were 17.0/16.8/16.8ms; maximum intervals were
+116.7/16.9/33.4ms. One unthrottled final desktop sample measured p95 16.8ms and
+maximum 17.2ms. These results do not prove zero jank on physical hardware.
+An isolated browser A/B guard against duplicate dataset writes supported the
+diagnosis; those diagnostic samples were not used as final-build results.
+
+Final validation: lint, typecheck and build passed; 373 unit tests passed and
+6 were skipped. The focused browser batch finished with 30 passed and one
+failed desktop board-showcase frame-budget assertion (the same separate 20ms
+budget documented above). All functional checks passed, including zero repeated
+slot writes during hero scrolling, retained Canvas identity, no offscreen frame
+growth, exclusive renderer handoff, Nano light-on/pulse/pause/reduced-motion,
+five-second board cadence, three-board pointer interaction, reverse scrolling,
+theme variants, context loss, route cleanup and mobile sizes. The pointer test
+now waits for the figure's GSAP intro to finish before taking its screen bounds;
+its rotation/depth thresholds were not relaxed. The Nano screenshot was inspected.
+No simulator, auth, backend, catalog runtime support, deployment or commit changes
+were made by this follow-up.

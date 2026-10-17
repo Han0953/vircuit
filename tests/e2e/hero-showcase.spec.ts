@@ -46,7 +46,7 @@ test("hero loops every five seconds with board-specific wiring and pauses offscr
     await expect(scene.locator("[data-from-pin]")).toHaveAttribute("data-from-pin", board === "esp32" ? "GPIO23" : "D3");
     await expect(scene.locator("[data-to-pin]")).toHaveAttribute("data-to-pin", "GND");
     await expect(hero).toHaveAttribute("data-hero-phase", "holding");
-    await expect(scene.locator("[data-hero-lens]")).toHaveAttribute("fill", board === "nano" ? "var(--part-led-off)" : "var(--part-led-on)");
+    await expect(scene.locator("[data-hero-lens]")).toHaveAttribute("fill", "var(--part-led-on)");
     for (const path of await scene.locator("[data-hero-wire]").all()) {
       await expect(path).toHaveCSS("opacity", "1");
       await expect(path).toHaveCSS("stroke-dashoffset", "0px");
@@ -133,6 +133,9 @@ test("touch hero cycles through all boards without overflow or hover controls", 
 test("Uno, Nano and ESP32 follow the pointer in 3D across automatic transitions", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
+  // Pointer coordinates must use the final figure bounds, after its intro
+  // transform finishes; the SSR playback phase initially reads "holding".
+  await expect(page.locator("[data-home-zone='hero']")).toHaveAttribute("data-hero-intro", "complete");
   const hero = page.locator("[data-hero-2d]");
   const tilt = hero.locator("[data-hero-scene]:visible [data-hero-tilt]");
   const matrix = () => tilt.evaluate((el) => {

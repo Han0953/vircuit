@@ -62,7 +62,7 @@ export function HeroShowcase({ scenes }: { scenes: ReactNode[] }) {
     const settle = () => {
       gsap.set(current.querySelectorAll("[data-hero-circuit],[data-hero-info],[data-hero-resistor],[data-hero-led],[data-hero-pin]"), { clearProps: "transform,opacity,visibility" });
       gsap.set(current.querySelectorAll("[data-hero-wire]"), { strokeDashoffset: 0, opacity: 1 });
-      current.querySelector("[data-hero-lens]")?.setAttribute("fill", current.dataset.heroScene === "nano" ? "var(--part-led-off)" : "var(--part-led-on)");
+      current.querySelector("[data-hero-lens]")?.setAttribute("fill", "var(--part-led-on)");
     };
     const controller = createHeroPlayback({
       activate(index) {
@@ -90,7 +90,7 @@ export function HeroShowcase({ scenes }: { scenes: ReactNode[] }) {
             .fromTo(current.querySelector("[data-hero-resistor]"), { opacity: 0 }, { opacity: 1, duration: .25 }, .65)
             .fromTo(current.querySelector("[data-hero-led]"), { opacity: 0 }, { opacity: 1, duration: .25 }, .85)
             .fromTo(current.querySelectorAll("[data-hero-info]"), { y: 8, opacity: initial ? 1 : 0 }, { y: 0, opacity: 1, duration: .3, stagger: .05 }, 1.05);
-          if (heroBoards[index] !== "nano") timeline.set(current.querySelector("[data-hero-lens]"), { attr: { fill: "var(--part-led-on)" } }, 1.45);
+          timeline.set(current.querySelector("[data-hero-lens]"), { attr: { fill: "var(--part-led-on)" } }, 1.45);
           timeline.to({}, { duration: heroTiming.enter - 1.45 }, 1.45);
         }
         return timeline;

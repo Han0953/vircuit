@@ -15,13 +15,21 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 export const StoryRendererPermission = createContext(true);
 type Owner = CinematicZone | "story" | "none";
 
+function setSceneData(element: HTMLElement, key: string, value: string) {
+  if (element.dataset[key] !== value) element.dataset[key] = value;
+}
+
+function setSceneOpacity(element: HTMLElement | null, value: string) {
+  if (element && element.style.opacity !== value) element.style.opacity = value;
+}
+
 function setSlotRenderer(slot: HTMLElement | null, renderer: "svg" | "webgl", portal?: HTMLElement | null) {
   if (!slot) return;
-  slot.dataset.renderer = renderer;
+  setSceneData(slot, "renderer", renderer);
   const opacity = slot.dataset.presence ?? "1";
   const fallback = slot.querySelector<HTMLElement>("[data-cinematic-fallback]");
-  if (fallback) fallback.style.opacity = renderer === "webgl" ? "0" : opacity;
-  if (renderer === "webgl" && portal) portal.style.opacity = opacity;
+  setSceneOpacity(fallback, renderer === "webgl" ? "0" : opacity);
+  if (renderer === "webgl") setSceneOpacity(portal ?? null, opacity);
 }
 
 export function HomepageExperience({ children }: { children: ReactNode }) {
@@ -106,6 +114,12 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
         }
         const slots = Array.from(page.querySelectorAll<HTMLElement>("[data-cinematic-slot]"));
         const story = page.querySelector<HTMLElement>("[data-stage]");
+        const headerElement = document.querySelector<HTMLElement>("[data-home-header]");
+        const trackedSlots = slots.map((slot) => {
+          const zone = slot.dataset.cinematicSlot as CinematicZone;
+          const container = zone === "boards" ? slot.closest<HTMLElement>("[data-board-showcase]")! : slot.closest<HTMLElement>("[data-home-zone]")!;
+          return { slot, zone, container, stage: container.querySelector<HTMLElement>("[data-board-stage]"), fallback: slot.querySelector<HTMLElement>("[data-cinematic-fallback]"), counter: container.querySelector("[data-board-counter]"), name: container.querySelector("[data-board-name]"), context: container.querySelector("[data-board-context]") };
+        });
         let disposed = false;
         let loading = false;
         let engaged = window.scrollY > 2;
@@ -131,7 +145,7 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
           raf = 0;
           if (disposed) return;
           const height = window.innerHeight;
-          const header = document.querySelector<HTMLElement>("[data-home-header]")?.offsetHeight ?? 80;
+          const header = headerElement?.offsetHeight ?? 80;
           const storyBox = story?.getBoundingClientRect();
           let next: Owner = "none";
           let best = 0;
@@ -139,36 +153,30 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
           let nearest = Infinity;
           const warmBoundary = height * 1.75;
           // Batch geometry reads before dataset/style writes to avoid layout thrashing on scroll.
-          const measurements = slots.map((slot) => {
+          const measurements = trackedSlots.map((entry) => {
+            const { slot, container, stage } = entry;
             const box = slot.getBoundingClientRect();
-            const zone = slot.dataset.cinematicSlot as CinematicZone;
-            const container = zone === "boards" ? slot.closest<HTMLElement>("[data-board-showcase]")! : slot.closest<HTMLElement>("[data-home-zone]")!;
             const region = container.getBoundingClientRect();
-            const stage = container.querySelector<HTMLElement>("[data-board-stage]");
-            return { slot, box, zone, container, region, stageHeight: stage?.offsetHeight ?? box.height };
+            return { ...entry, box, region, stageHeight: stage?.offsetHeight ?? box.height };
           });
-          for (const { slot, box, zone, container, region, stageHeight } of measurements) {
+          for (const { slot, box, zone, container, region, stageHeight, fallback, counter, name, context } of measurements) {
             const visible = Math.max(0, Math.min(height, box.bottom) - Math.max(header, box.top));
             const progress = Math.max(0, Math.min(1, zone === "boards" && boardsSticky
               ? (header + 16 - region.top) / Math.max(1, region.height - stageHeight)
               : (height * .8 - region.top) / Math.max(1, region.height + height * .4)));
             const pose = sampleCinematic({ zone, progress, mobile: !desktop });
-            slot.dataset.progress = progress.toFixed(3);
-            slot.dataset.activeBoard = pose.board;
+            setSceneData(slot, "progress", progress.toFixed(3));
+            setSceneData(slot, "activeBoard", pose.board);
             const opacity = String(zone === "boards" && boardsSticky ? pose.presence : 1);
-            slot.dataset.presence = opacity;
-            const fallback = slot.querySelector<HTMLElement>("[data-cinematic-fallback]");
-            if (fallback) fallback.style.opacity = slot.dataset.renderer === "webgl" ? "0" : opacity;
-            if (slot.dataset.renderer === "webgl" && canvasElement.current) canvasElement.current.style.opacity = opacity;
+            setSceneData(slot, "presence", opacity);
+            setSceneOpacity(fallback, slot.dataset.renderer === "webgl" ? "0" : opacity);
+            if (slot.dataset.renderer === "webgl") setSceneOpacity(canvasElement.current, opacity);
             if (zone === "boards") {
-              container.dataset.activeBoard = pose.board;
-              const counter = container.querySelector("[data-board-counter]");
+              setSceneData(container, "activeBoard", pose.board);
               const count = `0${pose.index + 1} — 03`;
               if (counter && counter.textContent !== count) counter.textContent = count;
-              const name = container.querySelector("[data-board-name]");
               const label = !boardsSticky ? "Uno · Nano · ESP32" : ({ uno: "Arduino Uno R3", nano: "Arduino Nano · visual saja", esp32: "ESP32 · subset edukatif" })[pose.board];
               if (name && name.textContent !== label) name.textContent = label;
-              const context = container.querySelector("[data-board-context]");
               const contextText = !boardsSticky ? "Uno & ESP32: subset edukatif · Nano: visual saja" : ({ uno: "Digital I/O · Analog & PWM · ATmega328P", nano: "Board ringkas · Kenali pin · Visual saja", esp32: "GPIO · Analog & PWM · Wi-Fi tidak disimulasikan" })[pose.board];
               if (context && context.textContent !== contextText) context.textContent = contextText;
             }
@@ -235,7 +243,10 @@ export function HomepageExperience({ children }: { children: ReactNode }) {
     return () => setSlotRenderer(slot, "svg");
   }, [channel, cinematic, owner, portal]);
 
-  return <StoryRendererPermission value={owner === "story"}>
+  // Returning to the hero keeps an existing story Canvas idle, rather than
+  // rebuilding its GPU resources on the next scroll. Boards still own the
+  // only renderer while active; hidden story worlds remain demand-rendered.
+  return <StoryRendererPermission value={owner !== "boards"}>
     <div ref={root} className={styles.home} data-home-experience data-canvas-owner={owner}>
       {children}
     </div>

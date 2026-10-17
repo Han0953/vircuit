@@ -52,7 +52,10 @@ export function createCinematicChannel() {
   const listeners = new Set<() => void>();
   return {
     read: () => frame,
-    publish(next: CinematicFrame) { frame = next; listeners.forEach((listener) => listener()); },
+    publish(next: CinematicFrame) {
+      if (next.zone === frame.zone && next.progress === frame.progress && next.mobile === frame.mobile) return;
+      frame = next; listeners.forEach((listener) => listener());
+    },
     subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
   };
 }

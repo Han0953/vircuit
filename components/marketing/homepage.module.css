@@ -162,7 +162,7 @@
 .heroPlay:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
 .heroPlay:disabled { cursor: default; opacity: .5; }
 .heroFigure[data-hero-phase] .heroFloat { animation: hero-float 5s ease-in-out infinite; }
-.heroFigure[data-hero-phase='holding'] [data-hero-scene]:not([data-hero-scene='nano']) [data-hero-lens] { animation: hero-output-pulse 1.3s ease-in-out 2; }
+.heroFigure[data-hero-phase='holding'] [data-hero-lens] { animation: hero-output-pulse 1.3s ease-in-out 2; }
 .heroFigure[data-hero-paused='true'] .heroFloat, .heroFigure[data-hero-paused='true'] [data-hero-lens] { animation-play-state: paused; }
 /* The entrance, wiring and five-second board cycle remain on touch screens.
    Avoid continuously repainting a detailed, filtered SVG while reading. */

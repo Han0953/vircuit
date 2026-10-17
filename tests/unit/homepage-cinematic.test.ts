@@ -35,6 +35,20 @@ describe("homepage cinematic contract", () => {
     off(); channel.publish({ zone: "boards", progress: .1, mobile: true });
     expect(updates).toBe(1);
   });
+  it("does not notify a stationary frame but retains full precision and responsive changes", () => {
+    const channel = createCinematicChannel(); let updates = 0;
+    channel.subscribe(() => updates++);
+    channel.publish({ zone: "boards", progress: 0, mobile: false });
+    expect(updates).toBe(0);
+    const frame = { zone: "boards" as const, progress: .5, mobile: false };
+    channel.publish(frame); channel.publish({ ...frame });
+    expect(updates).toBe(1);
+    channel.publish({ ...frame, progress: .50001 });
+    expect(channel.read().progress).toBe(.50001);
+    expect(updates).toBe(2);
+    channel.publish({ ...frame, progress: .50001, mobile: true });
+    expect(updates).toBe(3);
+  });
   it("keeps depth, rotation and camera movement alive inside a chapter without time-based loops", () => {
     const first = sampleCinematic({ zone: "boards", progress: .13, mobile: false });
     const second = sampleCinematic({ zone: "boards", progress: .2, mobile: false });
